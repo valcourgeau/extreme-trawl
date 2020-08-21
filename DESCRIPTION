@@ -6,9 +6,11 @@ Author: Valentin Courgeau
 Maintainer: Valentin Courgeau <val.courgeau@gmail.com>
 Description: This package implements Gamma-Exponential mixture for univariate extreme value modelling.
     In particular, it comprises pairwise and generalised method of moments inference strategies.
-License: See LICENSE (MIT License)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: Rcpp (>= 1.0.5)
-LinkingTo: Rcpp
+Imports: 
+    Rcpp (>= 1.0.5),
+    evir
+# LinkingTo: Rcpp
 RoxygenNote: 7.1.1
