@@ -1,13 +1,14 @@
 Package: gammaextremes
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Gamma-Exponential Mixture for Univariate Extreme Values 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Valentin Courgeau
+Maintainer: Valentin Courgeau <val.courgeau@gmail.com>
+Description: This package implements Gamma-Exponential mixture for univariate extreme value modelling.
+    In particular, it comprises pairwise and generalised method of moments inference strategies.
+License: See LICENSE (MIT License)
 Encoding: UTF-8
 LazyData: true
 Imports: Rcpp (>= 1.0.5)
 LinkingTo: Rcpp
+RoxygenNote: 7.1.1
