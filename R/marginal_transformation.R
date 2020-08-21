@@ -1,4 +1,5 @@
 TransformationMap <- function(x, params_std, params_trf){
+  # From GPD(1, 1 + kappa)
   # from original to trf
   # params_trf <- ParametrisationTranslator(params = params,
   #                                         parametrisation = parametrisation,
@@ -17,8 +18,9 @@ TransformationMap <- function(x, params_std, params_trf){
   return(x)
 }
 
-TransformationMapInverse <- function(x, params_std, params_trf, target_alpha=3){
-  # fromt trf to original
+TransformationMapInverse <- function(x, params_std, params_trf, target_alpha=1.0){
+  # From GPD(xi, sigma)
+  # from trf to original
   # params_trf <- ParametrisationTranslator(params = params,
   #                                         parametrisation = parametrisation,
   #                                         target = 'transform',
