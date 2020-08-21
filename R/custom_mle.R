@@ -1,21 +1,16 @@
-CustomLikelihood <- function(data, parametrisation='standard'){
+CustomLikelihood <- function(data){
   # returns a function of parameters
 
   return(function(par){
     data_for_mle <- data
     p <- length(which(data_for_mle>0)) / length(data_for_mle)
 
-    if(parametrisation == 'standard'){
-      kap <- (1-p^{par[1]})*par[2]/abs(par[1])
-      p_non_zero <- 1-(1+kap/(par[2]/abs(par[1])-kap))^{-1/par[1]}
-    }else{
-      kap <- (1-p^{1/3.0})*par[2]/abs(1/3.0)
-      p_non_zero <- 1-(1+kap/(par[2]/abs(1/3.0)-kap))^{-3.0}
-    }
+    kap <- (1-p^{par[1]})*par[2]/abs(par[1])
+    p_non_zero <- 1-(1+kap/(par[2]/abs(par[1])-kap))^{-1/par[1]}
 
-    # p_non_zero <- 1-(1+kap/(par[2]/abs(par[1])-kap))^{-1/par[1]}
-    like <- evir::dgpd(data_for_mle[data_for_mle>0.0], beta = par[2], xi=par[1],
-                       mu=0) * p_non_zero
+
+    like <- evir::dgpd(data_for_mle[data_for_mle>0.0],
+                       beta = par[2], xi=par[1], mu=0.0) * p_non_zero
     log.like <- sum(log(like)) + length(data_for_mle == 0.0) * log(1-p_non_zero)
     log.like <- min(log.like, 1e9)
     log.like <- max(log.like, -1e9)
@@ -26,14 +21,13 @@ CustomLikelihood <- function(data, parametrisation='standard'){
 
 CompositeLikelihood <- function(data, parametrisation='standard'){
   # returns a function of parameters
-
+  stop('CompositeLikelihood')
   return(function(par){
     data_for_mle <- data
 
     data_for_mle[data_for_mle > 0] <- -log(1+par[1]*(par[3] + data_for_mle[data_for_mle > 0])/par[2])/par[1]
     data_for_mle[data_for_mle == 0.0] <- -log(1-(1+par[1]*(par[3])/par[2])^{-1/par[1]})
     return(mean(data))
-
   })
 }
 
