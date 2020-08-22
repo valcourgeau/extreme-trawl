@@ -8,12 +8,17 @@ TransformationMap <- function(x, params_std){
   # from GPD(xi, sigma) to Unif(0, 1)
   integral_trf <- evir::pgpd(q = x[which(x>0.0)],
                        mu = 0.0,
-                       xi = params_std[1],
-                       beta = params_std[2])
+                       xi = params_trf[1],
+                       beta = params_trf[2])
   x[which(x>0.0)] <- evir::qgpd(p = integral_trf,
                                 mu = 0.0,
-                                xi = params_trf[1],
-                                beta = params_trf[2])
+                                xi = params_std[1],
+                                beta = params_std[2])
+
+  # xi <- params_std[1]
+  # sigma <- params_std[2]
+  # kappa <- params_std[3]
+  # x <- sigma / xi * ((1 + x / (1+kappa))^xi - 1)
   return(x)
 }
 
@@ -27,13 +32,21 @@ TransformationMapInverse <- function(x, params_std){
 
   integral_trf <- evir::pgpd(q = x[which(x>0.0)],
                              mu = 0.0,
-                             xi = params_trf[1],
-                             beta = params_trf[2])
+                             xi = params_std[1],
+                             beta = params_std[2])
+  # cat('integral_trf', integral_trf[1:100], '\n')
 
   x[which(x>0.0)] <- evir::qgpd(p = integral_trf,
                                 mu = 0.0,
-                                xi = params_std[1],
-                                beta = params_std[2])
+                                xi = params_trf[1],
+                                beta = params_trf[2])
+  # cat('x[which(x>0.0)]', integral_trf[which.max(integral_trf)], '\n')
+
+  # xi <- params_std[1]
+  # sigma <- params_std[2]
+  # kappa <- params_std[3]
+  # x <- (1 + kappa) * ((1 + xi * x / sigma)^(1/xi) - 1)
+
   return(x)
 }
 
