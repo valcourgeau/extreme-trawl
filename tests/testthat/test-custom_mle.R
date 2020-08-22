@@ -28,20 +28,6 @@ test_that("Custom likelihood - positive xi", {
   expect_true(abs(cm_mle(pars)) < 1e10)
 })
 
-# test_that("Custom MLE - positive xi, only exceedance", {
-#   xi <- .1
-#   kappa <- 9.
-#   sigma <- 1.
-#   n <- 100000
-#
-#   set.seed(42)
-#   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
-#   cm_mle <- CustomMarginalMLE(data = test_samples)
-#   print('cm_mle')
-#   print(cm_mle)
-#   expect_equal(cm_mle, c(xi, sigma, kappa), tolerance=5e-2)
-# })
-
 
 test_that("Custom MLE - positive xi", {
   xi <- 1.
@@ -57,19 +43,6 @@ test_that("Custom MLE - positive xi", {
   cm_mle <- CustomMarginalMLE(data = test_samples)
   expect_equal(cm_mle, c(xi, sigma, kappa), tolerance=5e-2)
 })
-
-
-# test_that("Composite MLE - negative xi, only exceedance", {
-#   xi <- -.1
-#   kappa <- 9.
-#   sigma <- 1.
-#   n <- 100000
-#
-#   set.seed(42)
-#   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
-#   cm_mle <- CompositeMarginalMLE(data = test_samples)
-#   expect_equal(cm_mle, c(xi, sigma), tolerance=5e-2)
-# })
 
 
 test_that("Composite MLE - positive/negative xi", {
