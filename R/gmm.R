@@ -4,13 +4,13 @@ TrawlObjective <- function(data, depth, parametrisation='standard'){
     pars <- c(pars[1:2], kappa, pars[3:length(pars)])
     noven_pars <- ParametrisationTranslator(params = pars, parametrisation = parametrisation, target = 'noven')
     return(function(trawl_params){
-      acf_vals <- vapply(c(0.01, 1:(depth)), function(h){
-        acf_trawl(h, alpha = noven_pars[1], beta = noven_pars[2], kappa = noven_pars[3],
-                  rho = trawl_params, delta = 0.5, end_seq = 50)}, 1)
-      sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
+        acf_vals <- vapply(c(0.01, 1:(depth)), function(h){
+          acf_trawl(h, alpha = noven_pars[1], beta = noven_pars[2], kappa = noven_pars[3],
+                    rho = trawl_params, delta = 0.5, end_seq = 50)}, 1)
+        sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
 
-      return(sum((acf_vals-sample_cross_mom)))
-    }
+        return(sum((acf_vals-sample_cross_mom)))
+      }
     )
   }
 }
