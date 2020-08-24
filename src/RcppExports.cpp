@@ -6,20 +6,51 @@
 using namespace Rcpp;
 
 // timesTwo
-NumericVector timesTwo(NumericVector x, float delta);
-RcppExport SEXP _gammaextremes_timesTwo(SEXP xSEXP, SEXP deltaSEXP) {
+int timesTwo(int x);
+RcppExport SEXP _gammaextremes_timesTwo(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(timesTwo(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CrossMoment
+double CrossMoment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h);
+RcppExport SEXP _gammaextremes_CrossMoment(SEXP xsSEXP, SEXP deltaSEXP, SEXP betaSEXP, SEXP b_ohSEXP, SEXP b_o_exc_hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
     Rcpp::traits::input_parameter< float >::type delta(deltaSEXP);
-    rcpp_result_gen = Rcpp::wrap(timesTwo(x, delta));
+    Rcpp::traits::input_parameter< float >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< float >::type b_oh(b_ohSEXP);
+    Rcpp::traits::input_parameter< float >::type b_o_exc_h(b_o_exc_hSEXP);
+    rcpp_result_gen = Rcpp::wrap(CrossMoment(xs, delta, beta, b_oh, b_o_exc_h));
+    return rcpp_result_gen;
+END_RCPP
+}
+// FirstMoment
+double FirstMoment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h);
+RcppExport SEXP _gammaextremes_FirstMoment(SEXP xsSEXP, SEXP deltaSEXP, SEXP betaSEXP, SEXP b_ohSEXP, SEXP b_o_exc_hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
+    Rcpp::traits::input_parameter< float >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< float >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< float >::type b_oh(b_ohSEXP);
+    Rcpp::traits::input_parameter< float >::type b_o_exc_h(b_o_exc_hSEXP);
+    rcpp_result_gen = Rcpp::wrap(FirstMoment(xs, delta, beta, b_oh, b_o_exc_h));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_gammaextremes_timesTwo", (DL_FUNC) &_gammaextremes_timesTwo, 2},
+    {"_gammaextremes_timesTwo", (DL_FUNC) &_gammaextremes_timesTwo, 1},
+    {"_gammaextremes_CrossMoment", (DL_FUNC) &_gammaextremes_CrossMoment, 5},
+    {"_gammaextremes_FirstMoment", (DL_FUNC) &_gammaextremes_FirstMoment, 5},
     {NULL, NULL, 0}
 };
 
