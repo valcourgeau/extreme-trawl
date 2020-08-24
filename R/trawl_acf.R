@@ -1,4 +1,7 @@
 
+
+.onUnload <- function (libpath) { library.dynam.unload("gammaextremes", libpath)}
+
 acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
@@ -42,7 +45,7 @@ acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, typ
 
 acf_trawl_revised <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F, parallel=T){
   # Compute ACF with trawl process as latent
-  seq_kappa <- seq(kappa, kappa+end_seq, by = delta) + delta / 2
+  seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
   trawl_fct <- GetTrawlFunctions(type)
   B1_func <- trawl_fct[[1]]
   B2_func <- trawl_fct[[2]]
@@ -51,6 +54,9 @@ acf_trawl_revised <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq =
   b_h_minus_0 <- - alpha  * B1_func(param=rho, h=h)/(B1_func(param=rho, h=h) + B2_func(param=rho, h=h))
   b_0_minus_h <- - alpha  * B3_func(param=rho, h=h)/(B1_func(param=rho, h=h) + B2_func(param=rho, h=h))
   b_0_h <- - alpha * B2_func(param=rho, h=h)/(B1_func(param=rho, h=h) + B2_func(param=rho, h=h))
+
+
+  # CrossMoment(seq_kappa, delta, beta, b_0_h, b_0_minus_h)
 
   res <- 0
   first_mom <- 0
