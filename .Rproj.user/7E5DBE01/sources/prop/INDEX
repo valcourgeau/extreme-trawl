@@ -1,3 +1,4 @@
+~%2FGitHub%2Fgammaextremes%2F.gitignore="1D1BF98A"
 ~%2FGitHub%2Fgammaextremes%2FDESCRIPTION="1E5EEDBC"
 ~%2FGitHub%2Fgammaextremes%2FNAMESPACE="A3AC35E1"
 ~%2FGitHub%2Fgammaextremes%2FR%2FMakevars.R="D5F7464E"
@@ -14,6 +15,7 @@
 ~%2FGitHub%2Fgammaextremes%2FR%2Ftrawl_sum_exponential.R="8B57C229"
 ~%2FGitHub%2Fgammaextremes%2FR%2Ftrawl_sup_ig.R="0E354A29"
 ~%2FGitHub%2Fgammaextremes%2FR%2Ftrawl_utils.R="FEF7FDB9"
+~%2FGitHub%2Fgammaextremes%2Fsrc%2FRcppExports.cpp="0BD672A1"
 ~%2FGitHub%2Fgammaextremes%2Fsrc%2Facf_integral.cpp="DC2472D7"
 ~%2FGitHub%2Fgammaextremes%2Fsrc%2Fcode.cpp="619BE391"
 ~%2FGitHub%2Fgammaextremes%2Fsrc%2Frcpp_hello.cpp="D9F81426"

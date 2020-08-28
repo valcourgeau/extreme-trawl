@@ -1,5 +1,3 @@
-
-
 .onUnload <- function (libpath) { library.dynam.unload("gammaextremes", libpath)}
 
 acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
@@ -36,6 +34,7 @@ acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, typ
   res <- final_sum[1]
   res_0 <- final_sum[2]
   first_mom_sq <- final_sum[3]^2
+
   if(cov){
     return(res-first_mom_sq)
   }else{
@@ -43,7 +42,8 @@ acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, typ
   }
 }
 
-acf_trawl_revised <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F, parallel=T){
+#' @export
+acf_trawl_revised <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
   trawl_fct <- GetTrawlFunctions(type)
@@ -55,33 +55,10 @@ acf_trawl_revised <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq =
   b_0_minus_h <- - alpha  * B3_func(param=rho, h=h)/(B1_func(param=rho, h=h) + B2_func(param=rho, h=h))
   b_0_h <- - alpha * B2_func(param=rho, h=h)/(B1_func(param=rho, h=h) + B2_func(param=rho, h=h))
 
+  res_0 <- SquareMoment(xs = seq_kappa, delta = delta, beta = beta, b_oh = b_0_h, b_o_exc_h = b_0_minus_h)
+  res <- CrossMoment(xs = seq_kappa, delta = delta, beta = beta, b_oh = b_0_h, b_o_exc_h = b_0_minus_h)
+  first_mom_sq <- FirstMoment(xs = seq_kappa, delta = delta, beta = beta, b_oh = b_0_h, b_o_exc_h = b_0_minus_h)^2
 
-  # CrossMoment(seq_kappa, delta, beta, b_0_h, b_0_minus_h)
-
-  res <- 0
-  first_mom <- 0
-  res_0 <- 0
-
-  sum_over_x <- vapply(seq_kappa, FUN = function(x){
-    # x <- x + delta / 2
-    inc_x <- (1+x/beta)^{b_h_minus_0}
-    sum_over_y <- vapply(X = seq_kappa, FUN = function(y){
-      # y <- y + delta / 2
-      inc_x_y <- 1+(x+y)/beta
-      tmp1 <- inc_x * inc_x_y^{b_0_h} * (1+y/beta)^{b_0_minus_h}
-      tmp2 <- inc_x_y^{-alpha}
-      return(c(tmp1, tmp2))
-    },
-    FUN.VALUE = rep(0, 2))
-    return(c(apply(sum_over_y, MARGIN = 1, sum), (1+x/beta)^{-alpha}))},
-    FUN.VALUE = rep(0, 3))
-  final_sum <- apply(sum_over_x, MARGIN = 1, sum)
-  final_sum <- final_sum * delta
-  final_sum[1:2] <- final_sum[1:2] * delta
-
-  res <- final_sum[1]
-  res_0 <- final_sum[2]
-  first_mom_sq <- final_sum[3]^2
   if(cov){
     return(res-first_mom_sq)
   }else{
