@@ -46,11 +46,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// SquareMoment
+double SquareMoment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h);
+RcppExport SEXP _gammaextremes_SquareMoment(SEXP xsSEXP, SEXP deltaSEXP, SEXP betaSEXP, SEXP b_ohSEXP, SEXP b_o_exc_hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
+    Rcpp::traits::input_parameter< float >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< float >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< float >::type b_oh(b_ohSEXP);
+    Rcpp::traits::input_parameter< float >::type b_o_exc_h(b_o_exc_hSEXP);
+    rcpp_result_gen = Rcpp::wrap(SquareMoment(xs, delta, beta, b_oh, b_o_exc_h));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gammaextremes_timesTwo", (DL_FUNC) &_gammaextremes_timesTwo, 1},
     {"_gammaextremes_CrossMoment", (DL_FUNC) &_gammaextremes_CrossMoment, 5},
     {"_gammaextremes_FirstMoment", (DL_FUNC) &_gammaextremes_FirstMoment, 5},
+    {"_gammaextremes_SquareMoment", (DL_FUNC) &_gammaextremes_SquareMoment, 5},
     {NULL, NULL, 0}
 };
 
