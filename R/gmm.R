@@ -1,44 +1,44 @@
-# TrawlObjective <- function(data, depth, parametrisation='standard'){
-#   function(pars){
-#     kappa <- GetKappa(data = data, params = pars, parametrisation = 'standard')
-#     pars <- c(pars[1:2], kappa, pars[3:length(pars)])
-#     noven_pars <- ParametrisationTranslator(params = pars, parametrisation = parametrisation, target = 'noven')
-#     return(function(trawl_params){
-#         acf_vals <- vapply(c(0.01, 1:(depth)), function(h){
-#           acf_trawl(h, alpha = noven_pars[1], beta = noven_pars[2], kappa = noven_pars[3],
-#                     rho = trawl_params, delta = 0.5, end_seq = 50)}, 1)
-#         sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
-#
-#         return(sum((acf_vals-sample_cross_mom)))
-#       }
-#     )
-#   }
-# }
-#
-# GMMObjective <- function(data, depth, omega='id', parametrisation='standard'){
-#   composite <- CompositeLikelihood(data = data)
-#   trawl_objective <- TrawlObjective(data = data,
-#                                     depth = depth,
-#                                     parametrisation = parametrisation)
-#
-#   return(function(par){
-#     grad_vec <- c(
-#       pracma::grad(composite, x0 = par[1:2]),
-#       pracma::grad(trawl_objective(par), x0 = par[3:length(par)])
-#     )
-#
-#     if(omega == 'id'){
-#       omega <- diag(rep(1, length(par)))
-#     }else{
-#
-#       if(omega == 'centered'){
-#         omega <- diag(rep(1, length(par)))
-#       }
-#     }
-#
-#     return(t(grad_vec) %*% omega %*% grad_vec)
-#   })
-# }
+TrawlObjective <- function(data, depth, parametrisation='standard'){
+  function(pars){
+    # pars should be (xi, sigma, kappa, rho)
+    noven_pars <- ParametrisationTranslator(params = pars, parametrisation = parametrisation, target = 'noven')
+    return(function(trawl_params){
+        acf_vals <- AcfTrawlCollection(
+            h=c(0.01, 1:(depth)), alpha = noven_pars[1],
+            beta = noven_pars[2], kappa = noven_pars[3],
+            rho = trawl_params, delta = 0.1, end_seq = 50)
+        sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
+
+        return(sum((acf_vals-sample_cross_mom)^2))
+      }
+    )
+  }
+}
+
+GMMObjective <- function(data, depth, omega='id', parametrisation='standard'){
+  composite <- CompositeLikelihood(data = data)
+  trawl_objective <- TrawlObjective(data = data,
+                                    depth = depth,
+                                    parametrisation = parametrisation)
+
+  return(function(par){
+    grad_vec <- c(
+      pracma::grad(composite, x0 = par[1:3]),
+      pracma::grad(trawl_objective(par), x0 = par[3:length(par)])
+    )
+
+    if(omega == 'id'){
+      omega <- diag(rep(1, length(par)))
+    }else{
+
+      if(omega == 'centered'){
+        omega <- diag(rep(1, length(par)))
+      }
+    }
+
+    return(t(grad_vec) %*% omega %*% grad_vec)
+  })
+}
 
 
 
