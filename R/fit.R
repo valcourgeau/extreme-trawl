@@ -1,5 +1,9 @@
 
 EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds='config', cl=NULL, ...){
+  stopifnot(mode %in% c('two-stage', 'full'))
+  stopifnot(method %in% c('GMM', 'PL'))
+  stopifnot(bounds %in% c('config', 'multiplier'))
+
   # method 'PL' or 'GMM' either 'full' or 'two-stage' modes
 
   trawl_cfg <- GetTrawlParamsConfig(type)
@@ -35,9 +39,10 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
     # choose bounds
     lower <- trawl_cfg$lower
     upper <- trawl_cfg$upper
-    if(bounds == 'multipler'){
-      lower <- lower * 0.8
-      upper <- upper * 1.2
+    if(bounds == 'multiplier'){
+      init_trawl <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20, type=type)
+      lower <- init_trawl * 0.5
+      upper <- init_trawl * 1.5
     }
     init_guess <- init_trawl
   }else{
@@ -57,10 +62,10 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
       # choose bounds
       lower <- trawl_cfg$lower
       upper <- trawl_cfg$upper
-      if(bounds == 'multipler'){
+      if(bounds == 'multiplier'){
         init_trawl <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20, type=type)
-        lower <- init_trawl * 0.8
-        upper <- init_trawl * 1.2
+        lower <- init_trawl * 0.5
+        upper <- init_trawl * 1.5
       }
       lower <- c(lower_model, lower)
       upper <- c(upper_model, upper)

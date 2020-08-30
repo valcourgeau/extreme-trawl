@@ -26,7 +26,7 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
   assertthat::assert_that(PairwiseLikelihood$CheckAllPositive(trawl_params))
 
   return(function(xs, h){
-      jacob_cst <- min(abs(params[1])^{-3}, 1000)
+      jacob_cst <- min(abs(params[1])^{-3}, 1000, na.rm = T)
       return(ev.trawl.cpp::CppCaseSeparator(xs,
                                             alpha = params_noven[1],
                                             beta = params_noven[2],
