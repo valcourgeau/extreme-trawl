@@ -13,23 +13,24 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
   B2_func <- B_funcs[[2]]
   B3_func <- B_funcs[[3]]
 
-  params_noven <- ParametrisationTranslator(params, parametrisation='standard', target='transform')
+  params_noven <- ParametrisationTranslator(params[1:3], parametrisation='standard', target='transform')
+  trawl_params <- params[4:length(params)]
+  assertthat::assert_that(PairwiseLikelihood$CheckAllPositive(trawl_params))
 
-  trawl_params <- params_noven[4:length(params_noven)]
-  assertthat::assert_that(CheckAllPositive(trawl_params))
   return(function(xs, h){
-    return(ev.trawl.cpp::CppCaseSeparator(xs,
-                                          alpha = params_noven[1],
-                                          beta = params_noven[2],
-                                          kappa = params_noven[3],
-                                          B1 = B1_func(trawl_params, h),
-                                          B2 = B2_func(trawl_params, h),
-                                          B3 = B3_func(trawl_params, h) / abs(params[1])^3
-    ))
-  })
+      return(ev.trawl.cpp::CppCaseSeparator(xs,
+                                            alpha = params_noven[1],
+                                            beta = params_noven[2],
+                                            kappa = params_noven[3],
+                                            B1 = B1_func(trawl_params, h),
+                                            B2 = B2_func(trawl_params, h),
+                                            B3 = B3_func(trawl_params, h)) / abs(params[1])^3
+      )
+    }
+  )
 }
 
-PairwiseLikelihood$ParallelApplyPL <- function(data, k, this_pl){
+PairwiseLikelihood$ParallelApplyPL <- function(data, k, this_pl, cl){
   n_sample <- length(data)
   xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
   return(
@@ -57,8 +58,7 @@ PairwiseLikelihood$ApplyPL <- function(data, k, this_pl){
   return(
     sum(
       unlist(
-        parallel::parApply(
-          cl,
+        apply(
           X = xs_stack,
           MARGIN = 1,
           FUN = function(xs){
@@ -73,18 +73,17 @@ PairwiseLikelihood$ApplyPL <- function(data, k, this_pl){
     ))
 }
 
-
 PairwiseLikelihood$PLConstructor <- function(params, depth, pair_likehood, cl=NULL){
   # returns function implementing Consecutive PL with depth depth
   stopifnot(depth >= 1)
   pl_f <- function(data){
     n_sample <- length(data)
-    this_pl <- cmpfun(pair_likehood)
+    this_pl <- compiler::cmpfun(pair_likehood)
 
     if(!is.null(cl)){
       log_pl_per_depth <- vapply(1:depth, # loop through depths
                                  FUN = function(k){
-                                    return(PairwiseLikelihood$ParallelApplyPL(data, k, this_pl))
+                                    return(PairwiseLikelihood$ParallelApplyPL(data, k, this_pl, cl))
                                  },
                                  FUN.VALUE = 1.0)
     }else{
@@ -96,19 +95,19 @@ PairwiseLikelihood$PLConstructor <- function(params, depth, pair_likehood, cl=NU
     }
 
     # adds jacobian
-    jacob <- TransformationJacobian(params_std = params)
+    jacob <- TransformationJacobian(params_std = params[1:3])
     jacob_vals_per_depth <-  vapply(
       1:depth, # loop through depths
       FUN = function(k){
         xs_stack <- c(data[1:(n_sample-k)], data[(k+1):(n_sample)])
-        jacob_vals <- jacob(data_for_mle)
+        jacob_vals <- jacob(xs_stack)
         jacob_vals <- sum(log(jacob_vals[!is.na(jacob_vals)] + 1e-7))
         return(jacob_vals)
       },
       FUN.VALUE = 1.0)
     log_pl_per_depth <- log_pl_per_depth + jacob_vals_per_depth
 
-    return(sum(log_pl_per_depth))
+    return(-sum(log_pl_per_depth)) # -1 because optim minimises by default
   }
 
   return(pl_f)
@@ -116,31 +115,33 @@ PairwiseLikelihood$PLConstructor <- function(params, depth, pair_likehood, cl=NU
 
 PairwiseLikelihood$TrawlPLStandard <- function(params, depth, type='exp', cl=NULL){
   # param with (xi, sigma, kappa, trawl_params)
-  B_funcs <- GetTrawlFunctions(type)
-  B1_func <- B_funcs[[1]]
-  B2_func <- B_funcs[[2]]
-  B3_func <- B_funcs[[3]]
-
   pair_likehood_f <- PairPDFConstructor(params_noven = params_tmp, type = type) # yields a function of (xs, h)
 
   return(PairwiseLikelihood$PLConstructor(params = params, depth = depth, pair_likehood = pair_likehood_f, cl=cl))
 }
 
-PairwiseLikelihood$TrawlPLFunctional <- function(params, depth, type='exp', cl=NULL){
-  PLOperator <- PairwiseLikelihood$TrawlPLStandard(params = params, depth = depth, type = type, cl=cl)
-
-  # multiply by - 1
-  return(function(data){
-    return((-1)*PLOperator(data))})
-}
-
 PairwiseLikelihood$TrawlPL <- function(data, depth, type='exp', parametrisation='standard', cl=NULL){
   return(function(params){
-    pl_functional <- TrawlPLFunctional(params = params,
-                                       depth = depth,
-                                       type=type,
-                                       parametrisation=parametrisation,
-                                       cl=cl) # returns a function of data
+    pl_functional <- TrawlPLStandard(
+      params = params,
+      depth = depth,
+      type=type,
+      parametrisation=parametrisation,
+      cl=cl) # returns a function of data
+    return(pl_functional(data))
+  })
+}
+
+PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', parametrisation='standard', cl=NULL){
+  params_univ <- CustomMarginalMLE(data)
+
+  return(function(params){
+    pl_functional <- TrawlPLStandard(
+      params = c(params_univ, params),
+      depth = depth,
+      type=type,
+      parametrisation=parametrisation,
+      cl=cl) # returns a function of data
     return(pl_functional(data))
   })
 }
