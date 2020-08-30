@@ -120,19 +120,18 @@ PairwiseLikelihood$TrawlPLStandard <- function(params, depth, type='exp', cl=NUL
   return(PairwiseLikelihood$PLConstructor(params = params, depth = depth, pair_likehood = pair_likehood_f, cl=cl))
 }
 
-PairwiseLikelihood$TrawlPL <- function(data, depth, type='exp', parametrisation='standard', cl=NULL){
+PairwiseLikelihood$TrawlPL <- function(data, depth, type='exp', cl=NULL){
   return(function(params){
     pl_functional <- TrawlPLStandard(
       params = params,
       depth = depth,
       type=type,
-      parametrisation=parametrisation,
       cl=cl) # returns a function of data
     return(pl_functional(data))
   })
 }
 
-PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', parametrisation='standard', cl=NULL){
+PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', cl=NULL){
   params_univ <- CustomMarginalMLE(data)
 
   return(function(params){
@@ -140,7 +139,6 @@ PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', parametr
       params = c(params_univ, params),
       depth = depth,
       type=type,
-      parametrisation=parametrisation,
       cl=cl) # returns a function of data
     return(pl_functional(data))
   })
