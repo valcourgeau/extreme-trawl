@@ -1,12 +1,12 @@
 TrawlObjective <- function(data, depth, parametrisation='standard'){
   function(pars){
     # pars should be (xi, sigma, kappa, rho)
-    noven_pars <- ParametrisationTranslator(params = pars, parametrisation = parametrisation, target = 'noven')
+    noven_pars <- ParametrisationTranslator(params = pars[1:3], parametrisation = parametrisation, target = 'transform')
     return(function(trawl_params){
         acf_vals <- AcfTrawlCollection(
             h=c(0.01, 1:(depth)), alpha = noven_pars[1],
             beta = noven_pars[2], kappa = noven_pars[3],
-            rho = trawl_params, delta = 0.1, end_seq = 50)
+            rho = trawl_params, delta = 0.1, cov = F)
         sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
 
         return(sum((acf_vals-sample_cross_mom)^2))
@@ -15,17 +15,19 @@ TrawlObjective <- function(data, depth, parametrisation='standard'){
   }
 }
 
-GMMObjective <- function(data, depth, omega='id', parametrisation='standard'){
+FullGMMObjective <- function(data, depth, omega='id', parametrisation='standard'){
   composite <- CompositeLikelihood(data = data)
   trawl_objective <- TrawlObjective(data = data,
                                     depth = depth,
                                     parametrisation = parametrisation)
-
   return(function(par){
     grad_vec <- c(
       pracma::grad(composite, x0 = par[1:3]),
-      pracma::grad(trawl_objective(par), x0 = par[3:length(par)])
+      pracma::grad(trawl_objective(par), x0 = par[4:length(par)])
     )
+
+    grad_vec[4] <- grad_vec[4] * sum(abs(grad_vec[1:3]))
+    grad_vec <- grad_vec / sum(abs(grad_vec))
 
     if(omega == 'id'){
       omega <- diag(rep(1, length(par)))
@@ -40,34 +42,11 @@ GMMObjective <- function(data, depth, omega='id', parametrisation='standard'){
   })
 }
 
-
-
-
-
-
-
-
-
-#
-# pollution_data <- read.csv('data/clean_pollution_data.csv')
-# to <- TrawlObjective(data = pollution_data[,2],
-#                      depth = 10,
-#                      parametrisation = 'standard')
-# max_depth <- 10000
-# custom_mle <- CustomMarginalMLE(pollution_data[1:max_depth,2])
-# kappa <- GetKappa(pollution_data[,2] ,params = custom_mle, parametrisation = 'standard')
-# custom_mle_kappa <- c(custom_mle, kappa)
-# c_mle_kappa_rho <- c(custom_mle_kappa, 0.2)
-# gmm_obj <- GMMObjective(data = pollution_data[1:max_depth,2], depth = 10)
-# gmm_obj(c_mle_kappa_rho[-3])
-#
-#
-# profvis::profvis({
-#   gmm_obj(custom_mle_kappa)
-# })
-#
-# optim(gmm_obj, par = c(custom_mle, 0.2), method = 'L-BFGS-B',
-#       lower=c(1e-2, 1e-2, 1e-2),
-#       upper=c(0.5,2,1.0),control = list(trace=5))
-#
-# profvis::profvis()
+TwoStageGMMObjective <- function(data, depth, parametrisation='standard'){
+  pars <- CompositeMarginalMLE(data = data)
+  trawl_objective <- TrawlObjective(data = data,
+                                    depth = depth,
+                                    parametrisation = parametrisation)
+  trawl_obj <- TrawlObjective(data, depth) # return a function of the whole set of params
+  return(trawl_obj(pars)) # function of trawl parameters
+}

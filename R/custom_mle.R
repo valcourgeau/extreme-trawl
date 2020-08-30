@@ -1,4 +1,4 @@
-GetInitialGuessAndBounds <- function(data, max_length=20000, minus_mult=0.7, plus_multiplier=1.3){
+GetInitialGuessAndBounds <- function(data, max_length=20000, minus_mult=0.5, plus_multiplier=1.5){
   length_data <- min(max_length, length(data))
   data <- data[1:length_data]
 
