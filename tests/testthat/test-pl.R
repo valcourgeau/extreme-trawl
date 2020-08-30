@@ -23,7 +23,6 @@ test_that("PLConstructor - not parallel", {
     pair_likehood=pdf_constructor
   )
 
-
   testthat::expect_false(is.na(pl_constructor(pollution_data[1:max_length, test_column])))
 })
 
@@ -100,10 +99,25 @@ test_that("PLConstructor - parallel vs not parallel", {
   parallel_times <- microbenchmark::microbenchmark(pl_constructor(pollution_data[1:max_length, test_column]), times=5)$time / TIME_DIVISOR
   parallel::stopCluster(cl)
 
-  cat('PL Parallel improvement: ', round(mean(no_parallel_times / parallel_times)*100, 0), '%\n')
+  cat('\nPL Parallel improvement:', round(mean(no_parallel_times / parallel_times)*100, 0), '%\n')
   testthat::expect_equal(res_parallel, res_no_parallel, tolerance=1e-3)
   testthat::expect_equal(parallel_times / no_parallel_times, rep(0, length(no_parallel_times)), tolerance=.5)
 })
+
+
+test_that("PLConstructor - parallel vs not parallel", {
+  TIME_DIVISOR <- 1e6
+
+  pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+  test_column <- 2
+  max_length <- 20000
+  depth <- 10
+
+  PairwiseLikelihood$InitGuess(data=pollution_data[1:max_length, test_column], depth=depth, n_trials=10)
+
+})
+
+
 
 
 

@@ -6,6 +6,14 @@ PairwiseLikelihood$CheckAllPositive <- function(elems){all(elems > 0.0)}
 
 PairwiseLikelihood$StandTrawlTerms <- function(alpha, elems){A <- sum(elems[1:2]); return(-alpha*elems/A)}
 
+PairwiseLikelihood$InitGuess <- function(data, depth, n_trials, type='exp'){
+  cfg <- GetTrawlParamsConfig(type)
+  trawl_evaluator <- TwoStageGMMObjective(data=data, depth=depth, type=type)
+  potential_param_values <- seq(from=cfg$lower, to=cfg$upper, length.out=n_trials)
+  evaluator_vals <- vapply(potential_param_values, trawl_evaluator, 1.0)
+  return(potential_param_values[which.min(evaluator_vals)])
+}
+
 PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
   # params is (xi, sigma, kappa, trawl_params)
   B_funcs <- GetTrawlFunctions(type)
@@ -18,13 +26,14 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
   assertthat::assert_that(PairwiseLikelihood$CheckAllPositive(trawl_params))
 
   return(function(xs, h){
+      jacob_cst <- min(abs(params[1])^{-3}, 1000)
       return(ev.trawl.cpp::CppCaseSeparator(xs,
                                             alpha = params_noven[1],
                                             beta = params_noven[2],
                                             kappa = params_noven[3],
                                             B1 = B1_func(trawl_params, h),
                                             B2 = B2_func(trawl_params, h),
-                                            B3 = B3_func(trawl_params, h)) / abs(params[1])^3
+                                            B3 = B3_func(trawl_params, h))*jacob_cst
       )
     }
   )
@@ -115,14 +124,14 @@ PairwiseLikelihood$PLConstructor <- function(params, depth, pair_likehood, cl=NU
 
 PairwiseLikelihood$TrawlPLStandard <- function(params, depth, type='exp', cl=NULL){
   # param with (xi, sigma, kappa, trawl_params)
-  pair_likehood_f <- PairPDFConstructor(params_noven = params_tmp, type = type) # yields a function of (xs, h)
+  pair_likehood_f <- PairwiseLikelihood$PairPDFConstructor(params = params, type = type) # yields a function of (xs, h)
 
   return(PairwiseLikelihood$PLConstructor(params = params, depth = depth, pair_likehood = pair_likehood_f, cl=cl))
 }
 
 PairwiseLikelihood$TrawlPL <- function(data, depth, type='exp', cl=NULL){
   return(function(params){
-    pl_functional <- TrawlPLStandard(
+    pl_functional <- PairwiseLikelihood$TrawlPLStandard(
       params = params,
       depth = depth,
       type=type,
@@ -135,7 +144,7 @@ PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', cl=NULL)
   params_univ <- CustomMarginalMLE(data)
 
   return(function(params){
-    pl_functional <- TrawlPLStandard(
+    pl_functional <- PairwiseLikelihood$TrawlPLStandard(
       params = c(params_univ, params),
       depth = depth,
       type=type,
