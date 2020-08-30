@@ -2,4 +2,3 @@
 useDynLib(gammaextremes, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
 exportPattern("^[[:alpha:]]+")
-export(acf_trawl_revised)
