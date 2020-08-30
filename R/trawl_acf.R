@@ -43,7 +43,7 @@ acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, typ
 }
 
 #' @export
-acf_trawl_revised <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
+AcfTrawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
   trawl_fct <- GetTrawlFunctions(type)
@@ -103,6 +103,42 @@ acf_trawl_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5, type='ex
     acf_trawl(h, alpha = alpha, beta = beta, kappa = kappa,
               rho = rho, delta = delta, type = type, cov = cov)}, 1)
 }
+
+acf_trawl_revisited_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
+  cores <- parallel::detectCores(logical = TRUE)
+  cl <- parallel::makeCluster(cores-1)
+  parallel::clusterExport(cl,
+                          c('AcfTrawl',
+                            'SquareMoment',
+                            'CrossMoment',
+                            'FirstMoment',
+                            GetTrawlEnvsList()))
+  return(
+    parallel::parLapply(
+      cl,
+      X = h,
+      fun = function(h){
+        AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
+                  rho = rho, delta = delta, type = type, cov = cov)
+        }
+    )
+  )
+}
+
+#' @export
+AcfTrawlCollection <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
+  return(
+    vapply(
+      X = h,
+      FUN.VALUE = 1.0,
+      FUN = function(h){
+        AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
+                          rho = rho, delta = delta, type = type, cov = cov)
+      }
+    )
+  )
+}
+
 
 # acf_trawl_inv <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=T){
 #   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
