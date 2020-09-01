@@ -1,6 +1,8 @@
 .onUnload <- function (libpath) { library.dynam.unload("gammaextremes", libpath)}
 
-acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
+TrawlAutocorrelation <- new.env()
+
+TrawlAutocorrelation$acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
   trawl_fct <- GetTrawlFunctions(type)
@@ -43,7 +45,7 @@ acf_trawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, typ
 }
 
 #' @export
-AcfTrawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
+TrawlAutocorrelation$AcfTrawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp', cov=F){
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
   trawl_fct <- GetTrawlFunctions(type)
@@ -66,7 +68,7 @@ AcfTrawl <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type
   }
 }
 
-crossmoment_trawls <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp'){
+TrawlAutocorrelation$crossmoment_trawls <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq = 50, type='exp'){
   seq_kappa <- seq(kappa, kappa+end_seq, by = delta)
   trawl_fct <- GetTrawlFunctions(type)
   B1_func <- trawl_fct[[1]]
@@ -98,13 +100,13 @@ crossmoment_trawls <- function(h, alpha, beta, rho, kappa, delta = 0.1, end_seq 
   return(res)
 }
 
-acf_trawl_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
+TrawlAutocorrelation$acf_trawl_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
   vapply(h, function(h){
-    acf_trawl(h, alpha = alpha, beta = beta, kappa = kappa,
+    TrawlAutocorrelation$acf_trawl(h, alpha = alpha, beta = beta, kappa = kappa,
               rho = rho, delta = delta, type = type, cov = cov)}, 1)
 }
 
-acf_trawl_revisited_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
+TrawlAutocorrelation$acf_trawl_revisited_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(cores-1)
   parallel::clusterExport(cl,
@@ -118,7 +120,7 @@ acf_trawl_revisited_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5
       cl,
       X = h,
       fun = function(h){
-        AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
+        TrawlAutocorrelation$AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
                   rho = rho, delta = delta, type = type, cov = cov)
         }
     )
@@ -126,13 +128,13 @@ acf_trawl_revisited_num_approx <- function(h, alpha, beta, kappa, rho, delta=0.5
 }
 
 #' @export
-AcfTrawlCollection <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
+TrawlAutocorrelation$AcfTrawlCollection <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
   return(
     vapply(
       X = h,
       FUN.VALUE = 1.0,
       FUN = function(h){
-        AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
+        TrawlAutocorrelation$AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
                           rho = rho, delta = delta, type = type, cov = cov)
       }
     )

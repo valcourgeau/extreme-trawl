@@ -105,7 +105,7 @@ test_that("PLConstructor - parallel vs not parallel", {
 })
 
 
-test_that("PLConstructor - parallel vs not parallel", {
+test_that("PLConstructor - PL initial guess", {
   TIME_DIVISOR <- 1e6
 
   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
@@ -113,9 +113,32 @@ test_that("PLConstructor - parallel vs not parallel", {
   max_length <- 20000
   depth <- 10
 
-  PairwiseLikelihood$InitGuess(data=pollution_data[1:max_length, test_column], depth=depth, n_trials=10)
-
+  i_guess <- PairwiseLikelihood$InitGuess(data=pollution_data[1:max_length, test_column], depth=depth, n_trials=10)
+  testthat::expect_equal(i_guess, .15, tolerance=1e-2)
 })
+
+test_that("PLConstructor - PL as function of rho", {
+  TIME_DIVISOR <- 1e6
+
+  pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+  test_column <- 2
+  max_length <- 20000
+  depth <- 10
+
+  cores <- parallel::detectCores(logical = TRUE)
+  cl <- parallel::makeCluster(cores-1)
+  parallel::clusterExport(
+    cl, c('TransformationMapInverse',
+          'TransformationMap',
+          'TransformationJacobian',
+          'ParametrisationTranslator',
+          'PairwiseLikelihood',
+          GetTrawlEnvsList()))
+
+  pl_fn <- PairwiseLikelihood$TwoStageTrawlPL(data=pollution_data[1:max_length, test_column], depth=depth, cl=cl)
+  plot(vapply(1:20/10, pl_fn, 1.0), main='pl as function of rho')
+})
+
 
 
 

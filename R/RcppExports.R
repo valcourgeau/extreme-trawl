@@ -26,3 +26,23 @@ SquareMoment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
     .Call(`_gammaextremes_SquareMoment`, xs, delta, beta, b_oh, b_o_exc_h)
 }
 
+#' @export
+CppCaseZeroZero <- function(alpha, beta, kappa, B1, B2, B3) {
+    .Call(`_gammaextremes_CppCaseZeroZero`, alpha, beta, kappa, B1, B2, B3)
+}
+
+#' @export
+CppCaseOneZero <- function(xs, alpha, beta, kappa, B1, B2, B3) {
+    .Call(`_gammaextremes_CppCaseOneZero`, xs, alpha, beta, kappa, B1, B2, B3)
+}
+
+#' @export
+CppCaseOneOne <- function(xs, alpha, beta, kappa, B1, B2, B3) {
+    .Call(`_gammaextremes_CppCaseOneOne`, xs, alpha, beta, kappa, B1, B2, B3)
+}
+
+#' @export
+CppCaseSeparator <- function(xs, alpha, beta, kappa, B1, B2, B3) {
+    .Call(`_gammaextremes_CppCaseSeparator`, xs, alpha, beta, kappa, B1, B2, B3)
+}
+

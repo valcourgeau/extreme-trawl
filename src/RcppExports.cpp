@@ -61,12 +61,83 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// CppCaseZeroZero
+double CppCaseZeroZero(double alpha, double beta, double kappa, double B1, double B2, double B3);
+RcppExport SEXP _gammaextremes_CppCaseZeroZero(SEXP alphaSEXP, SEXP betaSEXP, SEXP kappaSEXP, SEXP B1SEXP, SEXP B2SEXP, SEXP B3SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type B1(B1SEXP);
+    Rcpp::traits::input_parameter< double >::type B2(B2SEXP);
+    Rcpp::traits::input_parameter< double >::type B3(B3SEXP);
+    rcpp_result_gen = Rcpp::wrap(CppCaseZeroZero(alpha, beta, kappa, B1, B2, B3));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CppCaseOneZero
+double CppCaseOneZero(NumericVector xs, double alpha, double beta, double kappa, double B1, double B2, double B3);
+RcppExport SEXP _gammaextremes_CppCaseOneZero(SEXP xsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP kappaSEXP, SEXP B1SEXP, SEXP B2SEXP, SEXP B3SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type B1(B1SEXP);
+    Rcpp::traits::input_parameter< double >::type B2(B2SEXP);
+    Rcpp::traits::input_parameter< double >::type B3(B3SEXP);
+    rcpp_result_gen = Rcpp::wrap(CppCaseOneZero(xs, alpha, beta, kappa, B1, B2, B3));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CppCaseOneOne
+double CppCaseOneOne(NumericVector xs, double alpha, double beta, double kappa, double B1, double B2, double B3);
+RcppExport SEXP _gammaextremes_CppCaseOneOne(SEXP xsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP kappaSEXP, SEXP B1SEXP, SEXP B2SEXP, SEXP B3SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type B1(B1SEXP);
+    Rcpp::traits::input_parameter< double >::type B2(B2SEXP);
+    Rcpp::traits::input_parameter< double >::type B3(B3SEXP);
+    rcpp_result_gen = Rcpp::wrap(CppCaseOneOne(xs, alpha, beta, kappa, B1, B2, B3));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CppCaseSeparator
+double CppCaseSeparator(NumericVector xs, double alpha, double beta, double kappa, double B1, double B2, double B3);
+RcppExport SEXP _gammaextremes_CppCaseSeparator(SEXP xsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP kappaSEXP, SEXP B1SEXP, SEXP B2SEXP, SEXP B3SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type B1(B1SEXP);
+    Rcpp::traits::input_parameter< double >::type B2(B2SEXP);
+    Rcpp::traits::input_parameter< double >::type B3(B3SEXP);
+    rcpp_result_gen = Rcpp::wrap(CppCaseSeparator(xs, alpha, beta, kappa, B1, B2, B3));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gammaextremes_timesTwo", (DL_FUNC) &_gammaextremes_timesTwo, 1},
     {"_gammaextremes_CrossMoment", (DL_FUNC) &_gammaextremes_CrossMoment, 5},
     {"_gammaextremes_FirstMoment", (DL_FUNC) &_gammaextremes_FirstMoment, 5},
     {"_gammaextremes_SquareMoment", (DL_FUNC) &_gammaextremes_SquareMoment, 5},
+    {"_gammaextremes_CppCaseZeroZero", (DL_FUNC) &_gammaextremes_CppCaseZeroZero, 6},
+    {"_gammaextremes_CppCaseOneZero", (DL_FUNC) &_gammaextremes_CppCaseOneZero, 7},
+    {"_gammaextremes_CppCaseOneOne", (DL_FUNC) &_gammaextremes_CppCaseOneOne, 7},
+    {"_gammaextremes_CppCaseSeparator", (DL_FUNC) &_gammaextremes_CppCaseSeparator, 7},
     {NULL, NULL, 0}
 };
 
