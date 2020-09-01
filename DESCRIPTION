@@ -15,6 +15,9 @@ Imports:
     testit
 RoxygenNote: 7.1.1
 Suggests: 
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
 LinkingTo: 
     Rcpp
+VignetteBuilder: knitr

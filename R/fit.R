@@ -159,13 +159,12 @@ SubSampleFit <- function(data, sample.length, depth, method, mode='two-stage', t
     sub_sample_time <- Sys.time()
     results<- t(vapply(start_points,
                        FUN = function(start_pt){
-                         tmp_pr <- EVTrawlFit(data = data[start_pt:(start_pt+sample.length)],
-                                              depth = depth,
-                                              parametrisation = parametrisation,
-                                              type = type,
-                                              method = method,
-                                              bounds = bounds,
-                                              cl = NULL)
+                         EVTrawlFit(data = data[start_pt:(start_pt+sample.length)],
+                                    depth = depth,
+                                    type = type,
+                                    method = method,
+                                    bounds = bounds,
+                                    cl = NULL)
                        },
                        FUN.VALUE = rep(0, ncol(results))))
     print(Sys.time() - sub_sample_time)

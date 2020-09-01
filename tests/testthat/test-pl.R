@@ -137,7 +137,15 @@ test_that("PLConstructor - PL as function of rho - convex", {
 
   pl_fn <- PairwiseLikelihood$TwoStageTrawlPL(data=pollution_data[1:max_length, test_column], depth=depth, cl=cl)
   rho_vals <- 1:10/30
-  plot(rho_vals, vapply(rho_vals, pl_fn, 1.0), main='pl as function of rho')
+  pl_rho_values <- vapply(rho_vals, pl_fn, 1.0)
+  which_positive <- which(diff(pl_rho_values) > 0)
+  which_negative <- which(diff(pl_rho_values) < 0)
+
+  plot(rho_vals, pl_rho_values, main='pl as function of rho')
+
+  testthat::expect_true(length(which_positive) > 0)
+  testthat::expect_true(length(which_positive) > 0)
+  testthat::expect_true(max(which_negative) < min(which_positive))
 })
 
 

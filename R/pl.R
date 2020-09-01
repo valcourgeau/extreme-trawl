@@ -141,7 +141,7 @@ PairwiseLikelihood$TrawlPL <- function(data, depth, type='exp', cl=NULL){
 }
 
 PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', cl=NULL){
-  params_univ <- CustomMarginalMLE(data)
+  params_univ <- CompositeMarginalMLE(data)
 
   return(function(params){
     pl_functional <- PairwiseLikelihood$TrawlPLStandard(
