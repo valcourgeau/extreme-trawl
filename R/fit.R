@@ -32,7 +32,7 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
         type = type, cl = cl)
     }else{
       if(method == 'GMM'){
-        optim_fn <- TwoStageGMMObjective(data = data, depth = depth)
+        optim_fn <- TrawlGMM$TwoStageGMMObjective(data = data, depth = depth)
       }
     }
 
@@ -54,7 +54,7 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
           type = type, cl = cl)
       }else{
         if(method == 'GMM'){
-          optim_fn <- FullGMMObjective(
+          optim_fn <- TrawlGMM$FullGMMObjective(
             data = data, depth = depth)
         }
       }
@@ -92,4 +92,95 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
       return(trawl_inference$par)
     }
   }
+}
+
+SubSampleFit <- function(data, sample.length, depth, method, mode='two-stage', type='exp', bounds='config',
+                         trials, parallel=F, seed=42){
+  # method 'PL' or 'GMM'
+  # depth for PL is the length of blocks, GMM depth is the ACF depth
+  n <- length(data)
+  set.seed(seed)
+  start_points <- sample(1:(n-sample.length), size = trials, replace = F)
+
+  results_list <- list()
+  results <- matrix(0, nrow=trials, ncol=3+GetTrawlParamsConfig(type)$n_params)
+
+  if(parallel){
+    cores <- parallel::detectCores(logical = TRUE)
+    cl <- parallel::makeCluster(cores)
+    parallel::clusterExport(
+      cl, c('TransformationMapInverse',
+            'TransformationMap',
+            'TransformationJacobian',
+            'ParametrisationTranslator',
+            'PairwiseLikelihood',
+            'TrawlGMM',
+            'TrawlAutocorrelation',
+            'EVTrawlFit',
+            GetTrawlEnvsList()))
+
+    sub_sample_time <- Sys.time()
+    if(method == 'GMM'){
+      # we perform parallel estimations
+      results <- parallel::parLapply(
+        X = start_points,
+        cl = cl,
+        fun = function(start_pt){
+          EVTrawlFit(
+            data = data[start_pt:(start_pt+sample.length)],
+            depth = depth,
+            method = method,
+            type = type,
+            bounds = bounds,
+            cl = NULL)
+         }
+      )
+    }else{
+      # we perform PL computation in parallel
+      results <- lapply(
+        X = start_points,
+        FUN = function(start_pt){
+          EVTrawlFit(
+            data = data[start_pt:(start_pt+sample.length)],
+            depth = depth,
+            method = method,
+            type = type,
+            bounds = bounds,
+            cl = cl)
+        }
+      )
+    }
+
+    print(Sys.time() - sub_sample_time)
+    parallel::stopCluster(cl)
+    results <- matrix(unlist(results), ncol=length(results[[1]]), byrow = T)
+  }else{
+    print('No parallel trials but parallel PL.')
+    sub_sample_time <- Sys.time()
+    results<- t(vapply(start_points,
+                       FUN = function(start_pt){
+                         tmp_pr <- EVTrawlFit(data = data[start_pt:(start_pt+sample.length)],
+                                              depth = depth,
+                                              parametrisation = parametrisation,
+                                              type = type,
+                                              method = method,
+                                              bounds = bounds,
+                                              cl = NULL)
+                       },
+                       FUN.VALUE = rep(0, ncol(results))))
+    print(Sys.time() - sub_sample_time)
+  }
+
+  results_list$estimators <- results
+  results_list$sample.length <- sample.length
+  results_list$depth <- depth
+  results_list$mode <- mode
+  results_list$method <- method
+  results_list$bounds <- bounds
+  results_list$type <- type
+  results_list$data.length <- n
+  results_list$trials <- trials
+  results_list$start.indices <- start_points
+
+  return(results_list)
 }

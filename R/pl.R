@@ -8,7 +8,7 @@ PairwiseLikelihood$StandTrawlTerms <- function(alpha, elems){A <- sum(elems[1:2]
 
 PairwiseLikelihood$InitGuess <- function(data, depth, n_trials, type='exp'){
   cfg <- GetTrawlParamsConfig(type)
-  trawl_evaluator <- TwoStageGMMObjective(data=data, depth=depth, type=type)
+  trawl_evaluator <- TrawlGMM$TwoStageGMMObjective(data=data, depth=depth, type=type)
   potential_param_values <- seq(from=cfg$lower, to=cfg$upper, length.out=n_trials)
   evaluator_vals <- vapply(potential_param_values, trawl_evaluator, 1.0)
   return(potential_param_values[which.min(evaluator_vals)])
@@ -27,13 +27,13 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
 
   return(function(xs, h){
       jacob_cst <- min(abs(params[1])^{-3}, 1000, na.rm = T)
-      return(ev.trawl.cpp::CppCaseSeparator(xs,
-                                            alpha = params_noven[1],
-                                            beta = params_noven[2],
-                                            kappa = params_noven[3],
-                                            B1 = B1_func(trawl_params, h),
-                                            B2 = B2_func(trawl_params, h),
-                                            B3 = B3_func(trawl_params, h))*jacob_cst
+      return(CppCaseSeparator(xs,
+                              alpha = params_noven[1],
+                              beta = params_noven[2],
+                              kappa = params_noven[3],
+                              B1 = B1_func(trawl_params, h),
+                              B2 = B2_func(trawl_params, h),
+                              B3 = B3_func(trawl_params, h))*jacob_cst
       )
     }
   )
@@ -55,7 +55,7 @@ PairwiseLikelihood$ParallelApplyPL <- function(data, k, this_pl, cl){
             if(pl_val < 0.0){
               return(pl_val)
             }else{
-              return(log(max(pl_val, 1e-9)))
+              return(log(pl_val + 1e-7))
             }})
       )
     ))
@@ -76,7 +76,7 @@ PairwiseLikelihood$ApplyPL <- function(data, k, this_pl){
             if(pl_val < 0.0){
               return(pl_val)
             }else{
-              return(log(max(pl_val, 1e-9)))
+              return(log(pl_val + 1e-7))
             }})
       )
     ))

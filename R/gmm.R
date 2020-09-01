@@ -1,9 +1,11 @@
-TrawlObjective <- function(data, depth, type='exp'){
+TrawlGMM <- new.env()
+
+TrawlGMM$TrawlObjective <- function(data, depth, type='exp'){
   function(pars){
     # pars should be (xi, sigma, kappa, rho)
     noven_pars <- ParametrisationTranslator(params = pars[1:3], parametrisation = 'standard', target = 'transform')
     return(function(trawl_params){
-        acf_vals <- AcfTrawlCollection(
+        acf_vals <- TrawlAutocorrelation$AcfTrawlCollection(
             h=c(0.01, 1:(depth)), alpha = noven_pars[1],
             beta = noven_pars[2], kappa = noven_pars[3],
             rho = trawl_params, delta = 0.1, cov = F, type=type)
@@ -15,9 +17,9 @@ TrawlObjective <- function(data, depth, type='exp'){
   }
 }
 
-FullGMMObjective <- function(data, depth, omega='id', type='exp'){
+TrawlGMM$FullGMMObjective <- function(data, depth, omega='id', type='exp'){
   composite <- CompositeLikelihood(data = data)
-  trawl_objective <- TrawlObjective(data = data,
+  trawl_objective <- TrawlGMM$TrawlObjective(data = data,
                                     depth = depth,
                                     type=type)
   return(function(par){
@@ -42,8 +44,8 @@ FullGMMObjective <- function(data, depth, omega='id', type='exp'){
   })
 }
 
-TwoStageGMMObjective <- function(data, depth, type='exp'){
+TrawlGMM$TwoStageGMMObjective <- function(data, depth, type='exp'){
   pars <- CompositeMarginalMLE(data = data)
-  trawl_obj <- TrawlObjective(data, depth, type=type) # return a function of the whole set of params
+  trawl_obj <- TrawlGMM$TrawlObjective(data, depth, type=type) # return a function of the whole set of params
   return(trawl_obj(pars)) # function of trawl parameters
 }
