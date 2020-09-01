@@ -94,7 +94,7 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
   }
 }
 
-SubSampleFit <- function(data, sample.length, depth, method, mode='two-stage', type='exp', bounds='config',
+SubSampleFit <- function(data, sample.length, depth, method, mode, type, bounds,
                          trials, parallel=F, seed=42){
   # method 'PL' or 'GMM'
   # depth for PL is the length of blocks, GMM depth is the ACF depth

@@ -17,3 +17,34 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(gammaextremes)
 ```
+
+```{r}
+max_length <- 10000
+pollution_data <- read.csv('../data/clean_pollution_data.csv')
+pollution_data <- pollution_data[,-1]
+
+cols_to_test <- 1:1
+depth <- 10
+method <- 'GMM'
+mode <- 'full'
+type <- 'exp'
+bounds <- 'config'
+sample.length <- 9999
+trials <- 1
+
+print(lapply(cols_to_test,
+       function(test_column){
+         data <- pollution_data[1:max_length, test_column]
+         return(SubSampleFit(
+           data=data, depth=depth, 
+           trials=trials,
+           sample.length=sample.length,
+           method=method,
+           mode=method, 
+           type=type,
+           bounds=bounds,
+           parallel=F,
+           seed=42))
+       }
+))
+```

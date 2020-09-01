@@ -44,6 +44,26 @@ test_that("Custom MLE - positive xi", {
   expect_equal(cm_mle, c(xi, sigma, kappa), tolerance=5e-2)
 })
 
+
+test_that("Composite MLE - score ACF", {
+  xi <- 1.
+  kappa <- 9.
+  sigma <- 1.
+  n <- 100000
+  p_zero <- 1 - 1. / (1. + kappa)
+
+  set.seed(42)
+  zeroes <- runif(n = n, min = 0, max = 1)
+  test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
+  test_samples[which(zeroes < p_zero)] <- 0.0
+
+  print(CompositeMarginalScoreAcf(data=test_samples, params=c(xi, sigma, kappa), k=3))
+  print(CompositeMarginalHAC(data=test_samples, params=c(xi, sigma, kappa), k=3, 1000))
+})
+
+
+
+
 #
 # test_that("Composite MLE - positive/negative xi", {
 #   kappa <- 9.
