@@ -82,3 +82,36 @@ CompositeMarginalMLE <- function(data){
 
   return(stats::optim(par = init_guess[1:3], fn_mle, method='L-BFGS-B', lower=lower, upper=upper, control = list())$par)
 }
+
+CompositeMarginalScoreAcf <- function(data, params, k, max_length=100){
+  n_row <- min(max_length, length(data))
+  data <- data[1:n_row]
+  score_for_each_pt <- t(vapply(data, function(x){
+    composite_lk <- CompositeLikelihood(x)
+    return(pracma::grad(composite_lk, x0 = params))
+  }, rep(0, length(params)))) # data_length x 3
+
+  mean_score_for_each_pt <- apply(score_for_each_pt, 2, mean)
+
+  return(
+    vapply(0:k, function(i){
+      if(i == 0){
+        var(score_for_each_pt)
+      }else{
+        t(score_for_each_pt[i:n_row,]) %*% score_for_each_pt[1:(n_row-i+1),]/n_row - mean_score_for_each_pt %*% t(mean_score_for_each_pt)
+      }
+
+  }, matrix(0, length(params), length(params)))
+  )
+}
+
+CompositeMarginalHAC <- function(data, params, k=10, max_length=100){
+  score_acf <- CompositeMarginalScoreAcf(data, params, k, max_length)
+  score_var <- score_acf[,,1]
+  score_acf <- score_acf[,,-1]
+  score_acf <- apply(score_acf, MARGIN = c(1,2), function(x){x + t(x)})
+  print(dim(score_acf[,,1]))
+  score_acf <- vapply(1:k, function(i){(1-i/(k+1)) * score_acf[,,i]}, matrix(0, dim(score_acf[,,1])[1], dim(score_acf[,,1])[2]))
+
+  return(Matrix::nearPD(score_var + apply(score_acf, c(1,2), sum)))
+}
