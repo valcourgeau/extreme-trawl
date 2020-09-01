@@ -117,7 +117,7 @@ test_that("PLConstructor - PL initial guess", {
   testthat::expect_equal(i_guess, .15, tolerance=1e-2)
 })
 
-test_that("PLConstructor - PL as function of rho", {
+test_that("PLConstructor - PL as function of rho - convex", {
   TIME_DIVISOR <- 1e6
 
   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
@@ -136,7 +136,8 @@ test_that("PLConstructor - PL as function of rho", {
           GetTrawlEnvsList()))
 
   pl_fn <- PairwiseLikelihood$TwoStageTrawlPL(data=pollution_data[1:max_length, test_column], depth=depth, cl=cl)
-  plot(vapply(1:20/10, pl_fn, 1.0), main='pl as function of rho')
+  rho_vals <- 1:10/30
+  plot(rho_vals, vapply(rho_vals, pl_fn, 1.0), main='pl as function of rho')
 })
 
 

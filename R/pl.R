@@ -29,7 +29,7 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
       jacob_cst <- min(abs(params[1])^{-3}, 1000, na.rm = T)
       return(CppCaseSeparator(xs,
                               alpha = params_noven[1],
-                              beta = params_noven[2],
+                              beta = 1.0,
                               kappa = params_noven[3],
                               B1 = B1_func(trawl_params, h),
                               B2 = B2_func(trawl_params, h),
