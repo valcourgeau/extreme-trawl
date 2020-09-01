@@ -1,6 +1,6 @@
 TrawlGMM <- new.env()
 
-TrawlGMM$TrawlObjective <- function(data, depth, type='exp'){
+TrawlGMM$TrawlObjective <- function(data, depth, type='exp', metric=measures::SSE){
   function(pars){
     # pars should be (xi, sigma, kappa, rho)
     noven_pars <- ParametrisationTranslator(params = pars[1:3], parametrisation = 'standard', target = 'transform')
@@ -11,7 +11,7 @@ TrawlGMM$TrawlObjective <- function(data, depth, type='exp'){
             rho = trawl_params, delta = 0.1, cov = F, type=type)
         sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
 
-        return(sum((acf_vals-sample_cross_mom)^2))
+        return(metric(acf_vals, sample_cross_mom))
       }
     )
   }
@@ -44,8 +44,8 @@ TrawlGMM$FullGMMObjective <- function(data, depth, omega='id', type='exp'){
   })
 }
 
-TrawlGMM$TwoStageGMMObjective <- function(data, depth, type='exp'){
+TrawlGMM$TwoStageGMMObjective <- function(data, depth, type='exp', metric=measures::SSE){
   pars <- CompositeMarginalMLE(data = data)
-  trawl_obj <- TrawlGMM$TrawlObjective(data, depth, type=type) # return a function of the whole set of params
+  trawl_obj <- TrawlGMM$TrawlObjective(data, depth, type=type, metric=metric) # return a function of the whole set of params
   return(trawl_obj(pars)) # function of trawl parameters
 }
