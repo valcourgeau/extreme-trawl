@@ -57,7 +57,6 @@ test_that("Composite MLE - score ACF", {
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
 
-  print(CompositeMarginalScoreAcf(data=test_samples, params=c(xi, sigma, kappa), k=3))
   print(CompositeMarginalHAC(data=test_samples, params=c(xi, sigma, kappa), k=3, 1000))
 })
 

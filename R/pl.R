@@ -39,6 +39,7 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
   )
 }
 
+
 PairwiseLikelihood$ParallelApplyPL <- function(data, k, this_pl, cl){
   n_sample <- length(data)
   xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
@@ -153,5 +154,49 @@ PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', cl=NULL)
   })
 }
 
+PairwiseLikelihood$PairLikelihoodPerDepth <- function(data, depth, type='exp'){
+  # params is (xi, sigma, kappa, trawl_params)
+  n_sample <- length(data)
 
+  return(lapply(
+    1:depth,
+    FUN = function(k){
+      function(params){
+        pair_pdf <- PairwiseLikelihood$PairPDFConstructor(params, type)
+
+        # single stack
+        xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
+
+        # TODO make this parallel
+        return(apply(xs_stack, MARGIN = 1, FUN = function(xs){log(max(pair_pdf(xs, k), 0.0, na.rm = T) + 1e-7)}))
+      }
+    }
+  )
+  )
+}
+
+PairwiseLikelihood$TrawlPLScore <- function(params, depth, type='exp', max_length=100){
+
+  return(
+    function(data){
+      n_sample <- min(max_length, length(data))
+      data <- data[1:n_sample]
+
+      score_per_depth <- lapply(1:depth,
+             function(k){
+               xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
+               score_given_depth <- vapply(xs_stack,
+                      FUN = function(xs){
+                        log_pl <- function(par){
+                          pair_pdf <- PairwiseLikelihood$PairPDFConstructor(par, type)
+                          log(max(pair_pdf(xs, k), 0.0, na.rm = T) + 1e-7)
+                        }
+                        return(pracma::grad(log_pl, x0 = params))
+                      }, FUN.VALUE = rep(0, length(params)))
+               score_given_depth <- t(score_given_depth)
+             })
+
+
+    }) # data_length x length(params)
+}
 
