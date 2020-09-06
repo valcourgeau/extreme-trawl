@@ -57,7 +57,11 @@ test_that("Composite MLE - score ACF", {
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
 
-  print(CompositeMarginalHAC(data=test_samples, params=c(xi, sigma, kappa), k=3, 1000))
+  pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+  test_column <- 2
+  max_length <- 20000
+
+  print(CompositeMarginalHAC(data=pollution_data[,test_column], params=c(xi, sigma, kappa), k=3, 1000))
 })
 
 

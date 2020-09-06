@@ -149,19 +149,85 @@
 # })
 #
 
-test_that("PLScore", {
+# test_that("PLScore", {
+#   TIME_DIVISOR <- 1e6
+#
+#   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+#   test_column <- 2
+#   max_length <- 20000
+#   depth <- 12
+#
+#   data <- pollution_data[1:max_length, test_column]
+#
+#   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=10)
+#   i_guess_model <- GetInitialGuessAndBounds(data = data, max_length = max_length)
+#   pl_score <- PairwiseLikelihood$TrawlPLScore(params=c(i_guess_model$init_guess, i_guess), depth = depth, type = 'exp', max_length = 200)
+#   hac_full <- PairwiseLikelihood$TrawlPLHAC(data=data, params=c(i_guess_model$init_guess, i_guess), depth=depth, k=8, type='exp', max_length = 500)
+#   testthat::expect_true(Matrix::det(hac_full) > 0)
+#   testthat::expect_false(any(vapply(hac_full, is.na, T)))
+#   testthat::expect_false(any(vapply(hac_full, is.infinite, T)))
+# })
+#
+# test_that("PLScorePartial", {
+#   TIME_DIVISOR <- 1e6
+#
+#   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+#   test_column <- 2
+#   max_length <- 20000
+#   depth <- 12
+#
+#   data <- pollution_data[1:max_length, test_column]
+#
+#   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=10)
+#   i_guess_model <- GetInitialGuessAndBounds(data = data, max_length = max_length)
+#   pl_score <- PairwiseLikelihood$TrawlPLScorePartial(params=c(i_guess_model$init_guess, i_guess), depth = depth, type = 'exp', max_length = 200)
+#   hac_partial <- PairwiseLikelihood$TrawlPLHACPartial(data=data, params=c(i_guess_model$init_guess, i_guess), depth=depth, k=8, type='exp', max_length = 500)
+#   cat('hac_partial', hac_partial, '\n')
+#   testthat::expect_true(hac_partial > 0)
+#   testthat::expect_false(is.na(hac_partial))
+#   testthat::expect_false(is.infinite(hac_partial))
+# })
+#
+#
+# test_that("PLHessian", {
+#   TIME_DIVISOR <- 1e6
+#
+#   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+#   test_column <- 2
+#   max_length <- 20000
+#   depth <- 12
+#
+#   data <- pollution_data[1:max_length, test_column]
+#
+#   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=10)
+#   i_guess_model <- GetInitialGuessAndBounds(data = data, max_length = max_length)
+#   pl_hessian <- PairwiseLikelihood$TrawlPLHessian(params=c(i_guess_model$init_guess, i_guess), depth = depth, type = 'exp', max_length = 200)
+#   print('pl_hessian')
+#   pl_hess <- pl_hessian(data[1:50])
+#   print(matrix(pl_hess[[1]][3,], 4, 4))
+#
+#   ts_var <- PairwiseLikelihood$TwoStageVariance(
+#     data=data, params=c(i_guess_model$init_guess, i_guess),
+#     depth=depth, k=10, type='exp', max_length=100)
+# })
+
+
+test_that("Two-stage - Variance", {
   TIME_DIVISOR <- 1e6
 
   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
   test_column <- 2
   max_length <- 20000
-  depth <- 10
+  depth <- 4
 
-  pl_score <- PairwiseLikelihood$TrawlPLScore(params=c(-.003, .3, 19, .15), depth = depth, type = 'exp', max_length = 100)
-  pl_score(pollution_data[,2])
+  data <- pollution_data[1:max_length, test_column]
+
+  i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20)
+  i_guess_model <- CompositeMarginalMLE(data)
+  ts_var <- PairwiseLikelihood$TwoStageVariance(
+    data=data, params=c(i_guess_model, i_guess),
+    depth=depth, type='exp', max_length=300)
+  cat('ts_var', ts_var, '\n')
 })
-
-
-
 
 
