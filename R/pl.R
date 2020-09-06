@@ -123,6 +123,25 @@ PairwiseLikelihood$PLConstructor <- function(params, depth, pair_likehood, cl=NU
   return(pl_f)
 }
 
+
+PairwiseLikelihood$PLConstructorSingle <- function(params, k, pair_likehood){
+  # returns function implementing Consecutive PL with depth depth
+  stopifnot(k >= 1)
+  pl_f <- function(data){
+    n_sample <- length(data)
+
+    # adds jacobian
+    jacob <- TransformationJacobian(params_std = params[1:3])
+    jacob_vals <- jacob(data)
+    jacob_vals <- sum(log(jacob_vals[!is.na(jacob_vals)] + 1e-7))
+
+    log_pl_per_depth <- pair_likehood(data, k) + jacob_vals
+    return(-log_pl_per_depth) # -1 because optim minimises by default
+  }
+
+  return(pl_f)
+}
+
 PairwiseLikelihood$TrawlPLStandard <- function(params, depth, type='exp', cl=NULL){
   # param with (xi, sigma, kappa, trawl_params)
   pair_likehood_f <- PairwiseLikelihood$PairPDFConstructor(params = params, type = type) # yields a function of (xs, h)
@@ -154,49 +173,172 @@ PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', cl=NULL)
   })
 }
 
-PairwiseLikelihood$PairLikelihoodPerDepth <- function(data, depth, type='exp'){
-  # params is (xi, sigma, kappa, trawl_params)
-  n_sample <- length(data)
-
-  return(lapply(
-    1:depth,
-    FUN = function(k){
-      function(params){
-        pair_pdf <- PairwiseLikelihood$PairPDFConstructor(params, type)
-
-        # single stack
-        xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
-
-        # TODO make this parallel
-        return(apply(xs_stack, MARGIN = 1, FUN = function(xs){log(max(pair_pdf(xs, k), 0.0, na.rm = T) + 1e-7)}))
-      }
-    }
-  )
-  )
-}
+# PairwiseLikelihood$PairLikelihoodPerDepth <- function(data, depth, type='exp'){
+#   # params is (xi, sigma, kappa, trawl_params)
+#   n_sample <- length(data)
+#
+#   return(lapply(
+#     1:depth,
+#     FUN = function(k){
+#       function(params){
+#         pair_pdf <- PairwiseLikelihood$PairPDFConstructor(params, type)
+#
+#         # single stack
+#         xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
+#
+#         # TODO make this parallel
+#         return(apply(xs_stack, MARGIN = 1, FUN = function(xs){log(max(pair_pdf(xs, k), 0.0, na.rm = T) + 1e-7)}))
+#       }
+#     }
+#   )
+#   )
+# }
 
 PairwiseLikelihood$TrawlPLScore <- function(params, depth, type='exp', max_length=100){
-
+  # Full Score function
   return(
     function(data){
       n_sample <- min(max_length, length(data))
       data <- data[1:n_sample]
 
-      score_per_depth <- lapply(1:depth,
-             function(k){
-               xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
-               score_given_depth <- vapply(xs_stack,
-                      FUN = function(xs){
-                        log_pl <- function(par){
-                          pair_pdf <- PairwiseLikelihood$PairPDFConstructor(par, type)
-                          log(max(pair_pdf(xs, k), 0.0, na.rm = T) + 1e-7)
-                        }
-                        return(pracma::grad(log_pl, x0 = params))
-                      }, FUN.VALUE = rep(0, length(params)))
-               score_given_depth <- t(score_given_depth)
-             })
-
-
-    }) # data_length x length(params)
+      score_per_depth <- lapply(
+         1:depth,
+         function(k){
+           xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
+            t(apply(xs_stack, MARGIN = 1,
+                   FUN = function(xs){
+                     log_pl <- function(par){
+                       pair_pdf <- PairwiseLikelihood$PairPDFConstructor(par, type)
+                       pl_w_jacob <- PairwiseLikelihood$PLConstructorSingle(par, k, pair_pdf)
+                       return(-pl_w_jacob(xs))
+                     }
+                     return(pracma::grad(log_pl, x0 = params))}
+                   )
+              )
+         }
+      )
+      return(score_per_depth)
+    }) # list of depth items data_length x length(params)
 }
 
+PairwiseLikelihood$TrawlPLHessian <- function(params, depth, type='exp', max_length=100){
+  # Full Score function
+  return(
+    function(data){
+      n_sample <- min(max_length, length(data))
+      data <- data[1:n_sample]
+
+      score_per_depth <- lapply(
+        1:depth,
+        function(k){
+          xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
+          t(apply(xs_stack, MARGIN = 1,
+                  FUN = function(xs){
+                    log_pl <- function(par){
+                      pair_pdf <- PairwiseLikelihood$PairPDFConstructor(par, type)
+                      pl_w_jacob <- PairwiseLikelihood$PLConstructorSingle(par, k, pair_pdf)
+                      return(-pl_w_jacob(xs))
+                    }
+                    return(pracma::hessian(log_pl, x0 = params))}
+          )
+          )
+        }
+      )
+      return(score_per_depth)
+    }) # list of depth items data_length x length(params)
+}
+
+PairwiseLikelihood$TrawlPLScorePartial <- function(params, depth, type='exp', max_length=100){
+  # Full Score function
+  return(
+    function(data){
+      n_sample <- min(max_length, length(data))
+      data <- data[1:n_sample]
+      k <- 2
+
+      xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
+      trawl_params <- params[4:length(params)]
+      model_params <- params[1:3]
+
+      score_per_depth <- lapply(
+        1:depth,
+        function(k){
+          apply(xs_stack, MARGIN = 1,
+                  FUN = function(xs){
+                    log_pl <- function(par){
+                      pair_pdf <- PairwiseLikelihood$PairPDFConstructor(c(model_params, par), type)
+                      pl_w_jacob <- PairwiseLikelihood$PLConstructorSingle(c(model_params, par), k, pair_pdf)
+                      return(-pl_w_jacob(xs))
+                    }
+                    return(pracma::grad(log_pl, x0 = trawl_params))}
+          )
+        }
+      )
+      return(score_per_depth)
+    }) # list of depth items data_length x length(params)
+}
+
+PairwiseLikelihood$TrawlPLHAC <- function(data, params, depth, k=10, type='exp', max_length=100){
+  lk_score <- PairwiseLikelihood$TrawlPLScore(params, depth, type, max_length)
+  pl_score_per_depth <- lk_score(data)
+
+  score_acf_autocov_mat <- lapply(
+    pl_score_per_depth,
+    function(pl_score){AutocovarianceMatrix(pl_score, params, k)})
+  pl_hac <- lapply(score_acf_autocov_mat, function(autocov_mat){MakeHAC(autocov_mat)})
+  return(Reduce(`+`, pl_hac)/depth) # sum across clusters
+}
+
+PairwiseLikelihood$TrawlPLHACPartial <- function(data, params, depth, k=10, type='exp', max_length=100){
+  # only the trawl parameters
+  lk_score <- PairwiseLikelihood$TrawlPLScorePartial(params, depth, type, max_length)
+  pl_score_per_depth <- lk_score(data)
+
+  trawl_params <- params[4:length(params)]
+
+  score_acf_autocov_mat <- lapply(
+    pl_score_per_depth,
+    function(pl_score){AutocovarianceMatrix(pl_score, trawl_params, k)})
+  pl_hac <- lapply(score_acf_autocov_mat, function(autocov_mat){MakeHAC(autocov_mat)})
+  return(Reduce(`+`, pl_hac)/depth) # sum across clusters
+}
+
+PairwiseLikelihood$TwoStageVariance <- function(data, params, depth, type='exp', max_length=100){
+  # only the trawl parameters
+  lk_score <- PairwiseLikelihood$TrawlPLScore(params, depth, type, max_length)
+  pl_score_per_depth <- lk_score(data)
+
+  lk_hessian <- PairwiseLikelihood$TrawlPLHessian(params, depth, type, max_length)
+  pl_hessian_per_depth <- lk_hessian(data)
+  mean_hessian <- Reduce(`+`, lapply(pl_hessian_per_depth, function(x){apply(x, MARGIN = 2, FUN = mean)}))/depth # length(data) x length(params)^2
+  mean_hessian <- - mean_hessian
+  mean_hessian_wo_trawl <- matrix(mean_hessian[1:(length(params)*3)], nrow = length(params), ncol=3)
+  mean_hessian_only_trawl <- matrix(mean_hessian[(length(params)*3+1):length(params)^2], nrow = 1, ncol=length(params))
+
+  print(mean_hessian_wo_trawl)
+  print(mean_hessian_only_trawl)
+
+  clk_hessian <- CompositeLikelihoodHessian(params[1:3], max_length=max_length*depth)
+  value_clk_hessian <- clk_hessian(data)
+  value_clk_hessian <- apply(value_clk_hessian, 2, mean)
+  value_clk_hessian <- matrix(value_clk_hessian, 3, 3, byrow = F)
+  value_clk_hessian <- solve(value_clk_hessian)
+
+  clk_score <- CompositeLikelihoodScore(params[1:3], max_length=max_length)
+  value_clk_score <- clk_score(data)
+  value_clk_score <- t(value_clk_score)
+
+  correction_composite <- t(mean_hessian_wo_trawl %*% value_clk_hessian %*% value_clk_score) # max_length x length(params)
+
+  n_correction <- nrow(correction_composite)
+  pair_corrections <- lapply(1:depth, function(i){.5*correction_composite[1:(n_correction-i),] + .5*correction_composite[(i+1):(n_correction),]})
+  corrected_per_depth <- pl_score_per_depth # Map('-', pl_score_per_depth, pair_corrections)
+  core_with_corrections <- lapply(corrected_per_depth, function(x){(t(x) %*% x) / nrow(x)}) # E((s_pl - corr) * (s_pl - corr)^T)
+
+  print('core_with_corrections')
+  print(core_with_corrections)
+  core_with_corrections <- lapply(core_with_corrections, function(x){mean_hessian_only_trawl %*% x %*% t(mean_hessian_only_trawl)})
+  core_with_corrections <- mean(unlist(core_with_corrections)) # mean across k
+
+  return(core_with_corrections)
+}

@@ -98,6 +98,19 @@ CompositeLikelihoodScore <- function(params, max_length=100){
     }) # data_length x length(params)
 }
 
+CompositeLikelihoodHessian <- function(params, max_length=100){
+  return(
+    function(data){
+      n_row <- min(max_length, length(data))
+      data <- data[1:n_row]
+      hess_composite <- t(vapply(data, function(x){
+        composite_lk <- CompositeLikelihood(x)
+        return(pracma::hessian(composite_lk, x0 = params))
+      }, rep(0, length(params)^2)))
+      return(hess_composite)
+    }) # data_length x length(params)^2
+}
+
 CompositeMarginalHAC <- function(data, params, k=10, max_length=100){
   lk_score <- CompositeLikelihoodScore(params, max_length)
   score_acf <- AutocovarianceMatrix(lk_score(data), params, k)
