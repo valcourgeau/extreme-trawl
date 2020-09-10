@@ -148,8 +148,8 @@
 #   testthat::expect_true(max(which_negative) < min(which_positive))
 # })
 #
-
-# test_that("PLScore", {
+#
+# test_that("TrawlPLHAC", {
 #   TIME_DIVISOR <- 1e6
 #
 #   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
@@ -158,17 +158,21 @@
 #   depth <- 12
 #
 #   data <- pollution_data[1:max_length, test_column]
+#   k.max <- 20
+#   max_length <- 500
 #
 #   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=10)
 #   i_guess_model <- GetInitialGuessAndBounds(data = data, max_length = max_length)
-#   pl_score <- PairwiseLikelihood$TrawlPLScore(params=c(i_guess_model$init_guess, i_guess), depth = depth, type = 'exp', max_length = 200)
-#   hac_full <- PairwiseLikelihood$TrawlPLHAC(data=data, params=c(i_guess_model$init_guess, i_guess), depth=depth, k=8, type='exp', max_length = 500)
+#   hac_full <- PairwiseLikelihood$TrawlPLHAC(data=data, params=c(i_guess_model$init_guess, i_guess),
+#                                             depth=depth, k=k.max, type='exp', max_length = max_length)
+#   print('hac_full')
+#   print(hac_full)
 #   testthat::expect_true(Matrix::det(hac_full) > 0)
 #   testthat::expect_false(any(vapply(hac_full, is.na, T)))
 #   testthat::expect_false(any(vapply(hac_full, is.infinite, T)))
 # })
 #
-# test_that("PLScorePartial", {
+# test_that("TrawlPLHACPartial", {
 #   TIME_DIVISOR <- 1e6
 #
 #   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
@@ -180,7 +184,6 @@
 #
 #   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=10)
 #   i_guess_model <- GetInitialGuessAndBounds(data = data, max_length = max_length)
-#   pl_score <- PairwiseLikelihood$TrawlPLScorePartial(params=c(i_guess_model$init_guess, i_guess), depth = depth, type = 'exp', max_length = 200)
 #   hac_partial <- PairwiseLikelihood$TrawlPLHACPartial(data=data, params=c(i_guess_model$init_guess, i_guess), depth=depth, k=8, type='exp', max_length = 500)
 #   cat('hac_partial', hac_partial, '\n')
 #   testthat::expect_true(hac_partial > 0)
@@ -210,23 +213,22 @@
 #     data=data, params=c(i_guess_model$init_guess, i_guess),
 #     depth=depth, k=10, type='exp', max_length=100)
 # })
-
-
+#
+#
 test_that("Two-stage - Variance", {
-  TIME_DIVISOR <- 1e6
-
   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
   test_column <- 2
   max_length <- 20000
-  depth <- 4
+  depth <- 8
 
   data <- pollution_data[1:max_length, test_column]
 
   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20)
   i_guess_model <- CompositeMarginalMLE(data)
+  # init <- c(-0.009792636, 0.3141497, 19.96388, 0.220771)
   ts_var <- PairwiseLikelihood$TwoStageVariance(
     data=data, params=c(i_guess_model, i_guess),
-    depth=depth, type='exp', max_length=300)
+    depth=depth, type='exp', max_length=200)
   cat('ts_var', ts_var, '\n')
 })
 

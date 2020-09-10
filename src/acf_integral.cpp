@@ -6,7 +6,7 @@ int timesTwo(int x) {
   return x * 2;
 }
 
-double main_cross_moment(float x, float y,float beta, float b_oh, float b_o_exc_h) {
+double main_cross_moment(float x, float y, float beta, float b_oh, float b_o_exc_h) {
   double result(pow(1. + (x+y)/beta, b_oh));
   result *= pow(1. + x/beta, b_o_exc_h);
   result *= pow(1. + y/beta, b_o_exc_h);
