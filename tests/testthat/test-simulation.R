@@ -9,6 +9,6 @@ test_that("ExceedancesSimulation - simple", {
   print(evir::gpd(exc, threshold = 0.0, method = 'ml'))
   testthat::expect_equal(mean(exc > 0), .05, tolerance=8e-3)
   print(as.vector(acf(exc, lag.max = 40, plot = F)$acf))
-  print(TrawlAutocorrelation$AcfTrawlCollection(h=c(.01, 1:10), alpha=1, beta=1, kappa=params[3], rho=params[4], cov = F, type=type))
+  print(TrawlAutocorrelation$AcfTrawlCollection(h=c(.01, 1:10), alpha=1, beta=1, kappa=params[3], rho=params[4], cov = F, type=type, delta = .1, end_seq=50))
 
 })
