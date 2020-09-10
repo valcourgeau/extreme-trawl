@@ -128,13 +128,13 @@ TrawlAutocorrelation$acf_trawl_revisited_num_approx <- function(h, alpha, beta, 
 }
 
 #' @export
-TrawlAutocorrelation$AcfTrawlCollection <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', cov=T){
+TrawlAutocorrelation$AcfTrawlCollection <- function(h, alpha, beta, kappa, rho, delta=0.5, type='exp', end_seq = 50, cov=T){
   return(
     vapply(
       X = h,
       FUN.VALUE = 1.0,
       FUN = function(h){
-        TrawlAutocorrelation$AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa,
+        TrawlAutocorrelation$AcfTrawl(h, alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
                           rho = rho, delta = delta, type = type, cov = cov)
       }
     )
