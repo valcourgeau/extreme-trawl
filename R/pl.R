@@ -26,14 +26,17 @@ PairwiseLikelihood$PairPDFConstructor <- function(params, type='exp'){
   assertthat::assert_that(PairwiseLikelihood$CheckAllPositive(trawl_params))
 
   return(function(xs, h){
-      jacob_cst <- min(abs(params[1])^{-3}, 1000, na.rm = T)
+      # are_non_zero <- abs(xs) > 1e-8
+      # jacob_cst <- min(abs(params[1])^{-3}, 10000, na.rm = T) #* are_non_zero
+      # jacob_cst[!are_non_zero] <- 1
+      jacob_cst <- 1
       return(CppCaseSeparator(xs,
                               alpha = params_noven[1],
                               beta = 1.0,
                               kappa = params_noven[3],
                               B1 = B1_func(trawl_params, h),
                               B2 = B2_func(trawl_params, h),
-                              B3 = B3_func(trawl_params, h))*jacob_cst
+                              B3 = B3_func(trawl_params, h)) * prod(jacob_cst)
       )
     }
   )
@@ -173,27 +176,6 @@ PairwiseLikelihood$TwoStageTrawlPL <- function(data, depth, type='exp', cl=NULL)
   })
 }
 
-# PairwiseLikelihood$PairLikelihoodPerDepth <- function(data, depth, type='exp'){
-#   # params is (xi, sigma, kappa, trawl_params)
-#   n_sample <- length(data)
-#
-#   return(lapply(
-#     1:depth,
-#     FUN = function(k){
-#       function(params){
-#         pair_pdf <- PairwiseLikelihood$PairPDFConstructor(params, type)
-#
-#         # single stack
-#         xs_stack <- cbind(data[1:(n_sample-k)], data[(k+1):(n_sample)])
-#
-#         # TODO make this parallel
-#         return(apply(xs_stack, MARGIN = 1, FUN = function(xs){log(max(pair_pdf(xs, k), 0.0, na.rm = T) + 1e-7)}))
-#       }
-#     }
-#   )
-#   )
-# }
-
 PairwiseLikelihood$TrawlPLScore <- function(params, depth, type='exp', max_length=100){
   # Full Score function
   return(
@@ -286,7 +268,7 @@ PairwiseLikelihood$TrawlPLHAC <- function(data, params, depth, k=10, type='exp',
     pl_score_per_depth,
     function(pl_score){AutocovarianceMatrix(pl_score, params, k)})
   pl_hac <- lapply(score_acf_autocov_mat, function(autocov_mat){MakeHAC(autocov_mat)})
-  return(Reduce(`+`, pl_hac)/depth) # sum across clusters
+  return(Reduce(`+`, pl_hac)) # sum across clusters
 }
 
 PairwiseLikelihood$TrawlPLHACPartial <- function(data, params, depth, k=10, type='exp', max_length=100){
@@ -300,7 +282,7 @@ PairwiseLikelihood$TrawlPLHACPartial <- function(data, params, depth, k=10, type
     pl_score_per_depth,
     function(pl_score){AutocovarianceMatrix(pl_score, trawl_params, k)})
   pl_hac <- lapply(score_acf_autocov_mat, function(autocov_mat){MakeHAC(autocov_mat)})
-  return(Reduce(`+`, pl_hac)/depth) # sum across clusters
+  return(Reduce(`+`, pl_hac)) # sum across clusters
 }
 
 PairwiseLikelihood$TwoStageVariance <- function(data, params, depth, type='exp', max_length=100){
@@ -310,8 +292,8 @@ PairwiseLikelihood$TwoStageVariance <- function(data, params, depth, type='exp',
 
   lk_hessian <- PairwiseLikelihood$TrawlPLHessian(params, depth, type, max_length)
   pl_hessian_per_depth <- lk_hessian(data)
-  mean_hessian <- Reduce(`+`, lapply(pl_hessian_per_depth, function(x){apply(x, MARGIN = 2, FUN = mean)}))/depth # length(data) x length(params)^2
-  mean_hessian <- - mean_hessian
+  mean_hessian <- Reduce(`+`, lapply(pl_hessian_per_depth, function(x){apply(x, MARGIN = 2, FUN = mean)})) # length(data) x length(params)^2
+  mean_hessian <- mean_hessian
   mean_hessian_wo_trawl <- matrix(mean_hessian[1:(length(params)*3)], nrow = length(params), ncol=3)
   mean_hessian_only_trawl <- matrix(mean_hessian[(length(params)*3+1):length(params)^2], nrow = 1, ncol=length(params))
 
@@ -322,21 +304,19 @@ PairwiseLikelihood$TwoStageVariance <- function(data, params, depth, type='exp',
   value_clk_hessian <- clk_hessian(data)
   value_clk_hessian <- apply(value_clk_hessian, 2, mean)
   value_clk_hessian <- matrix(value_clk_hessian, 3, 3, byrow = F)
-  value_clk_hessian <- solve(value_clk_hessian)
+  # value_clk_hessian <- solve(value_clk_hessian)
 
   clk_score <- CompositeLikelihoodScore(params[1:3], max_length=max_length)
   value_clk_score <- clk_score(data)
   value_clk_score <- t(value_clk_score)
 
+  # correct scores
   correction_composite <- t(mean_hessian_wo_trawl %*% value_clk_hessian %*% value_clk_score) # max_length x length(params)
-
   n_correction <- nrow(correction_composite)
   pair_corrections <- lapply(1:depth, function(i){.5*correction_composite[1:(n_correction-i),] + .5*correction_composite[(i+1):(n_correction),]})
-  corrected_per_depth <- pl_score_per_depth # Map('-', pl_score_per_depth, pair_corrections)
+  corrected_per_depth <- Map('-', pl_score_per_depth, pair_corrections)
   core_with_corrections <- lapply(corrected_per_depth, function(x){(t(x) %*% x) / nrow(x)}) # E((s_pl - corr) * (s_pl - corr)^T)
 
-  print('core_with_corrections')
-  print(core_with_corrections)
   core_with_corrections <- lapply(core_with_corrections, function(x){mean_hessian_only_trawl %*% x %*% t(mean_hessian_only_trawl)})
   core_with_corrections <- mean(unlist(core_with_corrections)) # mean across k
 
