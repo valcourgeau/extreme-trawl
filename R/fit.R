@@ -1,11 +1,10 @@
 
-EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds='config', cl=NULL, ...){
-  stopifnot(mode %in% c('two-stage', 'full'))
-  stopifnot(method %in% c('GMM', 'PL'))
-  stopifnot(bounds %in% c('config', 'multiplier'))
+EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds='config', cl=NULL){
+  # stopifnot(mode %in% c('two-stage', 'full'))
+  # stopifnot(method %in% c('GMM', 'PL'))
+  # stopifnot(bounds %in% c('config', 'multiplier'))
 
   # method 'PL' or 'GMM' either 'full' or 'two-stage' modes
-
   trawl_cfg <- GetTrawlParamsConfig(type)
   init_guess_lower_upper <- GetInitialGuessAndBounds(data)
   init_guess_model <- init_guess_lower_upper$init_guess
@@ -18,11 +17,10 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
           max = trawl_cfg$upper[i])
   }, 1.)
 
-  init_trawl <- vapply(1:trawl_cfg$n_params, function(i){
-    runif(n = 1,
-          min = trawl_cfg$lower[i],
-          max = trawl_cfg$upper[i])
-  }, 1.)
+  fileConn<-file("output2123.txt")
+  writeLines(c("Hello","World"), fileConn)
+  close(fileConn)
+
   if(mode == 'two-stage'){
     marginal_params <- CompositeMarginalMLE(data)
     # choose function
@@ -32,7 +30,9 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
         type = type, cl = cl)
     }else{
       if(method == 'GMM'){
-        optim_fn <- TrawlGMM$TwoStageGMMObjective(data = data, depth = depth)
+        optim_fn <- TrawlGMM$TwoStageGMMObjective(data = data, depth = depth, type = type)
+      }else{
+        stop(paste('Method is wrong', method))
       }
     }
 
@@ -40,10 +40,11 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
     lower <- trawl_cfg$lower
     upper <- trawl_cfg$upper
     if(bounds == 'multiplier'){
-      init_trawl <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20, type=type)
+      init_trawl <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=40, type=type)
       lower <- init_trawl * 0.5
       upper <- init_trawl * 1.5
     }
+
     init_guess <- init_trawl
   }else{
     if(mode == 'full'){
@@ -55,7 +56,7 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
       }else{
         if(method == 'GMM'){
           optim_fn <- TrawlGMM$FullGMMObjective(
-            data = data, depth = depth)
+            data = data, depth = depth, type=type)
         }
       }
 
@@ -63,7 +64,7 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
       lower <- trawl_cfg$lower
       upper <- trawl_cfg$upper
       if(bounds == 'multiplier'){
-        init_trawl <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20, type=type)
+        init_trawl <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=40, type=type)
         lower <- init_trawl * 0.5
         upper <- init_trawl * 1.5
       }
@@ -77,14 +78,13 @@ EVTrawlFit <- function(data, depth, method, mode='two-stage', type='exp', bounds
     }
   }
 
-
   trawl_inference <- stats::optim(
     fn = optim_fn,
     par = init_guess,
     lower = lower,
     upper = upper,
-    method = 'L-BFGS-B',
-    ...)
+    method = 'L-BFGS-B')
+
   if(mode == 'two-stage'){
     return(c(marginal_params, trawl_inference$par))
   }else{
@@ -114,10 +114,22 @@ SubSampleFit <- function(data, sample.length, depth, method, mode, type, bounds,
             'TransformationJacobian',
             'ParametrisationTranslator',
             'PairwiseLikelihood',
+            'CompositeMarginalMLE',
             'TrawlGMM',
             'TrawlAutocorrelation',
             'EVTrawlFit',
             GetTrawlEnvsList()))
+
+    cat('sample.length', sample.length, '\n')
+    parallel::clusterExport(
+      cl, c('mode',
+            'sample.length',
+            'depth',
+            'method',
+            'mode',
+            'type',
+            'bounds',
+            'trials'))
 
     sub_sample_time <- Sys.time()
     if(method == 'GMM'){
@@ -126,38 +138,44 @@ SubSampleFit <- function(data, sample.length, depth, method, mode, type, bounds,
         X = start_points,
         cl = cl,
         fun = function(start_pt){
-          EVTrawlFit(
+          res <- EVTrawlFit(
             data = data[start_pt:(start_pt+sample.length)],
             depth = depth,
             mode = mode,
             method = method,
             type = type,
             bounds = bounds,
-            cl = NULL)
+            cl=NULL)
+          return(res)
          }
       )
     }else{
       # we perform PL computation in parallel
-      results <- lapply(
-        X = start_points,
-        FUN = function(start_pt){
-          EVTrawlFit(
-            data = data[start_pt:(start_pt+sample.length)],
-            depth = depth,
-            mode = mode,
-            method = method,
-            type = type,
-            bounds = bounds,
-            cl = cl)
-        }
-      )
+      if(method == 'PL'){
+        results <- lapply(
+          X = start_points,
+          FUN = function(start_pt){
+            res <- EVTrawlFit(
+              data = data[start_pt:(start_pt+sample.length)],
+              depth = depth,
+              mode = mode,
+              method = method,
+              type = type,
+              bounds = bounds,
+              cl = cl)
+            return(res)
+          }
+        )
+      }else{
+        stop(paste('method isnt correct', method))
+      }
     }
 
     print(Sys.time() - sub_sample_time)
     parallel::stopCluster(cl)
     results <- matrix(unlist(results), ncol=length(results[[1]]), byrow = T)
   }else{
-    print('No parallel trials but parallel PL.')
+    print('No parallel trials.')
     sub_sample_time <- Sys.time()
     results<- t(vapply(start_points,
                        FUN = function(start_pt){

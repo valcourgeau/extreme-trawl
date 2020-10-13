@@ -159,7 +159,7 @@ TrawlSimulation <- function(alpha, beta, n, vanishing_depth, trawl_parameter, ty
 # plot(density(trawl_sim))
 # lines(0:50/10, dgamma(0:50/10, shape = 3, rate = 3))
 
-ExceedancesSimulation <- function(params, parametrisation='standard', n, vanishing_depth, type, parallel=F, algo='standard'){
+ExceedancesSimulation <- function(params, n, parametrisation='standard', vanishing_depth, type, parallel=F, algo='standard'){
   #TODO have a function that does exactly that: given a parametrisation type, changes it to noven
 
   params_trawl <- ParametrisationTranslator(params = params[1:3], parametrisation = parametrisation, target = 'transform')
@@ -174,15 +174,14 @@ ExceedancesSimulation <- function(params, parametrisation='standard', n, vanishi
                                       type = type,
                                       parallel = parallel)
 
-  print(
-    fitdistrplus::fitdist(trawl_simulation, distr = "gamma", method = "mle")
-  )
+  # print(
+  #   fitdistrplus::fitdist(trawl_simulation, distr = "gamma", method = "mle")
+  # )
 
   PrintVanishingCoverage(trawl_parameter = trawl_parameter, vanishing_depth = vanishing_depth, type=type)
 
   # corr_uniform <- pgamma(trawl_simulation, shape=alpha, rate=beta)
   probabilities_zero <- 1-exp(-kappa*trawl_simulation) # TODO should be 1-exp()
-  print(summary(probabilities_zero))
 
   if(algo == 'standard'){
     print('standard algo')
@@ -190,14 +189,19 @@ ExceedancesSimulation <- function(params, parametrisation='standard', n, vanishi
 
     who_is_extreme <- uniform_samples > probabilities_zero
 
+    plot(probabilities_zero, main='probabilities_zero', type='l')
+    points(which(who_is_extreme), probabilities_zero[who_is_extreme], col='red')
+    roll_sum_extremes <- zoo::rollsum(who_is_extreme, k=15, sum, fill=0, align='right')
+    hist(roll_sum_extremes[roll_sum_extremes > 0.01])
+
     exceedances <- rep(0, n)
-    exceedances[who_is_extreme] <- rexp(n = length(who_is_extreme), rate = trawl_simulation[who_is_extreme])
+    exceedances[who_is_extreme] <- rexp(n = length(which(who_is_extreme)), rate = trawl_simulation[who_is_extreme])
     exceedances[who_is_extreme] <- TransformationMap(
       x = exceedances[who_is_extreme],
       params_std = params[1:3]
     )
 
-    return(exceedances)
+    return(list(exceedances=exceedances, latent=trawl_simulation))
   }
 
   # cat('mean prob zero', mean(probabilities_zero), '\n')
@@ -258,6 +262,6 @@ ExceedancesSimulation <- function(params, parametrisation='standard', n, vanishi
                        })
 
 
-  return(cbind(exceedances, trawl_simulation))
+  return(list(exceedances=exceedances, latent=trawl_simulation))
 }
 

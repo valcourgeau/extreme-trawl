@@ -215,21 +215,21 @@
 # })
 #
 #
-test_that("Two-stage - Variance", {
-  pollution_data <- read.csv('../../data/clean_pollution_data.csv')
-  test_column <- 2
-  max_length <- 20000
-  depth <- 8
-
-  data <- pollution_data[1:max_length, test_column]
-
-  i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20)
-  i_guess_model <- CompositeMarginalMLE(data)
-  # init <- c(-0.009792636, 0.3141497, 19.96388, 0.220771)
-  ts_var <- PairwiseLikelihood$TwoStageVariance(
-    data=data, params=c(i_guess_model, i_guess),
-    depth=depth, type='exp', max_length=200)
-  cat('ts_var', ts_var, '\n')
-})
+# test_that("Two-stage - Variance", {
+#   pollution_data <- read.csv('../../data/clean_pollution_data.csv')
+#   test_column <- 2
+#   max_length <- 20000
+#   depth <- 8
+#
+#   data <- pollution_data[1:max_length, test_column]
+#
+#   i_guess <- PairwiseLikelihood$InitGuess(data=data, depth=depth, n_trials=20)
+#   i_guess_model <- CompositeMarginalMLE(data)
+#   # init <- c(-0.009792636, 0.3141497, 19.96388, 0.220771)
+#   ts_var <- PairwiseLikelihood$TwoStageVariance(
+#     data=data, params=c(i_guess_model, i_guess),
+#     depth=depth, type='exp', max_length=200)
+#   cat('ts_var', ts_var, '\n')
+# })
 
 
