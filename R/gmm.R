@@ -12,8 +12,8 @@ TrawlGMM$TrawlObjective <- function(data, depth, type='exp', metric=measures::SS
 
     return(function(trawl_params){
         acf_vals <- TrawlAutocorrelation$AcfTrawlCollection(
-            h=c(0.01, 1:(depth)), alpha = noven_pars[1],
-            beta = noven_pars[2], kappa = noven_pars[3],
+            h=c(0.01, 1:(depth)), alpha = 1.,
+            beta = 1., kappa = noven_pars[3],
             rho = trawl_params, delta = 0.1, cov = F, type=type)
 
         return(metric(acf_vals, sample_cross_mom))
@@ -68,8 +68,8 @@ TrawlGMM$TrawlObjectiveDatapoint <- function(xs, k, mean_data, type='exp', metri
 
       return(function(trawl_params){
           acf_vals <- TrawlAutocorrelation$AcfTrawlCollection(
-            h=k, alpha = noven_pars[1],
-            beta = noven_pars[2], kappa = noven_pars[3],
+            h=k, alpha = 1.,
+            beta = 1., kappa = noven_pars[3],
             rho = trawl_params, delta = 0.1, cov = F, type=type)
 
           xs_stack <- prod(xs) - mean_data^2
@@ -243,8 +243,8 @@ TrawlGMM$TwoStageVariance <- function(data, params, depth, type='exp', max_lengt
 
   mean_hessian_only_trawl[4:length(params)] <- mean_hessian_only_trawl[4:length(params)] / depth  # TODO RM?
 
-  print(mean_hessian_wo_trawl)
-  print(mean_hessian_only_trawl)
+  # print(mean_hessian_wo_trawl)
+  # print(mean_hessian_only_trawl)
 
   clk_hessian <- CompositeLikelihoodHessian(params[1:3], max_length=max_length*depth)
   value_clk_hessian <- clk_hessian(data)
