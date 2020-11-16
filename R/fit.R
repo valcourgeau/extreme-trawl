@@ -122,14 +122,14 @@ SubSampleFit <- function(data, sample.length, depth, method, mode, type, bounds,
 
     # TODO check to include sample.length, etc in clusterExport when testing
     parallel::clusterExport(
-      cl, c('mode'#,
-            # 'sample.length',
-            # 'depth',
-            # 'method',
-            # 'mode',
-            # 'type',
-            # 'bounds',
-            # 'trials'
+      cl, c('mode',
+            'sample.length',
+            'depth',
+            'method',
+            'mode',
+            'type',
+            'bounds',
+            'trials'
             )
       )
 
