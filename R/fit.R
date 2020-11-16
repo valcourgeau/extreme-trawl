@@ -120,16 +120,18 @@ SubSampleFit <- function(data, sample.length, depth, method, mode, type, bounds,
             'EVTrawlFit',
             GetTrawlEnvsList()))
 
-    cat('sample.length', sample.length, '\n')
+    # TODO check to include sample.length, etc in clusterExport when testing
     parallel::clusterExport(
-      cl, c('mode',
-            'sample.length',
-            'depth',
-            'method',
-            'mode',
-            'type',
-            'bounds',
-            'trials'))
+      cl, c('mode'#,
+            # 'sample.length',
+            # 'depth',
+            # 'method',
+            # 'mode',
+            # 'type',
+            # 'bounds',
+            # 'trials'
+            )
+      )
 
     sub_sample_time <- Sys.time()
     if(method == 'GMM'){
@@ -203,4 +205,20 @@ SubSampleFit <- function(data, sample.length, depth, method, mode, type, bounds,
   results_list$start.indices <- start_points
 
   return(results_list)
+}
+
+
+Fit <- function(data, depth, method, mode, type, bounds, parallel=F){
+    return(SubSampleFit(
+        data = data,
+        depth = depth,
+        sample.length = length(data)-1,
+        method = method,
+        mode = mode,
+        type = type,
+        bounds = bounds,
+        parallel = parallel,
+        trials = 1
+      )
+    )
 }
