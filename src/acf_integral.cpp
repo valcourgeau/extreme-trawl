@@ -2,7 +2,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-int timesTwo(int x) {
+int times_two(int x) {
   return x * 2;
 }
 
@@ -28,7 +28,7 @@ double main_moment(float x, float beta, float alpha) {
 //'
 //' @export
 // [[Rcpp::export]]
-double CrossMoment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
+double cross_moment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
   double total = 0;
   NumericVector ys = xs + delta / 2.;
 
@@ -41,7 +41,7 @@ double CrossMoment(NumericVector xs, float delta, float beta, float b_oh, float 
 }
 
 // [[Rcpp::export]]
-double FirstMoment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
+double first_moment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
   double total = 0, alpha(-b_oh-b_o_exc_h);
   NumericVector ys = xs + delta / 2.;
   for(NumericVector::iterator i = ys.begin(); i != ys.end(); ++i) {
@@ -51,7 +51,7 @@ double FirstMoment(NumericVector xs, float delta, float beta, float b_oh, float 
 }
 
 // [[Rcpp::export]]
-double SquareMoment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
+double square_moment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
   double total = 0, alpha(-b_oh-b_o_exc_h);
   NumericVector ys = xs + delta / 2.;
   for(NumericVector::iterator i = ys.begin(); i != ys.end(); ++i) {
@@ -68,7 +68,7 @@ double SquareMoment(NumericVector xs, float delta, float beta, float b_oh, float
 //
 
 /*** R
-microbenchmark::microbenchmark(timesTwo(42))
-microbenchmark::microbenchmark(CrossMoment(c(1,2,3,4), 2., .1, 1., -.3))
-microbenchmark::microbenchmark(FirstMoment(c(1,2,3,4), 2., .1, 1., -.3))
+microbenchmark::microbenchmark(times_two(42))
+microbenchmark::microbenchmark(cross_moment(c(1,2,3,4), 2., .1, 1., -.3))
+microbenchmark::microbenchmark(first_moment(c(1,2,3,4), 2., .1, 1., -.3))
 */

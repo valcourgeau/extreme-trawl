@@ -1,20 +1,19 @@
-ExponentialTrawl <- new.env()
+exponential_trawl <- new.env()
 
-ExponentialTrawl$TrawlB1 <- function(param, h){
+exponential_trawl$trawl_b_one <- function(param, h) {
   stopifnot(length(param) == 1)
-  return((1.0- exp(-param*h))/param)
+  return((1.0 - exp(-param * h)) / param)
 }
 
-ExponentialTrawl$TrawlB2 <- function(param, h){
+exponential_trawl$trawl_b_two <- function(param, h) {
   stopifnot(length(param) == 1)
-  return(exp(-param*h)/param)
+  return(exp(-param * h) / param)
 }
 
-ExponentialTrawl$TrawlB3 <- function(param, h){
-  return(ExponentialTrawl$TrawlB1(param, h))
+exponential_trawl$trawl_b_three <- function(param, h) {
+  return(exponential_trawl$trawl_b_one(param, h))
 }
 
-ExponentialTrawl$Config <- function(){
-  return(list(n_params=1, lower=0.05, upper=0.99))
+exponential_trawl$config <- function() {
+  return(list(n_params = 1, lower = 0.05, upper = 0.99))
 }
-

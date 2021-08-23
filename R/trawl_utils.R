@@ -1,33 +1,43 @@
-GetTrawlEnv <- function(type){
+get_trawl_env <- function(type) {
   return(switch(type,
-                'exp' = ExponentialTrawl,
-                'sum_exp' = SumExponentialTrawl,
-                'sup_ig' = SupIGTrawl,
-                'gamma' = GammaTrawl
+    "exp" = exponential_trawl,
+    "sum_exp" = sum_exponential_trawl,
+    "sup_ig" = sup_ig_trawl,
+    "gamma" = gamma_trawl
   ))
 }
 
-GetTrawlFunctions <- function(type){
-  select_env <- GetTrawlEnv(type)
-  
-  return(c(select_env$TrawlB1, select_env$TrawlB2, select_env$TrawlB3))
+#' Obtaining the three functions necessary for the trawls.
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exponential_trawl"`, etc).
+#' @return A vector of three functions to define trawl intersections,
+#'     which depend on the trawl environment.
+#' @examples
+#' get_trawl_functions("exp") # Exponential trawl
+get_trawl_functions <- function(type) {
+  select_env <- get_trawl_env(type)
+
+  return(
+    c(
+      select_env$trawl_b_one, select_env$trawl_b_two, select_env$trawl_b_three
+    )
+  )
 }
 
-GetTrawlFunctions('exp')[1][[1]]
-GetTrawlFunctions('sum_exp')[1][[1]]
-
-
-GetTrawlParamsConfig <- function(type){
-  # returns triplet list (n_params, lower, upper) for each trawl type.
-  return(GetTrawlEnv(type)$Config())
+#' Returns triplet list (n_params, lower, upper) for each trawl type.
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exponential_trawl"`, etc).
+#' @return A list of three vectors `list(n_params, lower, upper)` to define
+#'     trawl intersections parameters.
+#' @examples
+#' get_trawl_params_config("exp") # Exponential trawl cfg
+get_trawl_params_config <- function(type) {
+  return(get_trawl_env(type)$config())
 }
 
-
-GetTrawlEnvsList <- function(){
+get_trawl_envs_list <- function() {
   return(c(
-    'ExponentialTrawl',
-    'SumExponentialTrawl',
-    'SupIGTrawl',
-    'GammaTrawl'
+    "exponential_trawl",
+    "sum_exponential_trawl",
+    "sup_ig_trawl",
+    "gamma_trawl"
   ))
 }
