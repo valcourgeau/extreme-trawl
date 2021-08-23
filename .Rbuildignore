@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^end_to_end$
 ^\.pre-commit-config\.yaml$
+^\.github$
