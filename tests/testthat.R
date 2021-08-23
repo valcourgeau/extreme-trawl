@@ -1,4 +1,4 @@
 library(testthat)
-library(gammaextremes)
+library(extreme.trawl)
 
-test_check("gammaextremes")
+test_check("extreme.trawl")

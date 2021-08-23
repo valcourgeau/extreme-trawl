@@ -3,3 +3,4 @@
 ^end_to_end$
 ^\.pre-commit-config\.yaml$
 ^\.github$
+^README\.Rmd$

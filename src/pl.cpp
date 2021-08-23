@@ -8,9 +8,9 @@ const double EPSILON = std::numeric_limits<double>::epsilon();
 
 //' @export
 // [[Rcpp::export]]
-double CppCaseZeroZero(double alpha, double beta, double kappa, double B1, double B2, double B3) {
-  double A(B1+B3);
-  double b1(-alpha*B1/A), b2(-alpha*B2/A), b3(-alpha*B3/A);
+double cpp_case_zero_zero(double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
+  double A(b_1+b_3);
+  double b1(-alpha*b_1/A), b2(-alpha*b_2/A), b3(-alpha*b_3/A);
   double tmp(1.0 - 2.0*pow(1+kappa/beta, -alpha) + pow(1.0+kappa/beta, b1+b3)*pow(1.0+2.0*kappa/beta, b2));
 
   return tmp;
@@ -18,9 +18,9 @@ double CppCaseZeroZero(double alpha, double beta, double kappa, double B1, doubl
 
 //' @export
 // [[Rcpp::export]]
-double CppCaseOneZero(NumericVector xs, double alpha, double beta, double kappa, double B1, double B2, double B3) {
-  double A(B1+B3);
-  double b1(-alpha*B1/A), b2(-alpha*B2/A);
+double cpp_case_one_zero(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
+  double A(b_1+b_3);
+  double b1(-alpha*b_1/A), b2(-alpha*b_2/A);
   double tmp(alpha/beta * pow(1.0+kappa/beta, -alpha-1.0));
 
   if (std::abs(xs[0]) < EPSILON){
@@ -36,9 +36,9 @@ double CppCaseOneZero(NumericVector xs, double alpha, double beta, double kappa,
 
 //' @export
 // [[Rcpp::export]]
-double CppCaseOneOne(NumericVector xs, double alpha, double beta, double kappa, double B1, double B2, double B3) {
-  double A(B1+B3);
-  double b1(-alpha*B1/A), b2(-alpha*B2/A), b3(-alpha*B3/A);
+double cpp_case_one_one(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
+  double A(b_1+b_3);
+  double b1(-alpha*b_1/A), b2(-alpha*b_2/A), b3(-alpha*b_3/A);
   double x1(xs[1]), x2(xs[2]);
   double tmp_1(1.0/pow(beta, 2.0)*pow(1.0+(2.0*kappa+x1+x2)/beta, b2-2.0)*pow(1.0+(kappa+x1)/beta, b1-1.0)*pow(1+(kappa+x2)/beta, b3-1.0));
   double tmp_2(b2*(b2-1.0)*(1.0+(kappa+x1)/beta)*(1.0+(kappa+x2)/beta)+pow(b1, 2.0)*pow(1.0+(2.0*kappa+x1+x2)/beta, 2.0));
@@ -49,16 +49,16 @@ double CppCaseOneOne(NumericVector xs, double alpha, double beta, double kappa, 
 
 //' @export
 // [[Rcpp::export]]
-double CppCaseSeparator(NumericVector xs, double alpha, double beta, double kappa, double B1, double B2, double B3) {
+double cpp_case_separator(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   assert(xs.size() == 2);
   double product = std::accumulate(xs.begin(), xs.end(), 1, std::multiplies<double>());
   bool all_nonpositive = std::all_of(xs.begin(), xs.end(), [](double x){ return x <= EPSILON; });
 
   if(all_nonpositive){
-    return CppCaseZeroZero(alpha, beta, kappa, B1, B2, B3);
+    return cpp_case_zero_zero(alpha, beta, kappa, b_1, b_2, b_3);
   }else if(std::abs(product) < EPSILON){
-    return CppCaseOneZero(xs, alpha, beta, kappa, B1, B2, B3);
+    return cpp_case_one_zero(xs, alpha, beta, kappa, b_1, b_2, b_3);
   }else{
-    return CppCaseOneOne(xs, alpha, beta, kappa, B1, B2, B3);
+    return cpp_case_one_one(xs, alpha, beta, kappa, b_1, b_2, b_3);
   }
 }
