@@ -9,10 +9,15 @@ make_hac <- function(acf_matrices, near_pd = F) {
   weights <- 1 - (seq_len(k) - 1) / (k + 1)
   weighted_acf_matrices <- lapply(
     seq_len(k), function(i) {
-      weights[i] * acf_matrices[i, , ]
+      tmp <- acf_matrices[i, , ]
+      if (i > 1) {
+        tmp <- weights[i] * (tmp + t(tmp))
+      }
+      return(tmp)
     }
   )
   hac_ests <- Reduce(`+`, weighted_acf_matrices)
+  assertthat::assert_that(dim(hac_ests) == dim(acf_matrices)[c(2, 3)])
   if (near_pd) {
     hac_ests <- as.matrix(Matrix::nearPD(hac_ests))
   }
