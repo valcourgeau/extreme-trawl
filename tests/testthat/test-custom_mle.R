@@ -2,7 +2,7 @@ test_that("Custom likelihood - positive xi, only exceedance", {
   xi <- 1.
   kappa <- 9.
   sigma <- 1.
-  n <- 100000
+  n <- 30000
 
   set.seed(42)
   p_zero <- 1 - 1 / (1 + kappa)
@@ -19,7 +19,7 @@ test_that("Custom likelihood - positive xi", {
   xi <- .1
   kappa <- 9.
   sigma <- 1.
-  n <- 100000
+  n <- 30000
 
   set.seed(42)
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
@@ -33,7 +33,7 @@ test_that("Custom likelihood - matrix error", {
   xi <- .1
   kappa <- 9.
   sigma <- 1.
-  n <- 100000
+  n <- 30000
 
   set.seed(42)
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
@@ -46,7 +46,7 @@ test_that("Custom MLE - positive xi", {
   xi <- 1.
   kappa <- 9.
   sigma <- 1.
-  n <- 100000
+  n <- 30000
   p_zero <- 1 - 1. / (1. + kappa)
 
   set.seed(42)
@@ -62,7 +62,7 @@ test_that("Composite MLE - score ACF", {
   xi <- 1.
   kappa <- 9.
   sigma <- 1.
-  n <- 100000
+  n <- 30000
   p_zero <- 1 - 1. / (1. + kappa)
 
   set.seed(42)

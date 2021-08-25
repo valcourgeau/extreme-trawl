@@ -1,9 +1,15 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+//' Multiplies by two!
+//'
+//' @param x number
+//' @return twice as much as `x`
+//'
+//' @export
 // [[Rcpp::export]]
 int times_two(int x) {
-  return x * 2;
+  return x * 2.0;
 }
 
 double main_cross_moment(float x, float y, float beta, float b_oh, float b_o_exc_h) {
@@ -25,6 +31,7 @@ double main_moment(float x, float beta, float alpha) {
 //' @param beta GPD scale parameter in the sense of Noven et al.
 //' @param b_oh - alpha * mu(A inter A_h) / mu  (A)
 //' @param b_o_exc_h - alpha * mu(A excl. A_h) / mu  (A)
+//' @return Cross moment value
 //'
 //' @export
 // [[Rcpp::export]]
@@ -40,6 +47,16 @@ double cross_moment(NumericVector xs, float delta, float beta, float b_oh, float
   return total;
 }
 
+//' Computes first moment in trawl gamma-exponential mixture
+//'
+//' @param xs Grid to integrate on.
+//' @param delta Grid mesh size
+//' @param beta GPD scale parameter in the sense of Noven et al.
+//' @param b_oh - alpha * mu(A inter A_h) / mu  (A)
+//' @param b_o_exc_h - alpha * mu(A excl. A_h) / mu  (A)
+//' @return First moment value
+//'
+//' @export
 // [[Rcpp::export]]
 double first_moment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
   double total = 0, alpha(-b_oh-b_o_exc_h);
@@ -50,6 +67,16 @@ double first_moment(NumericVector xs, float delta, float beta, float b_oh, float
   return total;
 }
 
+//' Computes square moment in trawl gamma-exponential mixture
+//'
+//' @param xs Grid to integrate on.
+//' @param delta Grid mesh size
+//' @param beta GPD scale parameter in the sense of Noven et al.
+//' @param b_oh - alpha * mu(A inter A_h) / mu  (A)
+//' @param b_o_exc_h - alpha * mu(A excl. A_h) / mu  (A)
+//' @return Square moment value
+//'
+//' @export
 // [[Rcpp::export]]
 double square_moment(NumericVector xs, float delta, float beta, float b_oh, float b_o_exc_h) {
   double total = 0, alpha(-b_oh-b_o_exc_h);

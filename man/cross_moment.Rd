@@ -21,6 +21,9 @@ cross_moment(xs, delta, beta, b_oh, b_o_exc_h)
 \item alpha * mu(A excl. A_h) / mu  (A)
 }}
 }
+\value{
+Cross moment value
+}
 \description{
 Computes cross moment in trawl gamma-exponential mixture
 }
