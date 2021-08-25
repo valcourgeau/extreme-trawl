@@ -25,7 +25,20 @@ test_that("Custom likelihood - positive xi", {
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   cm_mle <- custom_likelihood(data = test_samples)
   pars <- c(xi, sigma, kappa)
-  expect_true(abs(cm_mle(pars)) < 1e10)
+  testthat::expect_true(abs(cm_mle(pars)) < 1e10)
+  testthat::expect_false(any(is.na(cm_mle(pars))))
+})
+
+test_that("Custom likelihood - matrix error", {
+  xi <- .1
+  kappa <- 9.
+  sigma <- 1.
+  n <- 100000
+
+  set.seed(42)
+  test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
+  matrix_test_samples <- cbind(test_samples, test_samples)
+  testthat::expect_error(custom_likelihood(data = matrix_test_samples))
 })
 
 
@@ -57,22 +70,22 @@ test_that("Composite MLE - score ACF", {
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
 
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
-  test_column <- 2
-  max_length <- 20000
 
-  print(composite_marginal_hac(
-    data = pollution_data[, test_column], params = c(xi, sigma, kappa),
-    k = 3, 1000
-  ))
+  k <- 3
+  cm_hac <- composite_marginal_hac(
+    data = test_samples, params = c(xi, sigma, kappa),
+    k = k, 1000
+  )
+  testthat::expect_equal(dim(cm_hac), c(k, k))
+  testthat::expect_true(all(diag(cm_hac) > 0))
 })
 
 
 
 test_that("Composite MLE - positive/negative xi", {
-  kappa <- 9.
+  kappa <- 4.
   p_zero <- 1 - 1. / (1. + kappa)
-  n <- 100000
+  n <- 50000
   xi_seq <- seq(from = -.3, to = .3, length.out = 4)
   sigma_seq <- seq(from = .1, to = 10, length.out = 4)
   for (xi in xi_seq) {
@@ -82,13 +95,10 @@ test_that("Composite MLE - positive/negative xi", {
       test_samples <- evir::rgpd(n = n, mu = 0, xi = xi, beta = sigma)
       test_samples[which(zeroes < p_zero)] <- 0.0
       cm_mle <- composite_marginal_mle(data = test_samples)
-      print(cm_mle)
       testthat::expect_equal(
-        cm_mle / c(xi, sigma, kappa),
-        rep(1, 3),
-        tolerance = .30
+        cm_mle / c(xi, sigma, kappa), rep(1, 3),
+        tolerance = .50
       )
-      # 30% tolerance
     }
   }
 })

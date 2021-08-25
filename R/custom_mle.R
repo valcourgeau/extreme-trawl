@@ -1,12 +1,15 @@
+# æ Generates a GPD initial guess and parameter bounds for "L-BFGS-B".
 get_initial_guess_and_bounds <- function(data, max_length = 20000,
                                          minus_mult = 0.5,
                                          plus_multiplier = 1.5) {
   length_data <- min(max_length, length(data))
   data <- data[1:length_data]
 
-  init_guess <- as.numeric(
-    evir::gpd(data, threshold = 0, method = "pwm")$par.ests
-  ) # (xi, sigma)
+  invisible(capture.output(
+    init_guess <- as.numeric(
+      evir::gpd(data, threshold = 0, method = "ml")$par.ests
+    )
+  )) # (xi, sigma)
 
   p_above_zero <- length(which(data > 0)) / length(data)
   kap <- (1 - p_above_zero) / p_above_zero
@@ -20,19 +23,38 @@ get_initial_guess_and_bounds <- function(data, max_length = 20000,
   return(list(init_guess = init_guess, lower = lower, upper = upper))
 }
 
+
+#' Likelihood function of parameters for fixed data.
+#' @param data Data on which to compute likelihood.
+#' @return Custom likelihood function of parameters.
+#' @examples
+#' set.seed(42)
+#' xi <- 1.
+#' kappa <- 9.
+#' sigma <- 1.
+#' n <- 1000
+#' p_zero <- 1 - 1 / (1 + kappa)
+#' zeroes <- runif(n = n, min = 0, max = 1)
+#' test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
+#' test_samples[which(zeroes < p_zero)] <- 0.0
+#' cm_mle <- custom_likelihood(data = test_samples)
+#' @export
+#' @importFrom evir dgpd
 custom_likelihood <- function(data) {
-  # with 0 and non-0
-  # returns a function of parameters
+  assertthat::assert_that(is.vector(data))
 
   return(function(par) {
     data_for_mle <- data
     kap <- par[3]
     p_zero <- 1 - 1. / (1. + kap)
 
-    like <- evir::dgpd(
-      x = data_for_mle[data_for_mle > 0.0],
-      beta = par[2], xi = par[1], mu = 0.0
-    )
+    invisible(capture.output(
+      like <- evir::dgpd(
+        x = data_for_mle[data_for_mle > 0.0],
+        beta = par[2], xi = par[1], mu = 0.0
+      ),
+      type = "message"
+    ))
     like <- like * (1 - p_zero)
     like <- like[!is.na(like)] + 1e-7
     like <- sum(log(like))
@@ -108,7 +130,6 @@ composite_likelihood_score <- function(params, max_length = 100) {
         composite_lk <- composite_likelihood(x)
         return(pracma::grad(composite_lk, x0 = params))
       }, rep(0, length(params))))
-      print(dim(grad_composite))
       return(grad_composite)
     }
   ) # data_length x length(params)
@@ -128,8 +149,31 @@ composite_likelihood_hessian <- function(params, max_length = 100) {
   ) # data_length x length(params)^2
 }
 
-composite_marginal_hac <- function(data, params, k = 10, max_length = 100) {
+#' HAC estimator of autocovariance for the composite marginal.
+#' @param data Data on which to compute the autocovariance.
+#' @param params Composite likelihood params.
+#' @param k Maximum lag.
+#' @param max_length Maximum length of data used to compute the score functions.
+#' @return Composite marginal HAC autocovariance.
+#' @examples
+#' xi <- 1.
+#' kappa <- 9.
+#' sigma <- 1.
+#' n <- 100
+#' p_zero <- 1 - 1. / (1. + kappa)
+#'
+#' set.seed(42)
+#' zeroes <- runif(n = n, min = 0, max = 1)
+#' test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
+#' test_samples[which(zeroes < p_zero)] <- 0.0
+#' composite_marginal_hac(
+#'   data = pollution_data[, test_column], params = c(xi, sigma, kappa),
+#'   k = 3, max_length = 50
+#' )
+#' @export
+composite_marginal_hac <- function(data, params, k = 10,
+                                   max_length = 100, near_pd = F) {
   lk_score <- composite_likelihood_score(params, max_length)
-  score_acf <- autocovariance_matrix(lk_score(data), params, k)
-  return(make_hac(score_acf))
+  score_acf <- autocovariance_matrix(lk_score(data), k)
+  return(make_hac(score_acf, near_pd))
 }
