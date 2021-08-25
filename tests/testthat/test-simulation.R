@@ -34,9 +34,10 @@ test_that("exceedances_simulation - cross", {
     params = params, n = n, vanishing_depth = vd,
     type = type, m = 50, algo = "cross"
   )
-  # returns (exceedances, latent)
+  # returns (both exceedances and latent values
   gpd_fit_sim <- evir::gpd(
-    exc$exceedances[!is.na(exc$exceedance)], threshold = 0.0, method = "ml"
+    data = exc$exceedances[!is.na(exc$exceedance)],
+    threshold = 0.0, method = "ml"
   )
 
   par_vals <- unname(gpd_fit_sim$par.ests)
@@ -45,7 +46,8 @@ test_that("exceedances_simulation - cross", {
   testthat::expect_equal(par_vals[1], params[1], tolerance = 1.96 * tol_vals[1])
   testthat::expect_equal(par_vals[2], params[2], tolerance = 1.96 * tol_vals[2])
   testthat::expect_equal(
-    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .07
+    mean(exc$exceedances > 0, na.rm = T), .05,
+    tolerance = .07
   )
 })
 
@@ -97,7 +99,8 @@ test_that("exceedances_simulation - dynamic latent", {
   acf_vals <- acf(exc$exceedances, plot = F, lag.max = 10)$acf[, , 1]
   testthat::expect_true(sum(diff(acf_vals) < 0) > 5)
   testthat::expect_equal(
-    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .1
+    mean(exc$exceedances > 0, na.rm = T), .05,
+    tolerance = .1
   )
 })
 
@@ -115,6 +118,7 @@ test_that("exceedances_simulation - dynamic uniform", {
   acf_vals <- acf(exc$exceedances, plot = F, lag.max = 10)$acf[, , 1]
   testthat::expect_true(sum(diff(acf_vals) < 0) > 5)
   testthat::expect_equal(
-    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .1
+    mean(exc$exceedances > 0, na.rm = T), .05,
+    tolerance = .1
   )
 })
