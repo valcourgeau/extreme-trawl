@@ -168,7 +168,7 @@ trawl_simulation <- function(alpha, beta, n, vanishing_depth,
   return(gamma_orchestra(gamma_grid, parallel = parallel))
 }
 
-# nolint start
+
 exceedances_simulation <- function(params, n, vanishing_depth, type,
                                    m = 1, parametrisation = "standard",
                                    parallel = F, algo = "standard") {
@@ -332,6 +332,11 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
               extreme_proba <- 1 / (1 + kappa) - extreme_proba / (1 + kappa)
               extreme_proba <- extreme_proba / (1 - 1 / (1 + kappa))
             }
+            if (1 - p_u_t[1] > extreme_proba) {
+              prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+            } else {
+              prev_sample <<- 0.0
+            }
           } else {
             if (algo == "dynamic_uniform") {
               if (prev_sample == 0.0) {
@@ -339,21 +344,11 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
                 extreme_proba <- 1 / (1 + kappa) - extreme_proba
                 extreme_proba <- extreme_proba / (1 - 1 / (1 + kappa))
               }
-            }
-          }
-        }
-        if (algo == "dynamic_latent") {
-          if (1 - p_u_t[1] > extreme_proba) {
-            prev_sample <<- rexp(n = 1, rate = p_u_t[3])
-          } else {
-            prev_sample <<- 0.0
-          }
-        } else {
-          if (algo == "dynamic_uniform") {
-            if (p_u_t[2] > extreme_proba) {
-              prev_sample <<- 0.0
-            } else {
-              prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+              if (p_u_t[2] > extreme_proba) {
+                prev_sample <<- 0.0
+              } else {
+                prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+              }
             }
           }
         }
@@ -373,4 +368,3 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
     latent = trawl_sims[seq_len(n_old)], coverage = coverage
   ))
 }
-# nolint end
