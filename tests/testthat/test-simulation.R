@@ -1,7 +1,7 @@
 test_that("exceedances_simulation - simple", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 10000
+  n <- 3000
   vd <- 100
   type <- "exp"
 
@@ -10,19 +10,12 @@ test_that("exceedances_simulation - simple", {
   )
   # returns (exceedances, latent)
   gpd_fit_sim <- evir::gpd(exc$exceedances, threshold = 0.0, method = "ml")
+  par_vals <- unname(gpd_fit_sim$par.ests)
+  tol_vals <- unname(gpd_fit_sim$par.ses)
+  testthat::expect_equal(par_vals[1], params[1], tolerance = 1.96 * tol_vals[1])
+  testthat::expect_equal(par_vals[2], params[2], tolerance = 1.96 * tol_vals[2])
+  testthat::expect_equal(mean(exc$exceedances > 0), .05, tolerance = .05)
 
-  testthat::expect_equal(
-    unname(gpd_fit_sim$par.ests)[1],
-    params[1],
-    tolerance = 1.96 * unname(gpd_fit_sim$par.ses)[1]
-  )
-  testthat::expect_equal(
-    unname(gpd_fit_sim$par.ests)[2],
-    params[2],
-    tolerance = 1.96 * unname(gpd_fit_sim$par.ses)[2]
-  )
-
-  testthat::expect_equal(mean(exc$exceedances > 0), .05, tolerance = 8e-3)
   acf_vals <- acf(exc$exceedances, lag.max = 10, plot = F)$acf[, , 1]
   truth <- trawl_autocorrelation$acf_trawl_collection(
     h = c(.01, 1:10), alpha = 1, beta = 1, kappa = params[3], rho = params[4],
@@ -32,41 +25,34 @@ test_that("exceedances_simulation - simple", {
 
 test_that("exceedances_simulation - cross", {
   set.seed(42)
-  params <- c(.1, 1., 19, .05)
-  n <- 5000
+  params <- c(.1, 1., 13, .05)
+  n <- 2000
   vd <- 50
   type <- "exp"
 
   exc <- exceedances_simulation(
     params = params, n = n, vanishing_depth = vd,
-    type = type, m = 3, algo = "cross"
+    type = type, m = 50, algo = "cross"
   )
   # returns (exceedances, latent)
-  gpd_fit_sim <- evir::gpd(exc$exceedances, threshold = 0.0, method = "ml")
-
-  testthat::expect_equal(
-    unname(gpd_fit_sim$par.ests)[1],
-    params[1],
-    tolerance = 1.96 * unname(gpd_fit_sim$par.ses)[1]
-  )
-  testthat::expect_equal(
-    unname(gpd_fit_sim$par.ests)[2],
-    params[2],
-    tolerance = 1.96 * unname(gpd_fit_sim$par.ses)[2]
+  gpd_fit_sim <- evir::gpd(
+    exc$exceedances[!is.na(exc$exceedance)], threshold = 0.0, method = "ml"
   )
 
-  testthat::expect_equal(mean(exc$exceedances > 0), .05, tolerance = 8e-3)
-  print(as.vector(acf(exc$exceedances, lag.max = 10, plot = F)$acf))
-  print(trawl_autocorrelation$acf_trawl_collection(
-    h = c(.01, 1:10), alpha = 1, beta = 1, kappa = params[3], rho = params[4],
-    cov = F, type = type, delta = .1, end_seq = 100
-  ))
+  par_vals <- unname(gpd_fit_sim$par.ests)
+  tol_vals <- c(0.3, .6)
+
+  testthat::expect_equal(par_vals[1], params[1], tolerance = 1.96 * tol_vals[1])
+  testthat::expect_equal(par_vals[2], params[2], tolerance = 1.96 * tol_vals[2])
+  testthat::expect_equal(
+    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .07
+  )
 })
 
 test_that("exceedances_simulation - corr unif", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 5000
+  n <- 2000
   vd <- 10
   type <- "exp"
 
@@ -88,64 +74,47 @@ test_that("exceedances_simulation - corr unif", {
       params = params, n = n, vanishing_depth = vd, type = type,
       m = 3, algo = "corr_unif"
     )
-    acf_vals <- acf(
-      exc$exceedances[1:(n - 2 * vd)],
-      plot = F, lag.max = 10
-    )$acf[, , 1]
-    vd_error[i] <- sum((acf_vals - truth)^2)
+    acf_vals <- acf(exc$exceedances, plot = F, lag.max = 10)$acf[, , 1]
+    vd_error[i] <- sqrt(sum((acf_vals - truth)^2))
     cove_error[i] <- cove
     i <- i + 1
+    testthat::expect_true(sum(diff(acf_vals) < 0) > 5)
   }
-
-  plot(vd_list, vd_error, main = "Vanishing Depth Error", ylim = c(0, 3))
-  lines(vd_list, cove_error, col = "red")
+  # WE CAN PLOT VD LIST AGAINST COV ERROR & VD ERROR
 })
 
 test_that("exceedances_simulation - dynamic latent", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 5000
-  vd <- 10
+  n <- 3000
+  vd <- 100
   type <- "exp"
 
-  truth <- trawl_autocorrelation$acf_trawl_collection(
-    h = c(.01, 1:10), alpha = 1, beta = 1, kappa = params[3], rho = params[4],
-    cov = F, type = type, delta = .1, end_seq = 100
-  )
-
-  vd <- 100
   exc <- exceedances_simulation(
     params = params, n = n, vanishing_depth = vd, type = type,
     m = 3, algo = "dynamic_latent"
   )
-  cat(
-    "Prob of positive",
-    sum(exc$exceedances > 0) / length(exc$exceedances), "\n"
+  acf_vals <- acf(exc$exceedances, plot = F, lag.max = 10)$acf[, , 1]
+  testthat::expect_true(sum(diff(acf_vals) < 0) > 5)
+  testthat::expect_equal(
+    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .1
   )
-  acf(exc$exceedances, main = "dynamic latent acf")
-  lines(0:10, truth, col = "red")
 })
 
 test_that("exceedances_simulation - dynamic uniform", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 5000
-  vd <- 10
+  n <- 3000
+  vd <- 100
   type <- "exp"
 
-  truth <- trawl_autocorrelation$acf_trawl_collection(
-    h = c(.01, 1:10), alpha = 1, beta = 1, kappa = params[3], rho = params[4],
-    cov = F, type = type, delta = .1, end_seq = 100
-  )
-
-  vd <- 100
   exc <- exceedances_simulation(
     params = params, n = n, vanishing_depth = vd, type = type,
     m = 3, algo = "dynamic_uniform"
   )
-  cat(
-    "Prob of positive", sum(exc$exceedances > 0) / length(exc$exceedances), "\n"
+  acf_vals <- acf(exc$exceedances, plot = F, lag.max = 10)$acf[, , 1]
+  testthat::expect_true(sum(diff(acf_vals) < 0) > 5)
+  testthat::expect_equal(
+    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .1
   )
-  acf(exc$exceedances, main = "dynamic uniform acf")
-  lines(0:10, truth, col = "red")
 })
