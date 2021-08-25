@@ -1,14 +1,5 @@
-autocovariance_matrix <- function(score, k, params_indices = NA) {
-  if (is.na(params_indices)) {
-    if (is.matrix(score)) {
-      params_indices <- seq_len(dim(score)[2])
-    } else {
-      params_indices <- seq_len(1)
-    }
-  }
-  acf_vals <- acf(score, lag.max = k, type = "covariance")$acf
-  acf_vals <- acf_vals[, params_indices, params_indices]
-  return(acf_vals)
+autocovariance_matrix <- function(score, k) {
+  return(acf(score, lag.max = k, type = "covariance")$acf)
 }
 
 make_hac <- function(acf_matrices, near_pd = F) {

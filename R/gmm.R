@@ -245,8 +245,7 @@ trawl_gmm$trawl_gmm_hac <- function(data, params, depth,
   pl_score_per_depth <- lk_score(data)
 
   score_acf_autocov_mat <- lapply(
-    pl_score_per_depth,
-    function(pl_score) {
+    pl_score_per_depth, function(pl_score) {
       autocovariance_matrix(pl_score, k)
     }
   )
@@ -263,11 +262,10 @@ trawl_gmm$trawl_gmm_hac_partial <- function(data, params, depth, k = 10,
   lk_score <- trawl_gmm$trawl_gmm_score_partial(params, depth, type, max_length)
   pl_score_per_depth <- lk_score(data)
 
-  trawl_params <- 4:length(params)
   score_acf_autocov_mat <- lapply(
     pl_score_per_depth,
     function(pl_score) {
-      autocovariance_matrix(pl_score, k, trawl_params)
+      autocovariance_matrix(pl_score, k)
     }
   )
   pl_hac <- lapply(score_acf_autocov_mat, function(autocov_mat) {
