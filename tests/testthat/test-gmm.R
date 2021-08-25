@@ -1,127 +1,105 @@
+testthat::skip_on_os("mac")
+
 test_that("trawl objective", {
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   pars_gpd <- evir::gpd(pollution_data[, test_column], threshold = 0)$par.ses
   p_plus <- mean(pollution_data[, test_column] > 0)
   kappa <- 1 / p_plus - 1.
   pars <- c(pars_gpd, kappa)
   trawl_obj <- trawl_gmm$trawl_objective(
-    data = pollution_data[, test_column],
-    depth = 10
+    data = pollution_data[, test_column], depth = 10
   )
   trawl_obj_as_trawl_params <- trawl_obj(pars)
 
-  trawl_values <- vapply(1:10 / 10, function(x) {
-    trawl_obj_as_trawl_params(x)
-  }, .1)
+  trawl_values <- vapply(
+    1:20 / 20, function(x) {
+      trawl_obj_as_trawl_params(x)
+    }, .1
+  )
   testthat::expect_equal(which.min(trawl_values), 2)
-  #' Computes cross moment in trawl gamma-exponential mixture
-  #'
-  #' @param xs Grid to integrate on.
-  #' @param delta Grid mesh size
-  #' @param beta GPD scale parameter in the sense of Noven et al.
-  #' @param b_oh - alpha * mu(A inter A_h) / mu  (A)
-  #' @param b_o_exc_h - alpha * mu(A excl. A_h) / mu  (A)
-  #'
-  #' @export
 })
 
 
 test_that("trawl objective - grad", {
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
+  depth <- 10
   pars_gpd <- evir::gpd(pollution_data[, test_column], threshold = 0)$par.ses
   p_plus <- mean(pollution_data[, test_column] > 0)
   kappa <- 1 / p_plus - 1.
   pars <- c(pars_gpd, kappa)
   trawl_obj <- trawl_gmm$trawl_objective(
-    data = pollution_data[, test_column],
-    depth = 10
+    data = pollution_data[, test_column], depth = depth
   )
   trawl_obj_as_trawl_params <- trawl_obj(pars)
 
-  trawl_grad_values <- lapply(as.list(1:5 / 5 * .3), function(x) {
-    pracma::grad(trawl_obj_as_trawl_params, x0 = x)
-  })
+  rho_vals <- 1:5 / 20 * .3
+  trawl_grad_values <- lapply(
+    X = rho_vals,
+    FUN = function(x) {
+      pracma::grad(trawl_obj_as_trawl_params, x0 = x)
+    }
+  )
   trawl_grad_values <- unlist(trawl_grad_values)
-  testthat::expect_equal(which.min(abs(trawl_grad_values)), 3)
+
+  testthat::expect_true(is.vector(trawl_grad_values))
+  testthat::expect_equal(length(trawl_grad_values), length(rho_vals))
+  testthat::expect_equal(which.min(abs(trawl_grad_values)), 5)
 })
 
 test_that("GMM objective - positive", {
-  max_length <- 30000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   init_guess_bds <- get_initial_guess_and_bounds(
-    data = pollution_data[1:max_length, test_column]
+    data = pollution_data[, test_column]
   )
 
-  gmm_obj <- trawl_gmm$full_gmm_objective(
-    data = pollution_data[, test_column],
-    depth = 10
-  )
+  for (dp in c(3, 5, 8)) {
+    gmm_obj <- trawl_gmm$full_gmm_objective(
+      data = pollution_data[, test_column],
+      depth = dp
+    )
 
-  testthat::expect_true(gmm_obj(c(init_guess_bds$init_guess, .2)) > 0.0)
-})
+    gmm_vals <- gmm_obj(c(init_guess_bds$init_guess, .2))
 
-test_that("GMM objective", {
-  max_length <- 30000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
-  test_column <- 2
-  init_guess_bds <- get_initial_guess_and_bounds(
-    data = pollution_data[1:max_length, test_column]
-  )
-
-  gmm_obj <- trawl_gmm$full_gmm_objective(
-    data = pollution_data[, test_column],
-    depth = 3
-  )
-
-  print(microbenchmark::microbenchmark(
-    gmm_obj(c(init_guess_bds$init_guess, .2)),
-    times = 5
-  ))
-  print(optim(
-    par = c(init_guess_bds$init_guess, .2),
-    fn = gmm_obj, method = "L-BFGS-B",
-    lower = c(init_guess_bds$lower, .001),
-    upper = c(init_guess_bds$upper, 2),
-    control = list(trace = 3)
-  )$par)
-
-  testthat::expect_equal(T, T)
+    testthat::expect_true(gmm_vals > 0.0)
+    testthat::expect_equal(length(gmm_vals), 1)
+    testthat::expect_true(gmm_vals >= 0.0)
+  }
 })
 
 test_that("Two-stage GMM objective - time & value", {
-  max_length <- 30000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   init_guess_bds <- get_initial_guess_and_bounds(
-    data = pollution_data[1:max_length, test_column]
+    data = pollution_data[, test_column]
   )
 
   two_step_gmm_obj <- trawl_gmm$two_stage_gmm_objective(
-    data = pollution_data[, test_column],
-    depth = 10
+    data = pollution_data[, test_column], depth = 3
   )
 
   start_time <- Sys.time()
   trawl_param_value <- optim(
-    par = c(.2),
-    fn = two_step_gmm_obj, method = "L-BFGS-B",
-    lower = c(.001),
-    upper = c(2),
+    par = c(.2), fn = two_step_gmm_obj,
+    method = "L-BFGS-B", lower = c(.001), upper = c(2)
   )$par
   time_delta <- Sys.time() - start_time
 
-  testthat::expect_equal(trawl_param_value, .15, tolerance = 5e-2)
+  testthat::expect_equal(trawl_param_value, .075, tolerance = 5e-2)
   testthat::expect_true(time_delta < 60)
 })
 
 test_that("Two-stage GMM objective - score", {
-  max_length <- 30000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  data <- pollution_data[1:max_length, test_column]
+  data <- pollution_data[, test_column]
   init_guess_bds <- get_initial_guess_and_bounds(
     data = data
   )
@@ -136,56 +114,59 @@ test_that("Two-stage GMM objective - score", {
   testthat::expect_false(any(vapply(score, function(score_per_depth) {
     any(is.na(score_per_depth))
   }, T)))
-  testthat::expect_false(any(vapply(score, function(score_per_depth) {
-    any(is.infinite(score_per_depth))
-  }, T)))
+  testthat::expect_false(
+    any(vapply(
+      score,
+      function(score_per_depth) {
+        any(is.infinite(score_per_depth))
+      },
+      T
+    ))
+  )
+  dims_ground_vals <- vapply(seq_len(depth), function(i) c(100 - i, 4), c(1, 1))
+  dim_score <- vapply(score, dim, c(1, 1))
+  testthat::expect_equal(dim_score, dims_ground_vals)
 })
 
-test_that("Two-stage GMM objective - HAC full", {
-  max_length <- 30000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
-  test_column <- 2
-  data <- pollution_data[1:max_length, test_column]
-  init_guess_bds <- get_initial_guess_and_bounds(
-    data = data
-  )
-  max_length <- 500
-  depth <- 12
+testthat::skip_on_os("mac")
 
-  k_max <- 20
+test_that("Two-stage GMM objective - HAC full", {
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  test_column <- 2
+  data <- pollution_data[, test_column]
+  init_guess_bds <- get_initial_guess_and_bounds(data = data)
+
+  max_length <- 100
+  depth <- 4
+  k_max <- 5
 
   i_guess <- pairwise_likelihood$init_guess(
     data = data, depth = depth, n_trials = 10
   )
   hac_full <- trawl_gmm$trawl_gmm_hac(
-    data = data,
-    params = c(init_guess_bds$init_guess, i_guess),
+    data = data, params = c(init_guess_bds$init_guess, i_guess),
     depth = depth, type = "exp",
     max_length = max_length, k = k_max
   )
-  print(hac_full)
   testthat::expect_true(Matrix::det(hac_full) > 0)
-  testthat::expect_false(any(vapply(hac_full, is.na, T)))
-  testthat::expect_false(any(vapply(hac_full, is.infinite, T)))
+  testthat::expect_false(any(is.na(hac_full)))
+  testthat::expect_false(any(is.infinite(hac_full)))
 })
 
 test_that("Two-stage GMM objective - HAC partial", {
-  max_length <- 30000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  data <- pollution_data[1:max_length, test_column]
-  init_guess_bds <- get_initial_guess_and_bounds(
-    data = data
-  )
-  max_length <- 500
-  depth <- 3
-
-  k_max <- 10
+  data <- pollution_data[, test_column]
+  init_guess_bds <- get_initial_guess_and_bounds(data = data)
+  max_length <- 200
+  depth <- 4
+  k_max <- 5
 
   hac_partial <- trawl_gmm$trawl_gmm_hac_partial(
-    data = data,
-    params = c(init_guess_bds$init_guess, .15), depth = depth, type = "exp",
-    max_length = max_length, k = k_max
+    data = data, params = c(init_guess_bds$init_guess, .15),
+    depth = depth, type = "exp", max_length = max_length, k = k_max
   )
   testthat::expect_true(hac_partial > 0)
   testthat::expect_false(is.na(hac_partial))
@@ -193,12 +174,13 @@ test_that("Two-stage GMM objective - HAC partial", {
 })
 
 test_that("Two-stage - Variance", {
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
+  n <- 10000
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
   depth <- 4
+  max_depth <- 50
 
-  data <- pollution_data[1:max_length, test_column]
+  data <- pollution_data[, test_column]
 
   i_guess <- pairwise_likelihood$init_guess(
     data = data, depth = depth, n_trials = 20
@@ -207,7 +189,8 @@ test_that("Two-stage - Variance", {
   # init vals are c(-0.009792636, 0.3141497, 19.96388, 0.220771)
   ts_var <- trawl_gmm$two_stage_variance(
     data = data, params = c(i_guess_model, i_guess),
-    depth = depth, type = "exp", max_length = 200
+    depth = depth, type = "exp", max_length = max_depth
   )
-  cat("ts_var", ts_var, "\n")
+  testthat::expect_true(ts_var > 0)
+  testthat::expect_false(is.na(ts_var > 0))
 })

@@ -353,12 +353,10 @@ pairwise_likelihood$trawl_pl_hac_partial <- function(data, params, depth,
     params, depth, type, max_length
   )
   pl_score_per_depth <- lk_score(data)
-
-  trawl_params <- 4:length(params)
   score_acf_autocov_mat <- lapply(
     pl_score_per_depth,
     function(pl_score) {
-      autocovariance_matrix(pl_score, k, trawl_params)
+      autocovariance_matrix(pl_score, k)
     }
   )
   pl_hac <- lapply(score_acf_autocov_mat, function(autocov_mat) {
@@ -392,9 +390,6 @@ pairwise_likelihood$two_stage_variance <- function(data, params, depth,
     mean_hessian[(length(params) * 3 + 1):length(params)^2],
     nrow = 1, ncol = length(params)
   )
-
-  print(mean_hessian_wo_trawl)
-  print(mean_hessian_only_trawl)
 
   clk_hessian <- composite_likelihood_hessian(
     params[1:3],
