@@ -1,6 +1,14 @@
-autocovariance_matrix <- function(score, params, k) {
-  assertthat::assert_that(dim(score)[1], 4)
-  return(acf(score, lag.max = k, type = "covariance")$acf)
+autocovariance_matrix <- function(score, k, params_indices = NA) {
+  if (is.na(params_indices)) {
+    if (is.matrix(score)) {
+      params_indices <- seq_len(dim(score)[2])
+    } else {
+      params_indices <- seq_len(1)
+    }
+  }
+  acf_vals <- acf(score, lag.max = k, type = "covariance")$acf
+  acf_vals <- acf_vals[, params_indices, params_indices]
+  return(acf_vals)
 }
 
 make_hac <- function(acf_matrices, near_pd = F) {
@@ -17,7 +25,7 @@ make_hac <- function(acf_matrices, near_pd = F) {
     }
   )
   hac_ests <- Reduce(`+`, weighted_acf_matrices)
-  assertthat::assert_that(dim(hac_ests) == dim(acf_matrices)[c(2, 3)])
+  assertthat::assert_that(all(dim(hac_ests) == dim(acf_matrices)[c(2, 3)]))
   if (near_pd) {
     hac_ests <- as.matrix(Matrix::nearPD(hac_ests))
   }
