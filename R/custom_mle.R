@@ -6,21 +6,21 @@ get_initial_guess_and_bounds <- function(data, max_length = 20000,
   data <- data[1:length_data]
 
   invisible(capture.output(
-    init_guess <- as.numeric(
-      evir::gpd(data, threshold = 0, method = "ml")$par.ests
+    init_guess_vals <- as.numeric(
+      evir::gpd(data, threshold = 0, method = "pwm")$par.ests
     )
   )) # (xi, sigma)
 
   p_above_zero <- length(which(data > 0)) / length(data)
   kap <- (1 - p_above_zero) / p_above_zero
-  init_guess <- c(init_guess, kap)
-  minus_init <- minus_mult * init_guess
-  plus_init <- plus_multiplier * init_guess
+  init_guess_vals <- c(init_guess_vals, kap)
+  minus_init <- minus_mult * init_guess_vals
+  plus_init <- plus_multiplier * init_guess_vals
   bds <- cbind(minus_init, plus_init)
   lower <- apply(bds, 1, min)
   upper <- apply(bds, 1, max)
 
-  return(list(init_guess = init_guess, lower = lower, upper = upper))
+  return(list(init_guess = init_guess_vals, lower = lower, upper = upper))
 }
 
 
