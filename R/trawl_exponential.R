@@ -15,5 +15,5 @@ exponential_trawl$trawl_b_three <- function(param, h) {
 }
 
 exponential_trawl$config <- function() {
-  return(list(n_params = 1, lower = 0.05, upper = 0.99))
+  return(list(n_params = 1, lower = 0.01, upper = 0.99))
 }

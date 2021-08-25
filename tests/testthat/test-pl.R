@@ -49,12 +49,9 @@ test_that("pl_constructor - parallel", {
   cl <- parallel::makeCluster(pmax(cores - 1, 1))
   parallel::clusterExport(
     cl, c(
-      "transformation_map_inverse",
-      "transformation_map",
-      "transformation_jacobian",
-      "parametrisation_translator",
-      "pairwise_likelihood",
-      get_trawl_envs_list()
+      "transformation_map_inverse", "transformation_map",
+      "transformation_jacobian", "parametrisation_translator",
+      "pairwise_likelihood", get_trawl_envs_list()
     )
   )
 
@@ -74,10 +71,13 @@ test_that("pl_constructor - parallel vs not parallel", {
   n <- 10000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 10000
+  max_length <- 3000
   params <- c(.1, 1., 19, .2)
   depth <- 3
   data <- pollution_data[seq_len(max_length), test_column]
+
+  # test times
+  test_repeat <- 10
 
   pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
     params = params, type = "exp"
@@ -89,8 +89,8 @@ test_that("pl_constructor - parallel vs not parallel", {
 
   res_no_parallel <- pl_constructor(data)
   no_parallel_times <- microbenchmark::microbenchmark(
-    res_no_parallel,
-    times = 5
+    function() pl_constructor(data),
+    times = test_repeat
   )$time / time_divisor
 
   cores <- parallel::detectCores()
@@ -108,41 +108,32 @@ test_that("pl_constructor - parallel vs not parallel", {
   )
   res_parallel <- pl_constructor(data)
   parallel_times <- microbenchmark::microbenchmark(
-    pl_constructor(data),
-    times = 5
+    function() pl_constructor(data),
+    times = test_repeat
   )$time / time_divisor
-
-  cat(
-    "\nPL Parallel improvement:",
-    round(mean(no_parallel_times / parallel_times) * 100, 0),
-    "%\n"
-  )
   testthat::expect_equal(
     res_parallel, res_no_parallel,
     tolerance = 1e-3
   )
-  testthat::expect_equal(
-    parallel_times / no_parallel_times,
-    rep(0, length(no_parallel_times)),
-    tolerance = .5
+  testthat::expect_true(
+    sum(parallel_times < no_parallel_times) > test_repeat / 2
   )
   parallel::stopCluster(cl) # release resources
 })
-
 
 test_that("pl_constructor - PL initial guess", {
   time_divisor <- 1e6
   n <- 10000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
+  max_length <- n
   depth <- 10
+  data <- pollution_data[seq_len(max_length), test_column]
 
   i_guess <- pairwise_likelihood$init_guess(
-    data = pollution_data[seq_len(max_length), test_column],
-    depth = depth, n_trials = 10
+    data = data, depth = depth, n_trials = 10
   )
-  testthat::expect_equal(i_guess, .15, tolerance = 1e-2)
+  testthat::expect_equal(i_guess, .10, tolerance = 2e-2)
 })
 
 test_that("pl_constructor - PL as function of rho - convex", {
@@ -151,19 +142,16 @@ test_that("pl_constructor - PL as function of rho - convex", {
   n <- 10000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
+  max_length <- n
   depth <- 10
 
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(cores - 1)
   parallel::clusterExport(
     cl, c(
-      "transformation_map_inverse",
-      "transformation_map",
-      "transformation_jacobian",
-      "parametrisation_translator",
-      "pairwise_likelihood",
-      get_trawl_envs_list()
+      "transformation_map_inverse", "transformation_map",
+      "transformation_jacobian", "parametrisation_translator",
+      "pairwise_likelihood", get_trawl_envs_list()
     )
   )
 
@@ -176,13 +164,10 @@ test_that("pl_constructor - PL as function of rho - convex", {
   which_positive <- which(diff(pl_rho_values) > 0)
   which_negative <- which(diff(pl_rho_values) < 0)
 
-  plot(rho_vals, pl_rho_values, main = "pl as function of rho")
-
   testthat::expect_true(length(which_positive) > 0)
   testthat::expect_true(length(which_positive) > 0)
-  testthat::expect_true(max(which_negative) < min(which_positive))
+  testthat::expect_true(max(which_negative) < min(which_positive)) # convexity
 })
-
 
 test_that("trawl_pl_hac", {
   time_divisor <- 1e6
@@ -190,7 +175,7 @@ test_that("trawl_pl_hac", {
   n <- 10000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
+  max_length <- 1000
   depth <- 12
 
   data <- pollution_data[seq_len(max_length), test_column]
@@ -207,11 +192,10 @@ test_that("trawl_pl_hac", {
     data = data, params = c(i_guess_model$init_guess, i_guess),
     depth = depth, k = k_max, type = "exp", max_length = max_length
   )
-  print("hac_full")
-  print(hac_full)
+
   testthat::expect_true(Matrix::det(hac_full) > 0)
-  testthat::expect_false(any(vapply(hac_full, is.na, T)))
-  testthat::expect_false(any(vapply(hac_full, is.infinite, T)))
+  testthat::expect_false(any(is.na(hac_full)))
+  testthat::expect_false(any(is.infinite(hac_full)))
 })
 
 test_that("trawl_pl_hac_partial", {
@@ -220,7 +204,7 @@ test_that("trawl_pl_hac_partial", {
   n <- 10000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
+  max_length <- 1000
   depth <- 12
 
   data <- pollution_data[seq_len(max_length), test_column]
@@ -235,7 +219,6 @@ test_that("trawl_pl_hac_partial", {
     data = data, params = c(i_guess_model$init_guess, i_guess),
     depth = depth, k = 8, type = "exp", max_length = 500
   )
-  cat("hac_partial", hac_partial, "\n")
   testthat::expect_true(hac_partial > 0)
   testthat::expect_false(is.na(hac_partial))
   testthat::expect_false(is.infinite(hac_partial))
@@ -244,11 +227,11 @@ test_that("trawl_pl_hac_partial", {
 
 test_that("PLHessian", {
   time_divisor <- 1e6
-  n <- 10000
+  n <- 5000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
-  depth <- 12
+  max_length <- 1000
+  depth <- 4
 
   data <- pollution_data[seq_len(max_length), test_column]
 
@@ -262,23 +245,28 @@ test_that("PLHessian", {
     params = c(i_guess_model$init_guess, i_guess),
     depth = depth, type = "exp", max_length = 200
   )
-  print("pl_hessian")
   pl_hess <- pl_hessian(data[1:50])
-  print(matrix(pl_hess[[1]][3, ], 4, 4))
+  lapply(pl_hess, function(x) {
+    testthat::expect_false(any(is.na(x)))
+    testthat::expect_false(any(is.infinite(x)))
+  })
 
   ts_var <- pairwise_likelihood$two_stage_variance(
     data = data, params = c(i_guess_model$init_guess, i_guess),
-    depth = depth, k = 10, type = "exp", max_length = 100
+    depth = depth, type = "exp", max_length = 100
   )
+  testthat::expect_true(ts_var > 0)
+  testthat::expect_false(is.na(ts_var))
+  testthat::expect_false(is.infinite(ts_var))
 })
 
 
 test_that("Two-stage - Variance", {
-  n <- 10000
+  n <- 5000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 20000
-  depth <- 8
+  max_length <- 1000
+  depth <- 4
 
   data <- pollution_data[seq_len(max_length), test_column]
 
@@ -291,5 +279,7 @@ test_that("Two-stage - Variance", {
     data = data, params = c(i_guess_model, i_guess),
     depth = depth, type = "exp", max_length = 200
   )
-  cat("ts_var", ts_var, "\n")
+  testthat::expect_true(ts_var > 0)
+  testthat::expect_false(is.na(ts_var))
+  testthat::expect_false(is.infinite(ts_var))
 })

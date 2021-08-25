@@ -68,14 +68,12 @@ pairwise_likelihood$parallel_apply_pl <- function(data, k, this_pl, cl) {
           FUN = function(xs) {
             pl_val <- this_pl(xs, h = k)
             if (is.nan(pl_val)) {
-              cat("NA", xs, "\n")
-              return(-10)
+              pl_val <- -10
             }
-            if (pl_val < 0.0) {
-              return(pl_val)
-            } else {
-              return(log(pl_val + 1e-7))
+            if (pl_val >= 0.0) {
+              pl_val <- log(pl_val + 1e-7)
             }
+            return(pl_val)
           }
         )
       )
@@ -95,14 +93,12 @@ pairwise_likelihood$apply_pl <- function(data, k, this_pl) {
           FUN = function(xs) {
             pl_val <- this_pl(xs, h = k)
             if (is.nan(pl_val)) {
-              cat("NA", xs, "\n")
-              return(-10)
+              pl_val <- -10
             }
-            if (pl_val < 0.0) {
-              return(pl_val)
-            } else {
-              return(log(pl_val + 1e-7))
+            if (pl_val >= 0.0) {
+              pl_val <- log(pl_val + 1e-7)
             }
+            return(pl_val)
           }
         )
       )
