@@ -70,7 +70,6 @@ test_that("Composite MLE - score ACF", {
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
 
-
   k <- 3
   cm_hac <- composite_marginal_hac(
     data = test_samples, params = c(xi, sigma, kappa),
