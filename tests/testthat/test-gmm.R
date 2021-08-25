@@ -1,5 +1,5 @@
 test_that("trawl objective", {
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   pars_gpd <- evir::gpd(pollution_data[, test_column], threshold = 0)$par.ses
   p_plus <- mean(pollution_data[, test_column] > 0)
@@ -15,11 +15,20 @@ test_that("trawl objective", {
     trawl_obj_as_trawl_params(x)
   }, .1)
   testthat::expect_equal(which.min(trawl_values), 2)
+  #' Computes cross moment in trawl gamma-exponential mixture
+  #'
+  #' @param xs Grid to integrate on.
+  #' @param delta Grid mesh size
+  #' @param beta GPD scale parameter in the sense of Noven et al.
+  #' @param b_oh - alpha * mu(A inter A_h) / mu  (A)
+  #' @param b_o_exc_h - alpha * mu(A excl. A_h) / mu  (A)
+  #'
+  #' @export
 })
 
 
 test_that("trawl objective - grad", {
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   pars_gpd <- evir::gpd(pollution_data[, test_column], threshold = 0)$par.ses
   p_plus <- mean(pollution_data[, test_column] > 0)
@@ -40,7 +49,7 @@ test_that("trawl objective - grad", {
 
 test_that("GMM objective - positive", {
   max_length <- 30000
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   init_guess_bds <- get_initial_guess_and_bounds(
     data = pollution_data[1:max_length, test_column]
@@ -56,7 +65,7 @@ test_that("GMM objective - positive", {
 
 test_that("GMM objective", {
   max_length <- 30000
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   init_guess_bds <- get_initial_guess_and_bounds(
     data = pollution_data[1:max_length, test_column]
@@ -84,7 +93,7 @@ test_that("GMM objective", {
 
 test_that("Two-stage GMM objective - time & value", {
   max_length <- 30000
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   init_guess_bds <- get_initial_guess_and_bounds(
     data = pollution_data[1:max_length, test_column]
@@ -110,7 +119,7 @@ test_that("Two-stage GMM objective - time & value", {
 
 test_that("Two-stage GMM objective - score", {
   max_length <- 30000
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   data <- pollution_data[1:max_length, test_column]
   init_guess_bds <- get_initial_guess_and_bounds(
@@ -134,7 +143,7 @@ test_that("Two-stage GMM objective - score", {
 
 test_that("Two-stage GMM objective - HAC full", {
   max_length <- 30000
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   data <- pollution_data[1:max_length, test_column]
   init_guess_bds <- get_initial_guess_and_bounds(
@@ -162,7 +171,7 @@ test_that("Two-stage GMM objective - HAC full", {
 
 test_that("Two-stage GMM objective - HAC partial", {
   max_length <- 30000
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   data <- pollution_data[1:max_length, test_column]
   init_guess_bds <- get_initial_guess_and_bounds(
@@ -184,7 +193,7 @@ test_that("Two-stage GMM objective - HAC partial", {
 })
 
 test_that("Two-stage - Variance", {
-  pollution_data <- read.csv("data/clean_pollution_data.csv")
+  pollution_data <- read.csv("../../data/clean_pollution_data.csv")
   test_column <- 2
   max_length <- 20000
   depth <- 4

@@ -17,3 +17,10 @@ Vector of \code{GPD(xi, sigma)} data.
 \description{
 Transforms data from \code{GPD(1, 1 + kappa)} to \code{GPD(xi, sigma)}.
 }
+\examples{
+xi <- 1
+sig <- 3
+kap <- 2
+tmp <- evir::rgpd(100, xi = 1, beta = 1 + kap)
+transformation_map(tmp, c(xi, sigma))
+}
