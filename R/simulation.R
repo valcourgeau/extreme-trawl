@@ -35,6 +35,10 @@ grid_foundations <- function(n, vanishing_depth, values = 1) {
 #'  [S(n,n), S(3,2), S(4,2), \dots, S(vanishing_depth+n,n)],
 #' ]`
 #' where `S(i,j)` is a trawl slice.
+#' @param vanishing_depth Approximation depth.
+#' @param trawl_parameter Trawl parameter(s).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
+#' @return Gamma-distributed standardised trawl slices.
 trawl_slicing <- function(n, vanishing_depth, trawl_parameter, type = "exp") {
   b_funcs <- get_trawl_functions(type = type)
   b_2_func <- b_funcs[[2]]
@@ -48,9 +52,17 @@ trawl_slicing <- function(n, vanishing_depth, trawl_parameter, type = "exp") {
   return(slices / a_total) # divide by \mu^{leb}(A)
 }
 
+#' Grid of Gamma-distributed trawl slices.
+#' @param alpha Gamma shape parameter.
+#' @param beta Gamma rate parameter.
+#' @param n Number of samples.
+#' @param vanishing_depth Approximation depth.
+#' @param trawl_parameter Trawl parameter(s).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
+#' @return Gamma-distribute trawl slices.
 #' @importFrom stats rgamma
-gamma_grid <- function(alpha, beta, n,
-                       vanishing_depth, trawl_parameter, type = "exp") {
+gamma_grid <- function(alpha, beta, n, vanishing_depth,
+                       trawl_parameter, type = "exp") {
   n_diags <- max(2, vanishing_depth)
   n_non_zero_elements <- n_diags * n
 
@@ -70,10 +82,17 @@ gamma_grid <- function(alpha, beta, n,
   ))
 }
 
+#' Generate shape parameters for Gamma-distributed trawl slices.
+#' @param alpha Gamma shape parameter.
+#' @param n Number of samples.
+#' @param vanishing_depth Approximation depth.
+#' @param trawl_parameter Trawl parameter(s).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
+#' @return Gamma-distribute trawl slices.
 generate_shapes <- function(alpha, n, vanishing_depth,
                             trawl_parameter, type = "exp") {
   stopifnot(length(alpha) == 1)
-
+  stopifnot(alpha > 0)
   slices <- trawl_slicing(
     n = n, vanishing_depth = vanishing_depth,
     trawl_parameter = trawl_parameter, type = type
@@ -81,6 +100,11 @@ generate_shapes <- function(alpha, n, vanishing_depth,
   return(alpha * as.vector(slices))
 }
 
+#' Creates the block indices for a collection of trawl slices.
+#' @param n_block Number of blocks
+#' @param n Number of samples.
+#' @param vanishing_depth Approximation depth.
+#' @return List of block coordinates
 block_index <- function(n_block, n, vanishing_depth) {
   return(
     list(
@@ -90,6 +114,10 @@ block_index <- function(n_block, n, vanishing_depth) {
   )
 }
 
+#' Orchestrate the Gamma grid.
+#' @param scaled_gamma_grid Gamma grid.
+#' @param parallel Whether to parallelise, defaults to `TRUE`.
+#' @return Vector of Gamma-distributed grid.
 gamma_orchestra <- function(scaled_gamma_grid, parallel = T) {
   n <- dim(scaled_gamma_grid)[1]
   vanishing_depth <- dim(scaled_gamma_grid)[2] - n + 1
@@ -109,7 +137,7 @@ gamma_orchestra <- function(scaled_gamma_grid, parallel = T) {
     parallel::stopCluster(cl)
     return(unlist(tmp))
   } else {
-    return(vapply(1:n, FUN = function(i) {
+    return(vapply(seq_len(n), FUN = function(i) {
       blck_ind <- block_index(i, n = n, vanishing_depth = vanishing_depth)
       return(sum(scaled_gamma_grid[blck_ind$block_i, blck_ind$block_j]))
     }, FUN.VALUE = 1.0))
@@ -117,7 +145,7 @@ gamma_orchestra <- function(scaled_gamma_grid, parallel = T) {
 }
 
 #' Returns the coverage of the trawl set approximation.
-#' @param trawl_parameter Trawl parameter.
+#' @param trawl_parameter Trawl parameter(s).
 #' @param vanishing_depth Approximation depth.
 #' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
 #' @param get_value Prints or returns the value. Defaults to `FALSE`.
@@ -160,6 +188,24 @@ print_vanishing_coverage <- function(trawl_parameter, vanishing_depth,
   }
 }
 
+#' Simulates a path from a Trawl process.
+#' @param alpha Gamma shape parameter.
+#' @param beta Gamma rate parameter.
+#' @param n Number of samples.
+#' @param vanishing_depth Approximation depth.
+#' @param trawl_parameter Trawl parameter(s).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
+#' @param parallel Whether to parallelise, defaults to `FALSE`.
+#' @return Simulate path from trawl process.
+#' @examples
+#' alpha <- 1
+#' beta <-1
+#' n <- 100
+#' vanishing_depth <- 30
+#' trawl_parameter <- 0.2
+#' type <- "exp"
+#' trawl_simulation(alpha, beta, n, vanishing_depth, trawl_parameter, type)
+#' @export
 trawl_simulation <- function(alpha, beta, n, vanishing_depth,
                              trawl_parameter, type, parallel = F) {
   gamma_grid <- gamma_grid(
@@ -169,7 +215,30 @@ trawl_simulation <- function(alpha, beta, n, vanishing_depth,
   return(gamma_orchestra(gamma_grid, parallel = parallel))
 }
 
-
+#' Simulates a path from the Latent Trawl Model for Extremes (LTME) process
+#' (Noven et al. (2018) \doi{10.21314/JEM.2018.179})
+#' @param params Trawl parameter(s).
+#' @param n Number of samples.
+#' @param vanishing_depth Approximation depth.
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
+#' @param m number of paths to use: if `algo = "standard"` or number of
+#'     supporting paths if `algo = "cross"`.
+#' @param parametrisation Parametrisation to use, defaults is standard
+#'      `GPD` parameters `(xi, sigma)`.
+#' @param parallel Whether to parallelise, defaults to `FALSE`. NOTE: only works
+#'     with `"standard"` algorithm.
+#' @param algo Simulation algorithm to use (e.g `"standard"`, `"cross"`,
+#'      `"corr_unif"`, `"dynamic_latent"`, `"dynamic_uniform"`).
+#' @return Simulate path from trawl process.
+#' @examples
+#' alpha <- 1
+#' beta <-1
+#' n <- 100
+#' vanishing_depth <- 30
+#' trawl_parameter <- 0.2
+#' type <- "exp"
+#' exceedances_simulation(trawl_parameter, n, vanishing_depth, type)
+#' @export
 exceedances_simulation <- function(params, n, vanishing_depth, type,
                                    m = 1, parametrisation = "standard",
                                    parallel = F, algo = "standard") {

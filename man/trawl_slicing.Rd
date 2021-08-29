@@ -8,6 +8,16 @@ where \code{S(i,j)} is a trawl slice.}
 \usage{
 trawl_slicing(n, vanishing_depth, trawl_parameter, type = "exp")
 }
+\arguments{
+\item{vanishing_depth}{Approximation depth.}
+
+\item{trawl_parameter}{Trawl parameter(s).}
+
+\item{type}{Trawl type (e.g. \code{"exp"}, \code{"sum_exp"}).}
+}
+\value{
+Gamma-distributed standardised trawl slices.
+}
 \description{
 Returns matrix with
 \verb{[ [S(1,1), S(2,1), S(3,1), \\dots, S(vanishing_depth,1)], [S(2,2), S(3,2), S(4,2), \\dots, S(vanishing_depth+1,2)], \\dots, [S(n,n), S(3,2), S(4,2), \\dots, S(vanishing_depth+n,n)], ]}

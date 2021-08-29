@@ -27,13 +27,14 @@ kappa <- 9.
 sigma <- 1.
 n <- 100
 p_zero <- 1 - 1. / (1. + kappa)
+test_column <- 2
 
 set.seed(42)
 zeroes <- stats::runif(n = n, min = 0, max = 1)
 test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
 test_samples[which(zeroes < p_zero)] <- 0.0
 composite_marginal_hac(
-  data = pollution_data[, test_column], params = c(xi, sigma, kappa),
+  data = test_samples, params = c(xi, sigma, kappa),
   k = 3, max_length = 50
 )
 }
