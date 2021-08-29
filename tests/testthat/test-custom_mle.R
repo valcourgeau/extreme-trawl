@@ -8,7 +8,7 @@ test_that("Custom likelihood - positive xi, only exceedance", {
 
   set.seed(42)
   p_zero <- 1 - 1 / (1 + kappa)
-  zeroes <- runif(n = n, min = 0, max = 1)
+  zeroes <- stats::runif(n = n, min = 0, max = 1)
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
 
@@ -52,7 +52,7 @@ test_that("Custom MLE - positive xi", {
   p_zero <- 1 - 1. / (1. + kappa)
 
   set.seed(42)
-  zeroes <- runif(n = n, min = 0, max = 1)
+  zeroes <- stats::runif(n = n, min = 0, max = 1)
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
   cm_mle <- custom_marginal_mle(data = test_samples)
@@ -68,7 +68,7 @@ test_that("Composite MLE - score ACF", {
   p_zero <- 1 - 1. / (1. + kappa)
 
   set.seed(42)
-  zeroes <- runif(n = n, min = 0, max = 1)
+  zeroes <- stats::runif(n = n, min = 0, max = 1)
   test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
   test_samples[which(zeroes < p_zero)] <- 0.0
 
@@ -92,7 +92,7 @@ test_that("Composite MLE - positive/negative xi", {
   for (xi in xi_seq) {
     for (sigma in sigma_seq) {
       set.seed(42)
-      zeroes <- runif(n = n, min = 0, max = 1)
+      zeroes <- stats::runif(n = n, min = 0, max = 1)
       test_samples <- evir::rgpd(n = n, mu = 0, xi = xi, beta = sigma)
       test_samples[which(zeroes < p_zero)] <- 0.0
       cm_mle <- composite_marginal_mle(data = test_samples)

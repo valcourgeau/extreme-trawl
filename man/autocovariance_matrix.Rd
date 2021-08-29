@@ -20,6 +20,6 @@ Autocovariance matrix from vector.
 \examples{
 d <- 5
 n <- 1000
-vals <- matrix(norm(n * d), ncol = d)
-make_hac(vals, 5)
+vals <- matrix(rnorm(n * d), ncol = d)
+autocovariance_matrix(vals, 5)
 }

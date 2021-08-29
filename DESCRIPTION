@@ -14,17 +14,17 @@ Description: Statistical inference tools for univariate extreme time
     Gamma-distributed trawl processes.
 License: MIT + file LICENSE
 Imports: 
-    abind,
     assertthat,
     evir,
-    fitdistrplus,
     Matrix,
-    measures,
-    microbenchmark,
     pracma,
     Rcpp
 Suggests: 
+    abind,
+    fitdistrplus,
     knitr,
+    measures,
+    microbenchmark,
     rmarkdown,
     testthat (>= 3.0.0)
 LinkingTo: 

@@ -5,7 +5,7 @@ get_initial_guess_and_bounds <- function(data, max_length = 20000,
   length_data <- min(max_length, length(data))
   data <- data[1:length_data]
 
-  invisible(capture.output(
+  invisible(utils::capture.output(
     init_guess_vals <- as.numeric(
       evir::gpd(data, threshold = 0, method = "pwm")$par.ests
     )
@@ -34,7 +34,7 @@ get_initial_guess_and_bounds <- function(data, max_length = 20000,
 #' sigma <- 1.
 #' n <- 1000
 #' p_zero <- 1 - 1 / (1 + kappa)
-#' zeroes <- runif(n = n, min = 0, max = 1)
+#' zeroes <- stats::runif(n = n, min = 0, max = 1)
 #' test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
 #' test_samples[which(zeroes < p_zero)] <- 0.0
 #' cm_mle <- custom_likelihood(data = test_samples)
@@ -48,7 +48,7 @@ custom_likelihood <- function(data) {
     kap <- par[3]
     p_zero <- 1 - 1. / (1. + kap)
 
-    invisible(capture.output(
+    invisible(utils::capture.output(
       like <- evir::dgpd(
         x = data_for_mle[data_for_mle > 0.0],
         beta = par[2], xi = par[1], mu = 0.0
@@ -163,7 +163,7 @@ composite_likelihood_hessian <- function(params, max_length = 100) {
 #' p_zero <- 1 - 1. / (1. + kappa)
 #'
 #' set.seed(42)
-#' zeroes <- runif(n = n, min = 0, max = 1)
+#' zeroes <- stats::runif(n = n, min = 0, max = 1)
 #' test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
 #' test_samples[which(zeroes < p_zero)] <- 0.0
 #' composite_marginal_hac(

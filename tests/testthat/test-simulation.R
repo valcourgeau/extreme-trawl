@@ -14,7 +14,7 @@ test_that("trawl_simulation - NAs, Gamma and shape", {
   )
   testthat::expect_equal(length(trawl_sims), n)
   testthat::expect_false(any(is.na(trawl_sims)))
-  invisible(capture.output(fit_gam <- fitdistrplus::fitdist(
+  invisible(utils::capture.output(fit_gam <- fitdistrplus::fitdist(
     data = trawl_sims, distr = "gamma", method = "mle"
   )))
   testthat::expect_equal(unname(fit_gam$estimate), c(1, 1), tolerance = 0.05)

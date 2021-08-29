@@ -48,6 +48,7 @@ trawl_slicing <- function(n, vanishing_depth, trawl_parameter, type = "exp") {
   return(slices / a_total) # divide by \mu^{leb}(A)
 }
 
+#' @importFrom stats rgamma
 gamma_grid <- function(alpha, beta, n,
                        vanishing_depth, trawl_parameter, type = "exp") {
   n_diags <- max(2, vanishing_depth)
@@ -61,10 +62,8 @@ gamma_grid <- function(alpha, beta, n,
     type = type
   )
   stopifnot(length(gamma_shapes) == n_non_zero_elements)
-  gamma_sim_vals <- rgamma(
-    n = n_non_zero_elements,
-    shape = gamma_shapes,
-    rate = beta
+  gamma_sim_vals <- stats::rgamma(
+    n = n_non_zero_elements, shape = gamma_shapes, rate = beta
   )
   return(grid_foundations(
     n = n, vanishing_depth = vanishing_depth, values = gamma_sim_vals
@@ -225,11 +224,11 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
       vanishing_depth = vanishing_depth, type = type, parallel = parallel
     )
     probabilities_zero <- 1 - exp(-kappa * trawl_sims)
-    uniform_samples <- runif(n = n, min = 0, max = 1)
+    uniform_samples <- stats::runif(n = n, min = 0, max = 1)
     who_is_extreme <- uniform_samples > probabilities_zero
 
     exceedances <- rep(0, n)
-    exceedances[who_is_extreme] <- rexp(
+    exceedances[who_is_extreme] <- stats::rexp(
       n = length(which(who_is_extreme)), rate = trawl_sims[who_is_extreme]
     )
     exceedances[who_is_extreme] <- transformation_map(
@@ -283,12 +282,12 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
     )
 
     probabilities_zero <- 1 - exp(-kappa * trawl_sims)
-    corr_uniform <- pgamma(trawl_simulation_unif, shape = 1, rate = 1)
+    corr_uniform <- stats::pgamma(trawl_simulation_unif, shape = 1, rate = 1)
 
     who_is_extreme <- corr_uniform > probabilities_zero
 
     exceedances <- rep(0, n)
-    exceedances[who_is_extreme] <- rexp(
+    exceedances[who_is_extreme] <- stats::rexp(
       n = length(which(who_is_extreme)), rate = trawl_sims[who_is_extreme]
     )
     exceedances[who_is_extreme] <- transformation_map(
@@ -313,7 +312,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
       vanishing_depth = vanishing_depth, type = type, parallel = parallel
     )
     probabilities_zero <- 1 - exp(-kappa * trawl_sims)
-    uniform_samples <- runif(n = n, min = 0, max = 1)
+    uniform_samples <- stats::runif(n = n, min = 0, max = 1)
 
     prev_sample <- NULL
     exceedances <- apply(
@@ -339,7 +338,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
 
         # generate sample
         if (1 - p_u_t[1] > extreme_proba) {
-          prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+          prev_sample <<- stats::rexp(n = 1, rate = p_u_t[3])
         } else {
           prev_sample <<- 0.0
         }
@@ -359,7 +358,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
       vanishing_depth = vanishing_depth, type = type, parallel = parallel
     )
     probabilities_zero <- 1 - exp(-kappa * trawl_sims)
-    uniform_samples <- runif(n = n, min = 0, max = 1)
+    uniform_samples <- stats::runif(n = n, min = 0, max = 1)
 
     prev_sample <- NULL
     exceedances <- apply(
@@ -388,7 +387,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
         if (p_u_t[2] > extreme_proba) {
           prev_sample <<- 0.0
         } else {
-          prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+          prev_sample <<- stats::rexp(n = 1, rate = p_u_t[3])
         }
 
         return(prev_sample)

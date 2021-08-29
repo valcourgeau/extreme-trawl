@@ -13,7 +13,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
   upper_model <- init_guess_lower_upper$upper
 
   init_trawl <- vapply(1:trawl_cfg$n_params, function(i) {
-    runif(
+    stats::runif(
       n = 1,
       min = trawl_cfg$lower[i],
       max = trawl_cfg$upper[i]
