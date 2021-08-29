@@ -25,15 +25,16 @@ grid_foundations <- function(n, vanishing_depth, values = 1) {
   return(grid_vals)
 }
 
-trawl_slicing <- function(n, vanishing_depth, trawl_parameter, type = "exp") {
-  # returns matrix with
-  # [
-  #  [S(1,1), S(2,1), S(3,1), ..., S(vanishing_depth,1)],
-  #  [S(2,2), S(3,2), S(4,2), ..., S(vanishing_depth+1,2)],
-  #  ...,
-  #  [S(n,n), S(3,2), S(4,2), ..., S(vanishing_depth+n,n)],
-  # ]
 
+#' Returns matrix with
+#' `[
+#'  [S(1,1), S(2,1), S(3,1), ..., S(vanishing_depth,1)],
+#'  [S(2,2), S(3,2), S(4,2), ..., S(vanishing_depth+1,2)],
+#'  ...,
+#'  [S(n,n), S(3,2), S(4,2), ..., S(vanishing_depth+n,n)],
+#' ]``
+#' where `S(i,j)` is a trawl slice.
+trawl_slicing <- function(n, vanishing_depth, trawl_parameter, type = "exp") {
   b_funcs <- get_trawl_functions(type = type)
   b_2_func <- b_funcs[[2]]
 
@@ -200,21 +201,22 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
         "generate_shapes", "exceedances_simulation", get_trawl_envs_list()
       )
     )
-
+    parallel::clusterExport(
+      cl, c("n", "m", "vanishing_depth", "type")
+    )
     sim_fn <- function(i) {
       exceedances_simulation(
         params = params, n = n, vanishing_depth = vanishing_depth, type = type,
         m = 1, parametrisation = parametrisation, parallel = F, algo = algo
       )
     }
-    parallel::clusterExport(
-      cl, c("n", "m", "vanishing_depth", "type")
-    )
 
     sims <- parallel::parLapply(cl = cl, X = seq_len(m), fun = sim_fn)
     parallel::stopCluster(cl)
     return(sims)
   }
+
+  # the rest are single-process simulations
 
   if (algo == "standard") {
     trawl_sims <- trawl_simulation(
@@ -265,6 +267,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
       warning("`NA`s found in the simulated path. Consider increasing `m`.")
     }
     exceedances[which(backbone_exc > 0)] <- unlist(avg_exc)
+    exceedances[is.na(exceedances)] <- 0
     trawl_sims <- NA
   }
 
@@ -292,23 +295,22 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
     )
   }
 
-  if (algo == "dynamic_latent" | algo == "dynamic_uniform") {
+  b_funcs <- get_trawl_functions(type = type)
+  b_1_func <- b_funcs[[1]]
+  b_2_func <- b_funcs[[2]]
+  b_3_func <- b_funcs[[3]]
+
+  a_value <- b_1_func(param = trawl_parameter, h = 1)
+  a_value <- a_value + b_2_func(param = trawl_parameter, h = 1)
+  b_1_minus_0 <- -b_1_func(param = trawl_parameter, h = 1) / a_value
+  b_0_minus_1 <- -b_3_func(param = trawl_parameter, h = 1) / a_value
+  b_0_1 <- -b_2_func(param = trawl_parameter, h = 1) / a_value
+
+  if (algo == "dynamic_latent") {
     trawl_sims <- trawl_simulation(
       alpha = 1., beta = 1., trawl_parameter = trawl_parameter, n = n,
       vanishing_depth = vanishing_depth, type = type, parallel = parallel
     )
-
-    b_funcs <- get_trawl_functions(type = type)
-    b_1_func <- b_funcs[[1]]
-    b_2_func <- b_funcs[[2]]
-    b_3_func <- b_funcs[[3]]
-
-    a_value <- b_1_func(param = trawl_parameter, h = 1)
-    a_value <- a_value + b_2_func(param = trawl_parameter, h = 1)
-    b_1_minus_0 <- -b_1_func(param = trawl_parameter, h = 1) / a_value
-    b_0_minus_1 <- -b_3_func(param = trawl_parameter, h = 1) / a_value
-    b_0_1 <- -b_2_func(param = trawl_parameter, h = 1) / a_value
-
     probabilities_zero <- 1 - exp(-kappa * trawl_sims)
     uniform_samples <- runif(n = n, min = 0, max = 1)
 
@@ -317,6 +319,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
       cbind(probabilities_zero, uniform_samples, trawl_sims),
       MARGIN = 1,
       FUN = function(p_u_t) {
+        # compute extreme proba
         if (is.null(prev_sample)) {
           extreme_proba <- 1 / (1 + kappa)
         } else {
@@ -327,32 +330,18 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
           tmp3 <- (1 + kappa)^b_1_minus_0
           extreme_proba <- tmp1 * tmp2 * tmp3
 
-          if (algo == "dynamic_latent") {
-            if (prev_sample == 0.0) {
+          if (prev_sample == 0.0) {
               extreme_proba <- 1 / (1 + kappa) - extreme_proba / (1 + kappa)
               extreme_proba <- extreme_proba / (1 - 1 / (1 + kappa))
-            }
-            if (1 - p_u_t[1] > extreme_proba) {
-              prev_sample <<- rexp(n = 1, rate = p_u_t[3])
-            } else {
-              prev_sample <<- 0.0
-            }
-          } else {
-            if (algo == "dynamic_uniform") {
-              if (prev_sample == 0.0) {
-                extreme_proba <- extreme_proba / (1 + kappa)
-                extreme_proba <- 1 / (1 + kappa) - extreme_proba
-                extreme_proba <- extreme_proba / (1 - 1 / (1 + kappa))
-              }
-              if (p_u_t[2] > extreme_proba) {
-                prev_sample <<- 0.0
-              } else {
-                prev_sample <<- rexp(n = 1, rate = p_u_t[3])
-              }
-            }
           }
         }
 
+        # generate sample
+        if (1 - p_u_t[1] > extreme_proba) {
+          prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+        } else {
+          prev_sample <<- 0.0
+        }
         return(prev_sample)
       }
     )
@@ -363,8 +352,56 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
     )
   }
 
+  if (algo == "dynamic_uniform") {
+    trawl_sims <- trawl_simulation(
+      alpha = 1., beta = 1., trawl_parameter = trawl_parameter, n = n,
+      vanishing_depth = vanishing_depth, type = type, parallel = parallel
+    )
+    probabilities_zero <- 1 - exp(-kappa * trawl_sims)
+    uniform_samples <- runif(n = n, min = 0, max = 1)
+
+    prev_sample <- NULL
+    exceedances <- apply(
+      cbind(probabilities_zero, uniform_samples, trawl_sims),
+      MARGIN = 1,
+      FUN = function(p_u_t) {
+        # compute extreme proba
+        if (is.null(prev_sample)) {
+          extreme_proba <- 1 / (1 + kappa)
+        } else {
+          tmp1 <- (1 + kappa + prev_sample)^{
+            1 + b_0_minus_1
+          }
+          tmp2 <- (1 + 2 * kappa + prev_sample)^b_0_1
+          tmp3 <- (1 + kappa)^b_1_minus_0
+          extreme_proba <- tmp1 * tmp2 * tmp3
+
+          if (prev_sample == 0.0) {
+            extreme_proba <- extreme_proba / (1 + kappa)
+            extreme_proba <- 1 / (1 + kappa) - extreme_proba
+            extreme_proba <- extreme_proba / (1 - 1 / (1 + kappa))
+          }
+        }
+
+        # generate sample
+        if (p_u_t[2] > extreme_proba) {
+          prev_sample <<- 0.0
+        } else {
+          prev_sample <<- rexp(n = 1, rate = p_u_t[3])
+        }
+
+        return(prev_sample)
+      }
+    )
+    who_is_extreme <- exceedances > 0
+    exceedances[who_is_extreme] <- transformation_map(
+      x = exceedances[who_is_extreme], params_std = params[1:3]
+    )
+  }
+
   return(list(
     exceedances = exceedances[seq_len(n_old)],
-    latent = trawl_sims[seq_len(n_old)], coverage = coverage
+    latent = trawl_sims[seq_len(n_old)],
+    coverage = coverage
   ))
 }

@@ -17,6 +17,7 @@ Imports:
     abind,
     assertthat,
     evir,
+    fitdistrplus,
     measures,
     microbenchmark,
     pracma,
