@@ -44,7 +44,7 @@ test_that("Custom likelihood - matrix error", {
 
 
 test_that("Custom MLE - positive xi", {
-  xi <- 1.
+  xi <- .1
   kappa <- 9.
   sigma <- 1.
   n <- 30000
