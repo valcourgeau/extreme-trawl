@@ -18,6 +18,7 @@ Imports:
     assertthat,
     evir,
     fitdistrplus,
+    Matrix,
     measures,
     microbenchmark,
     pracma,

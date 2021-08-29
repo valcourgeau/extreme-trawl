@@ -2,6 +2,7 @@ autocovariance_matrix <- function(score, k) {
   return(acf(score, lag.max = k, type = "covariance")$acf)
 }
 
+#' @importFrom Matrix nearPD
 make_hac <- function(acf_matrices, near_pd = F) {
   # acf_matrices is k x n_params x n_params
   k <- dim(acf_matrices)[1]
