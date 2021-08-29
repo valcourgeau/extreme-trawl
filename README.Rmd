@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # gammaextremes
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/valcourgeau/extreme-trawl/workflows/R-CMD-check/badge.svg)](https://github.com/valcourgeau/ntwk/actions)
 <!-- badges: end -->
 
 The goal of `extreme.trawl` is to provide statistical inference tools for univariate extreme time series.  It comprises pairwise and generalised method of moments inference strategies described in Courgeau and Veraart (2021) <doi:10.2139/ssrn.3527739> and simulation schemes based on Gamma-distributed trawl processes.
