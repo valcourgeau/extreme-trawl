@@ -1,3 +1,25 @@
+
+
+test_that("trawl_simulation - NAs, Gamma and shape", {
+  set.seed(42)
+  params <- c(.1, 1., 19, .05)
+  n <- 1500
+  vd <- 100
+  type <- "exp"
+  trawl_parameter <- 0.1
+
+  trawl_sims <- trawl_simulation(
+    alpha = 1., beta = 1., trawl_parameter = trawl_parameter, n = n,
+    vanishing_depth = vd, type = type, parallel = F
+  )
+  testthat::expect_equal(length(trawl_sims), n)
+  testthat::expect_false(any(is.na(trawl_sims)))
+  invisible(capture.output(fit_gam <- fitdistrplus::fitdist(
+    data = trawl_sims, distr = "gamma", method = "mle"
+  )))
+  testthat::expect_equal(unname(fit_gam$estimate), c(1, 1), tolerance = 0.05)
+})
+
 test_that("exceedances_simulation - simple", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
@@ -25,29 +47,24 @@ test_that("exceedances_simulation - simple", {
 
 test_that("exceedances_simulation - cross", {
   set.seed(42)
-  params <- c(.1, 1., 13, .05)
-  n <- 2000
+  params <- c(.1, 1., 19, .05)
+  n <- 2500
   vd <- 50
   type <- "exp"
 
-  exc <- exceedances_simulation(
+  testthat::expect_warning(exceedances_simulation(
+    params = params, n = n, vanishing_depth = vd,
+    type = type, m = 2, algo = "cross"
+  ))
+  suppressWarnings(exc <- exceedances_simulation(
     params = params, n = n, vanishing_depth = vd,
     type = type, m = 50, algo = "cross"
-  )
-  # returns (both exceedances and latent values
-  gpd_fit_sim <- evir::gpd(
-    data = exc$exceedances[!is.na(exc$exceedance)],
-    threshold = 0.0, method = "ml"
-  )
+  ))
+  testthat::expect_false(any(is.na(exc$exceedances)))
+  testthat::expect_true(any(is.na(exc$latent)))
 
-  par_vals <- unname(gpd_fit_sim$par.ests)
-  tol_vals <- c(0.3, .6)
-
-  testthat::expect_equal(par_vals[1], params[1], tolerance = 1.96 * tol_vals[1])
-  testthat::expect_equal(par_vals[2], params[2], tolerance = 1.96 * tol_vals[2])
   testthat::expect_equal(
-    mean(exc$exceedances > 0, na.rm = T), .05,
-    tolerance = .07
+    mean(exc$exceedances > 0, na.rm = T), .05, tolerance = .07
   )
 })
 
