@@ -6,10 +6,23 @@
 
 trawl_autocorrelation <- new.env()
 
-trawl_autocorrelation$acf_trawl <- function(h,
-                                            alpha, beta, rho, kappa,
-                                            delta = 0.1, end_seq = 50,
-                                            type = "exp", cov = F) {
+#' R-only Single Trawl ACF calculations.
+#' @param h Single ACF horizon.
+#' @param alpha Gamma `alpha` (or shape) parameter.
+#' @param betal Gamma `beta` (or rate) parameter.
+#' @param rho Trawl parameter(s).
+#' @param kappa Extreme frequency control parameter.
+#' @param delta Discrete time step.
+#' @param end_seq Horizon cut-off for integral approximation.
+#' @param type Trawl type (e.g. `"exp`, "`sum_exp`", etc.).
+#' @param cov Boolean, correlation or covariance (if `FALSE`).
+#'     Defaults to correlation.
+#' @return Trawl autocorrelation values with R-only functions.
+#' @export
+trawl_autocorrelation$acf_trawl_single <- function(h,
+                                                   alpha, beta, rho, kappa,
+                                                   delta = 0.1, end_seq = 50,
+                                                   type = "exp", cov = F) {
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa + end_seq, by = delta)
   trawl_fct <- get_trawl_functions(type)
@@ -62,11 +75,24 @@ trawl_autocorrelation$acf_trawl <- function(h,
   }
 }
 
+#' Rcpp-accelerated Single Trawl ACF calculations.
+#' @param h ACF horizon.
+#' @param alpha Gamma `alpha` (or shape) parameter.
+#' @param betal Gamma `beta` (or rate) parameter.
+#' @param rho Trawl parameter(s).
+#' @param kappa Extreme frequency control parameter.
+#' @param delta Discrete time step.
+#' @param end_seq Horizon cut-off for integral approximation.
+#' @param type Trawl type (e.g. `"exp`, "`sum_exp`", etc.).
+#' @param cov Boolean, correlation or covariance (if `FALSE`).
+#'     Defaults to correlation.
+#' @return Trawl autocorrelation values with Cpp functions.
 #' @export
-trawl_autocorrelation$acf_trawl <- function(h,
-                                            alpha, beta, rho, kappa,
-                                            delta = 0.1, end_seq = 50,
-                                            type = "exp", cov = F) {
+trawl_autocorrelation$cpp_acf_trawl_single <- function(h,
+                                                       alpha, beta, rho,
+                                                       kappa, delta = 0.1,
+                                                       end_seq = 50,
+                                                       type = "exp", cov = F) {
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa + end_seq, by = delta)
   trawl_fct <- get_trawl_functions(type)
@@ -138,16 +164,30 @@ trawl_autocorrelation$cross_moment_trawls <- function(h,
   return(res)
 }
 
-trawl_autocorrelation$acf_trawl_num_approx <- function(h,
-                                                       alpha, beta, kappa,
-                                                       rho, delta = 0.5,
-                                                       type = "exp", cov = T) {
-  vapply(h, function(h) {
-    trawl_autocorrelation$acf_trawl(h,
+#' R-only Trawl ACF function approximation.
+#' @param h ACF horizon.
+#' @param alpha Gamma `alpha` (or shape) parameter.
+#' @param betal Gamma `beta` (or rate) parameter.
+#' @param rho Trawl parameter(s).
+#' @param kappa Extreme frequency control parameter.
+#' @param delta Discrete time step.
+#' @param end_seq Horizon cut-off for integral approximation.
+#' @param type Trawl type (e.g. `"exp`, "`sum_exp`", etc.).
+#' @param cov Boolean, covariance (if `TRUE`) or correlation.
+#'     Defaults to covariance.
+#' @return Trawl autocorrelation values with R-only functions.
+#' @export
+trawl_autocorrelation$acf_trawl <- function(h, alpha, beta, kappa,
+                                            rho, delta = 0.5,
+                                            type = "exp", cov = T) {
+  trawl_acf_fn <- function(h) {
+    trawl_autocorrelation$acf_trawl_single(
+      h,
       alpha = alpha, beta = beta, kappa = kappa,
       rho = rho, delta = delta, type = type, cov = cov
     )
-  }, 1)
+  }
+  return(vapply(h, trawl_acf_fn, 1))
 }
 
 trawl_autocorrelation$acf_trawl_revisited_num_approx <- function(h,
@@ -156,45 +196,49 @@ trawl_autocorrelation$acf_trawl_revisited_num_approx <- function(h,
                                                                  delta = 0.5,
                                                                  type = "exp",
                                                                  cov = T) {
+  trawl_acf_fn <- function(h) {
+    trawl_autocorrelation$acf_trawl_single(
+      h,
+      alpha = alpha, beta = beta, kappa = kappa,
+      rho = rho, delta = delta, type = type, cov = cov
+    )
+  }
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(cores - 1)
   parallel::clusterExport(
-    cl,
-    c(
+    cl, c(
       "acf_trawl", "square_moment", "cross_moment", "first_moment",
-      get_trawl_envs_list()
+      "trawl_acf_fn", get_trawl_envs_list()
     )
   )
-  return(
-    parallel::parLapply(
-      cl,
-      X = h,
-      fun = function(h) {
-        trawl_autocorrelation$acf_trawl(h,
-          alpha = alpha, beta = beta, kappa = kappa,
-          rho = rho, delta = delta, type = type, cov = cov
-        )
-      }
-    )
-  )
+  acf_vals <- parallel::parLapply(cl, X = h, fun = trawl_acf_fn)
+  parallel::stopCluster(cl)
+  return(acf_vals)
 }
 
+#' Rcpp-accelerated Trawl ACF function approximation.
+#' @param h ACF horizon.
+#' @param alpha Gamma `alpha` (or shape) parameter.
+#' @param betal Gamma `beta` (or rate) parameter.
+#' @param rho Trawl parameter(s).
+#' @param kappa Extreme frequency control parameter.
+#' @param delta Discrete time step.
+#' @param end_seq Horizon cut-off for integral approximation.
+#' @param type Trawl type (e.g. `"exp`, "`sum_exp`", etc.).
+#' @param cov Boolean, correlation or covariance (if `FALSE`).
+#'     Defaults to correlation.
+#' @return Trawl autocorrelation values with Cpp-accelerated functions.
 #' @export
-trawl_autocorrelation$acf_trawl_collection <- function(h,
-                                                       alpha, beta, kappa,
-                                                       rho, delta = 0.5,
-                                                       type = "exp",
-                                                       end_seq = 50, cov = T) {
-  return(
-    vapply(
-      X = h,
-      FUN.VALUE = 1.0,
-      FUN = function(h) {
-        trawl_autocorrelation$acf_trawl(h,
-          alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
-          rho = rho, delta = delta, type = type, cov = cov
-        )
-      }
+trawl_autocorrelation$cpp_acf_trawl <- function(h, alpha, beta, kappa,
+                                                rho, delta = 0.5,
+                                                type = "exp", end_seq = 50,
+                                                cov = T) {
+  trawl_acf_fn <- function(h) {
+    trawl_autocorrelation$cpp_acf_trawl_single(
+      h,
+      alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
+      rho = rho, delta = delta, type = type, cov = cov
     )
-  )
+  }
+  return(vapply(X = h, FUN.VALUE = 1.0, FUN = trawl_acf_fn))
 }
