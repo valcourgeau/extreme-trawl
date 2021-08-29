@@ -22,7 +22,7 @@ kappa <- 9.
 sigma <- 1.
 n <- 1000
 p_zero <- 1 - 1 / (1 + kappa)
-zeroes <- runif(n = n, min = 0, max = 1)
+zeroes <- stats::runif(n = n, min = 0, max = 1)
 test_samples <- evir::rgpd(n = n, xi = xi, mu = 0, beta = sigma)
 test_samples[which(zeroes < p_zero)] <- 0.0
 cm_mle <- custom_likelihood(data = test_samples)

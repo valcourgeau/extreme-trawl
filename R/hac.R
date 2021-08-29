@@ -6,11 +6,12 @@
 #' @examples
 #' d <- 5
 #' n <- 1000
-#' vals <- matrix(norm(n * d), ncol = d)
-#' make_hac(vals, 5)
+#' vals <- matrix(rnorm(n * d), ncol = d)
+#' autocovariance_matrix(vals, 5)
 #' @export
 #' @importFrom stats acf
 autocovariance_matrix <- function(score, k) {
+  stopifnot(k > 0)
   return(acf(score, lag.max = k, type = "covariance")$acf)
 }
 
@@ -46,7 +47,7 @@ make_hac <- function(acf_matrices, near_pd = F) {
   hac_ests <- Reduce(`+`, weighted_acf_matrices)
   assertthat::assert_that(all(dim(hac_ests) == dim(acf_matrices)[c(2, 3)]))
   if (near_pd) {
-    hac_ests <- as.matrix(Matrix::nearPD(hac_ests))
+    hac_ests <- as.matrix(Matrix::nearPD(hac_ests)$mat)
   }
   return(hac_ests)
 }
