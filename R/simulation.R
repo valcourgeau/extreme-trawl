@@ -28,11 +28,11 @@ grid_foundations <- function(n, vanishing_depth, values = 1) {
 
 #' Returns matrix with
 #' `[
-#'  [S(1,1), S(2,1), S(3,1), ..., S(vanishing_depth,1)],
-#'  [S(2,2), S(3,2), S(4,2), ..., S(vanishing_depth+1,2)],
-#'  ...,
-#'  [S(n,n), S(3,2), S(4,2), ..., S(vanishing_depth+n,n)],
-#' ]``
+#'  [S(1,1), S(2,1), S(3,1), \dots, S(vanishing_depth,1)],
+#'  [S(2,2), S(3,2), S(4,2), \dots, S(vanishing_depth+1,2)],
+#'  \dots,
+#'  [S(n,n), S(3,2), S(4,2), \dots, S(vanishing_depth+n,n)],
+#' ]`
 #' where `S(i,j)` is a trawl slice.
 trawl_slicing <- function(n, vanishing_depth, trawl_parameter, type = "exp") {
   b_funcs <- get_trawl_functions(type = type)
