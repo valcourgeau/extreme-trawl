@@ -8,7 +8,7 @@
 #'
 #' @export
 times_two <- function(x) {
-    .Call('_extreme_trawl_times_two', PACKAGE = 'extreme.trawl', x)
+  .Call("_extreme_trawl_times_two", PACKAGE = "extreme.trawl", x)
 }
 
 #' Computes cross moment in trawl gamma-exponential mixture
@@ -22,7 +22,7 @@ times_two <- function(x) {
 #'
 #' @export
 cross_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
-    .Call('_extreme_trawl_cross_moment', PACKAGE = 'extreme.trawl', xs, delta, beta, b_oh, b_o_exc_h)
+  .Call("_extreme_trawl_cross_moment", PACKAGE = "extreme.trawl", xs, delta, beta, b_oh, b_o_exc_h)
 }
 
 #' Computes first moment in trawl gamma-exponential mixture
@@ -36,7 +36,7 @@ cross_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
 #'
 #' @export
 first_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
-    .Call('_extreme_trawl_first_moment', PACKAGE = 'extreme.trawl', xs, delta, beta, b_oh, b_o_exc_h)
+  .Call("_extreme_trawl_first_moment", PACKAGE = "extreme.trawl", xs, delta, beta, b_oh, b_o_exc_h)
 }
 
 #' Computes square moment in trawl gamma-exponential mixture
@@ -50,25 +50,25 @@ first_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
 #'
 #' @export
 square_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
-    .Call('_extreme_trawl_square_moment', PACKAGE = 'extreme.trawl', xs, delta, beta, b_oh, b_o_exc_h)
+  .Call("_extreme_trawl_square_moment", PACKAGE = "extreme.trawl", xs, delta, beta, b_oh, b_o_exc_h)
 }
 
 #' @export
 cpp_case_zero_zero <- function(alpha, beta, kappa, b_1, b_2, b_3) {
-    .Call('_extreme_trawl_cpp_case_zero_zero', PACKAGE = 'extreme.trawl', alpha, beta, kappa, b_1, b_2, b_3)
+  .Call("_extreme_trawl_cpp_case_zero_zero", PACKAGE = "extreme.trawl", alpha, beta, kappa, b_1, b_2, b_3)
 }
 
 #' @export
 cpp_case_one_zero <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
-    .Call('_extreme_trawl_cpp_case_one_zero', PACKAGE = 'extreme.trawl', xs, alpha, beta, kappa, b_1, b_2, b_3)
+  .Call("_extreme_trawl_cpp_case_one_zero", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }
 
 #' @export
 cpp_case_one_one <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
-    .Call('_extreme_trawl_cpp_case_one_one', PACKAGE = 'extreme.trawl', xs, alpha, beta, kappa, b_1, b_2, b_3)
+  .Call("_extreme_trawl_cpp_case_one_one", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }
 
 #' @export
 cpp_case_separator <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
-    .Call('_extreme_trawl_cpp_case_separator', PACKAGE = 'extreme.trawl', xs, alpha, beta, kappa, b_1, b_2, b_3)
+  .Call("_extreme_trawl_cpp_case_separator", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }
