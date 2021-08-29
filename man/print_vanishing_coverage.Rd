@@ -12,7 +12,7 @@ print_vanishing_coverage(
 )
 }
 \arguments{
-\item{trawl_parameter}{Trawl parameter.}
+\item{trawl_parameter}{Trawl parameter(s).}
 
 \item{vanishing_depth}{Approximation depth.}
 
