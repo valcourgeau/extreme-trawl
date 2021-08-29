@@ -22,5 +22,5 @@ xi <- 1
 sig <- 3
 kap <- 2
 tmp <- evir::rgpd(100, xi = 1, beta = 1 + kap)
-transformation_map(tmp, c(xi, sigma))
+transformation_map(tmp, c(xi, sig, kap))
 }

@@ -21,6 +21,7 @@ get_trawl_env <- function(type) {
 #'     which depend on the trawl environment.
 #' @examples
 #' get_trawl_functions("exp") # Exponential trawl
+#' @export
 get_trawl_functions <- function(type) {
   select_env <- get_trawl_env(type)
   return(

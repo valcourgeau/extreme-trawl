@@ -9,6 +9,8 @@ where \code{S(i,j)} is a trawl slice.}
 trawl_slicing(n, vanishing_depth, trawl_parameter, type = "exp")
 }
 \arguments{
+\item{n}{Number of time steps.}
+
 \item{vanishing_depth}{Approximation depth.}
 
 \item{trawl_parameter}{Trawl parameter(s).}

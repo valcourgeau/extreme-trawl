@@ -154,6 +154,7 @@ composite_likelihood_hessian <- function(params, max_length = 100) {
 #' @param params Composite likelihood params.
 #' @param k Maximum lag.
 #' @param max_length Maximum length of data used to compute the score functions.
+#' @param near_pd Boolean, nearest positive definite matrix from HAC estimate.
 #' @return Composite marginal HAC autocovariance.
 #' @examples
 #' xi <- 1.

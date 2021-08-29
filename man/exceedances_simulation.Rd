@@ -45,11 +45,14 @@ Simulates a path from the Latent Trawl Model for Extremes (LTME) process
 (Noven et al. (2018) \doi{10.21314/JEM.2018.179})
 }
 \examples{
-alpha <- 1
-beta <-1
+xi <- 1.
+kappa <- 19.
+sigma <- 1.
 n <- 100
-vanishing_depth <- 30
-trawl_parameter <- 0.2
+vd <- 30
+rho <- 0.2
 type <- "exp"
-exceedances_simulation(trawl_parameter, n, vanishing_depth, type)
+exceedances_simulation(
+     params=c(xi, sigma, kappa, rho), n=n, vanishing_depth=vd, type=type
+)
 }

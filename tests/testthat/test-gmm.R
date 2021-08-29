@@ -1,4 +1,3 @@
-testthat::skip_on_os("mac")
 
 test_that("trawl objective", {
   n <- 10000
@@ -128,7 +127,6 @@ test_that("Two-stage GMM objective - score", {
   testthat::expect_equal(dim_score, dims_ground_vals)
 })
 
-testthat::skip_on_os("mac")
 
 test_that("Two-stage GMM objective - HAC full", {
   n <- 10000

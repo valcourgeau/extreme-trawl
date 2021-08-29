@@ -14,6 +14,8 @@ composite_marginal_hac(data, params, k = 10, max_length = 100, near_pd = F)
 \item{k}{Maximum lag.}
 
 \item{max_length}{Maximum length of data used to compute the score functions.}
+
+\item{near_pd}{Boolean, nearest positive definite matrix from HAC estimate.}
 }
 \value{
 Composite marginal HAC autocovariance.

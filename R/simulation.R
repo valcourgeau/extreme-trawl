@@ -1,8 +1,18 @@
 
+#' Returns a (sparse) triangular matrix and plug values in from top to bottom,
+#' left to right.
+#' @param n Number of time steps.
+#' @param vanishing_depth Appeoximation depth.
+#' @param values Either scalar or vector to input in matrix.
+#' @return Sparse matrix with `values` included.
 #' @importFrom Matrix sparseMatrix
+#' @examples
+#' n <- 100
+#' vd <- 50
+#' grid_foundations(n, vd)
+#' @export
 grid_foundations <- function(n, vanishing_depth, values = 1) {
-  # returns a triangular matrix and plug values in from top to bottom,
-  # left to right
+
   n_elems_per_line <- vanishing_depth
   index_i <- lapply(
     seq_len(max(2, n_elems_per_line)),
@@ -19,7 +29,9 @@ grid_foundations <- function(n, vanishing_depth, values = 1) {
   )
   index_j <- unlist(index_j)
   assertthat::assert_that(length(index_i) == length(index_j))
-  assertthat::assert_that(length(index_i) == length(values))
+  if (length(values) > 1) {
+    assertthat::assert_that(length(index_i) == length(values))
+  }
   grid_vals <- Matrix::sparseMatrix(
     i = index_i, j = index_j, use.last.ij = T, x = values
   )
@@ -35,6 +47,7 @@ grid_foundations <- function(n, vanishing_depth, values = 1) {
 #'  [S(n,n), S(3,2), S(4,2), \dots, S(vanishing_depth+n,n)],
 #' ]`
 #' where `S(i,j)` is a trawl slice.
+#' @param n Number of time steps.
 #' @param vanishing_depth Approximation depth.
 #' @param trawl_parameter Trawl parameter(s).
 #' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`).
@@ -151,22 +164,8 @@ gamma_orchestra <- function(scaled_gamma_grid, parallel = T) {
 #' @param get_value Prints or returns the value. Defaults to `FALSE`.
 #' @return Trawl set approximation (print or value).
 #' @examples
-#' n <- 10
-#' vanishing_depth <- 3
-#' gf <- grid_foundations(n, vanishing_depth)
-#'
-#' tmp <- gamma_grid(
-#'   alpha = 3, beta = 20, n = 2500,
-#'   vanishing_depth = 30, trawl_parameter = 0.1
-#' )
-#' tmp
-#' b_funcs <- get_trawl_functions(type = type)
-#' b_1_func <- b_funcs[[1]]
-#' b_2_func <- b_funcs[[2]]
-#' b_3_func <- b_funcs[[3]]
-#' b_2_func(0.3, 0:10)
-#' (-b_2_func(param = 0.8, h = 0:k)) %>% diff()
 #' print_vanishing_coverage(trawl_parameter = 0.3, vanishing_depth = 10)
+#' @export
 print_vanishing_coverage <- function(trawl_parameter, vanishing_depth,
                                      type = "exp", get_value = F) {
   b_funcs <- get_trawl_functions(type = type)
@@ -231,13 +230,16 @@ trawl_simulation <- function(alpha, beta, n, vanishing_depth,
 #'      `"corr_unif"`, `"dynamic_latent"`, `"dynamic_uniform"`).
 #' @return Simulate path from trawl process.
 #' @examples
-#' alpha <- 1
-#' beta <-1
+#' xi <- 1.
+#' kappa <- 19.
+#' sigma <- 1.
 #' n <- 100
-#' vanishing_depth <- 30
-#' trawl_parameter <- 0.2
+#' vd <- 30
+#' rho <- 0.2
 #' type <- "exp"
-#' exceedances_simulation(trawl_parameter, n, vanishing_depth, type)
+#' exceedances_simulation(
+#'      params=c(xi, sigma, kappa, rho), n=n, vanishing_depth=vd, type=type
+#' )
 #' @export
 exceedances_simulation <- function(params, n, vanishing_depth, type,
                                    m = 1, parametrisation = "standard",
