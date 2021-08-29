@@ -1,5 +1,3 @@
-# Functions to compute the Trawl ACF
-
 .onUnload <- function(libpath) { # nolint
   library.dynam.unload("extreme.trawl", libpath)
 }

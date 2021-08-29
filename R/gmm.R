@@ -239,6 +239,7 @@ trawl_gmm$trawl_gmm_score_partial <- function(params, depth,
   ) # list of depth items data_length x length(params)
 }
 
+#' @importFrom Matrix nearPD
 trawl_gmm$trawl_gmm_hac <- function(data, params, depth,
                                     k = 10, type = "exp", max_length = 100) {
   lk_score <- trawl_gmm$trawl_gmm_score(params, depth, type, max_length)

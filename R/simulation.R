@@ -1,4 +1,5 @@
 
+#' @importFrom Matrix sparseMatrix
 grid_foundations <- function(n, vanishing_depth, values = 1) {
   # returns a triangular matrix and plug values in from top to bottom,
   # left to right
