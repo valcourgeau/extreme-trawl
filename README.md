@@ -4,6 +4,8 @@
 # gammaextremes
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/valcourgeau/extreme-trawl/workflows/R-CMD-check/badge.svg)](https://github.com/valcourgeau/ntwk/actions)
 <!-- badges: end -->
 
 The goal of `extreme.trawl` is to provide statistical inference tools
