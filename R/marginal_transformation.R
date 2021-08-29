@@ -7,7 +7,7 @@
 #' sig <- 3
 #' kap <- 2
 #' tmp <- evir::rgpd(100, xi = 1, beta = 1 + kap)
-#' transformation_map(tmp, c(xi, sigma))
+#' transformation_map(tmp, c(xi, sig, kap))
 #' @export
 transformation_map <- function(x, params_std) {
   # From GPD(1, 1 + kappa) to GPD(xi, sigma)

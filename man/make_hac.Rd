@@ -20,9 +20,6 @@ Autocorrelation-proof estimates using HAC estimator.
 \examples{
 d <- 5
 mats <- array(0, c(d, d, d))
-mats <- apply(mats, c(2, 3), function(x) {
-  diag(x) <- 1
-  return(x)
-})
+mats[1,,] <- diag(d)
 make_hac(mats)
 }

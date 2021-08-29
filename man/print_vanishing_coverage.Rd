@@ -27,20 +27,5 @@ Trawl set approximation (print or value).
 Returns the coverage of the trawl set approximation.
 }
 \examples{
-n <- 10
-vanishing_depth <- 3
-gf <- grid_foundations(n, vanishing_depth)
-
-tmp <- gamma_grid(
-  alpha = 3, beta = 20, n = 2500,
-  vanishing_depth = 30, trawl_parameter = 0.1
-)
-tmp
-b_funcs <- get_trawl_functions(type = type)
-b_1_func <- b_funcs[[1]]
-b_2_func <- b_funcs[[2]]
-b_3_func <- b_funcs[[3]]
-b_2_func(0.3, 0:10)
-(-b_2_func(param = 0.8, h = 0:k)) \%>\% diff()
 print_vanishing_coverage(trawl_parameter = 0.3, vanishing_depth = 10)
 }

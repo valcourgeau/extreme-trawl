@@ -1,4 +1,3 @@
-testthat::skip_on_os("mac")
 
 test_that("pair_pdf_constructor", {
   params <- c(.1, 1., 19, .2)
