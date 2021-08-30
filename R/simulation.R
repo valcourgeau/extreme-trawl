@@ -138,7 +138,7 @@ gamma_orchestra <- function(scaled_gamma_grid, parallel = T) {
   if (parallel) {
     cores <- parallel::detectCores(logical = TRUE)
     cl <- parallel::makeCluster(cores)
-    parallel::clusterExport(cl, c("block_index", "n", "vanishing_depth"))
+    parallel::clusterCall(cl, c("block_index", "n", "vanishing_depth"))
     parallel::clusterEvalQ(cl, library(Matrix))
     tmp <- parallel::parLapply(
       cl = cl, X = n:1,
@@ -261,7 +261,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
   if (parallel) {
     cores <- parallel::detectCores(logical = TRUE)
     cl <- parallel::makeCluster(cores)
-    parallel::clusterExport(
+    parallel::clusterCall(
       cl, c(
         "transformation_map_inverse", "transformation_map",
         "transformation_jacobian", "parametrisation_translator",
@@ -272,7 +272,7 @@ exceedances_simulation <- function(params, n, vanishing_depth, type,
         "generate_shapes", "exceedances_simulation", get_trawl_envs_list()
       )
     )
-    parallel::clusterExport(
+    parallel::clusterCall(
       cl, c("n", "m", "vanishing_depth", "type")
     )
     sim_fn <- function(i) {

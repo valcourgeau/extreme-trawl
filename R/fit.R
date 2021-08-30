@@ -121,7 +121,7 @@ sub_sample_fit <- function(data, sample.length, depth,
   if (parallel) {
     cores <- parallel::detectCores(logical = TRUE)
     cl <- parallel::makeCluster(cores)
-    parallel::clusterExport(
+    parallel::clusterCall(
       cl, c(
         "transformation_map_inverse",
         "transformation_map",
@@ -137,7 +137,7 @@ sub_sample_fit <- function(data, sample.length, depth,
     )
 
     # TODO check to include sample.length, etc in clusterExport when testing
-    parallel::clusterExport(
+    parallel::clusterCall(
       cl, c(
         "mode",
         "sample.length",

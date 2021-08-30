@@ -203,7 +203,7 @@ trawl_autocorrelation$acf_trawl_revisited_num_approx <- function(h,
   }
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(cores - 1)
-  parallel::clusterExport(
+  parallel::clusterCall(
     cl, c(
       "acf_trawl", "square_moment", "cross_moment", "first_moment",
       "trawl_acf_fn", get_trawl_envs_list()
@@ -233,8 +233,7 @@ trawl_autocorrelation$cpp_acf_trawl <- function(h, alpha, beta, kappa,
                                                 cov = T) {
   trawl_acf_fn <- function(h) {
     trawl_autocorrelation$cpp_acf_trawl_single(
-      h,
-      alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
+      h, alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
       rho = rho, delta = delta, type = type, cov = cov
     )
   }
