@@ -23,5 +23,5 @@ Transforms one parametrisation into another one.
 From Gamma-inspired parameters (\code{noven}) to standard (i.e. \verb{(xi, sigma)}).
 }
 \examples{
-parametrisation_translator(c(1, 1), "noven", "standard")
+parametrisation_translator(c(1, 1, 19), "noven", "standard")
 }
