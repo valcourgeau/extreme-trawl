@@ -21,6 +21,9 @@ cpp_case_one_one(xs, alpha, beta, kappa, b_1, b_2, b_3)
 
 \item{b_3}{B three.}
 }
+\value{
+pairwise likelihood 1-1 (one-one).
+}
 \description{
 Cpp pairwise likelihood 1-1 (one-one).
 }

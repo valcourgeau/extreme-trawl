@@ -14,7 +14,7 @@ const double EPSILON = std::numeric_limits<double>::epsilon();
 //' @param b_1 B one.
 //' @param b_2 B two.
 //' @param b_3 B three.
-//' @export
+//' @return pairwise likelihood 0-0 (zero-zero).
 // [[Rcpp::export]]
 double cpp_case_zero_zero(double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   double A(b_1+b_3);
@@ -33,7 +33,7 @@ double cpp_case_zero_zero(double alpha, double beta, double kappa, double b_1, d
 //' @param b_1 B one.
 //' @param b_2 B two.
 //' @param b_3 B three.
-//' @export
+//' @return pairwise likelihood 1-0 (one-zero).
 // [[Rcpp::export]]
 double cpp_case_one_zero(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   double A(b_1+b_3);
@@ -60,7 +60,7 @@ double cpp_case_one_zero(NumericVector xs, double alpha, double beta, double kap
 //' @param b_1 B one.
 //' @param b_2 B two.
 //' @param b_3 B three.
-//' @export
+//' @return pairwise likelihood 1-1 (one-one).
 // [[Rcpp::export]]
 double cpp_case_one_one(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   double A(b_1+b_3);
@@ -82,7 +82,7 @@ double cpp_case_one_one(NumericVector xs, double alpha, double beta, double kapp
 //' @param b_1 B one.
 //' @param b_2 B two.
 //' @param b_3 B three.
-//' @export
+//' @return PL likelihood values for `xs`.
 // [[Rcpp::export]]
 double cpp_case_separator(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   assert(xs.size() == 2);
