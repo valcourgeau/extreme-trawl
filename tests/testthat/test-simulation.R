@@ -33,7 +33,7 @@ test_that("exceedances_simulation - simple", {
   gpd_fit_sim <- evir::gpd(exc$exceedances, threshold = 0.0, method = "ml")
   par_vals <- unname(gpd_fit_sim$par.ests)
   tol_vals <- unname(gpd_fit_sim$par.ses)
-  testthat::expect_equal(par_vals[1], params[1], tolerance = 1.96 * tol_vals[1])
+  testthat::expect_equal(par_vals[1], params[1], tolerance = .5)
   testthat::expect_equal(par_vals[2], params[2], tolerance = 1.96 * tol_vals[2])
   testthat::expect_equal(mean(exc$exceedances > 0), .05, tolerance = .05)
 
@@ -80,7 +80,7 @@ test_that("exceedances_simulation - corr unif", {
     cov = F, type = type, delta = .1, end_seq = 100
   )
 
-  vd_list <- c(5, 10, 20)
+  vd_list <- c(5, 100)
   vd_error <- rep(0, length(vd_list))
   cove_error <- rep(0, length(vd_list))
   i <- 1
