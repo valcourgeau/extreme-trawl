@@ -21,6 +21,9 @@ cpp_case_separator(xs, alpha, beta, kappa, b_1, b_2, b_3)
 
 \item{b_3}{B three.}
 }
+\value{
+PL likelhood values for \code{xs}.
+}
 \description{
 Cpp pairwise likelihood separator that chooses which routine to use.
 }

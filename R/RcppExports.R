@@ -61,7 +61,7 @@ square_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
 #' @param b_1 B one.
 #' @param b_2 B two.
 #' @param b_3 B three.
-#' @export
+#' @return pairwise likelihood 0-0 (zero-zero).
 cpp_case_zero_zero <- function(alpha, beta, kappa, b_1, b_2, b_3) {
   .Call("_extreme_trawl_cpp_case_zero_zero", PACKAGE = "extreme.trawl", alpha, beta, kappa, b_1, b_2, b_3)
 }
@@ -75,7 +75,7 @@ cpp_case_zero_zero <- function(alpha, beta, kappa, b_1, b_2, b_3) {
 #' @param b_1 B one.
 #' @param b_2 B two.
 #' @param b_3 B three.
-#' @export
+#' @return pairwise likelihood 1-0 (one-zero).
 cpp_case_one_zero <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
   .Call("_extreme_trawl_cpp_case_one_zero", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }
@@ -89,7 +89,7 @@ cpp_case_one_zero <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
 #' @param b_1 B one.
 #' @param b_2 B two.
 #' @param b_3 B three.
-#' @export
+#' @return pairwise likelihood 1-1 (one-one).
 cpp_case_one_one <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
   .Call("_extreme_trawl_cpp_case_one_one", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }
@@ -103,7 +103,7 @@ cpp_case_one_one <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
 #' @param b_1 B one.
 #' @param b_2 B two.
 #' @param b_3 B three.
-#' @export
+#' @return PL likelhood values for `xs`.
 cpp_case_separator <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
   .Call("_extreme_trawl_cpp_case_separator", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }

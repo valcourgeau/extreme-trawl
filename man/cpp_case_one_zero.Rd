@@ -21,6 +21,9 @@ cpp_case_one_zero(xs, alpha, beta, kappa, b_1, b_2, b_3)
 
 \item{b_3}{B three.}
 }
+\value{
+pairwise likelihood 1-0 (one-zero).
+}
 \description{
 Cpp pairwise likelihood 1-0 (one-zero).
 }
