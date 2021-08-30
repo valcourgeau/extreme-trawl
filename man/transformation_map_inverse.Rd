@@ -2,7 +2,7 @@
 % Please edit documentation in R/marginal_transformation.R
 \name{transformation_map_inverse}
 \alias{transformation_map_inverse}
-\title{Inverse transformation function.}
+\title{Inverse transformation function from \code{GPD(xi, sigma)} to \code{GPD(1, 1 + kappa)}.}
 \usage{
 transformation_map_inverse(x, params_std)
 }
@@ -15,7 +15,7 @@ transformation_map_inverse(x, params_std)
 \code{GPD(1, 1 + kappa)} data.
 }
 \description{
-Inverse transformation function.
+Inverse transformation function from \code{GPD(xi, sigma)} to \code{GPD(1, 1 + kappa)}.
 }
 \examples{
 n <- 10

@@ -1,3 +1,13 @@
+#' Transforms one parametrisation into another one.
+#' From Gamma-inspired parameters (`noven`) to standard (i.e. `(xi, sigma)`).
+#' @param params Parameters to transform.
+#' @param parametrisation Given parametrisation.
+#' @param target Target parametrisation (in `"standard"`, `"noven"` or
+#'      `transform`).
+#' @return Transformed parameters.
+#' @examples
+#' parametrisation_translator(c(1, 1), "noven", "standard")
+#' @export
 parametrisation_translator <- function(params,
                                        parametrisation, target = "noven") {
   assertthat::assert_that(length(params) == 3)
