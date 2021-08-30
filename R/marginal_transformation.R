@@ -42,8 +42,9 @@ transformation_map <- function(x, params_std) {
 #' n <- 10
 #' xi <- .1
 #' sig <- .5
+#' kap <- 19.
 #' data <- evir::rgpd(n, xi = xi, beta = sig)
-#' transformation_map_inverse(data, c(xi, sig))
+#' transformation_map_inverse(data, c(xi, sig, kap))
 #' @export
 transformation_map_inverse <- function(x, params_std) {
   # From GPD(xi, sigma) to GPD(1, 1 + kappa)
@@ -64,6 +65,16 @@ transformation_map_inverse <- function(x, params_std) {
   return(x)
 }
 
+
+#' Jacobian of the transformation function.
+#' @param params_std Standard parametrisation parameters `(xi, sigma)`.
+#' @return Jacobian of the transformation function.
+#' @examples
+#' xi <- .1
+#' sig <- .5
+#' kap <- 19.
+#' transformation_map_inverse(c(xi, sig, kap))
+#' @export
 transformation_jacobian <- function(params_std) {
   # parametrisation should be standard
 

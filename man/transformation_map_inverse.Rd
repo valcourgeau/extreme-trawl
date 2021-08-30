@@ -21,6 +21,7 @@ Inverse transformation function.
 n <- 10
 xi <- .1
 sig <- .5
-data <- evir::rgpd(n, xi = xi, beta=sig)
-transformation_map_inverse(data, c(xi, sig))
+kap <- 19.
+data <- evir::rgpd(n, xi = xi, beta = sig)
+transformation_map_inverse(data, c(xi, sig, kap))
 }
