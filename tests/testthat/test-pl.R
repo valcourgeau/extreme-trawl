@@ -47,7 +47,10 @@ test_that("pl_constructor - parallel", {
 
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
-
+  if (.Platform$OS.type != "unix") {
+    parallel::clusterExport(cl, c("cpp_case_separator"))
+  }
+  parallel::clusterExport()
   depth <- 3
   pl_constructor <- pairwise_likelihood$pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -88,6 +91,9 @@ test_that("pl_constructor - parallel vs not parallel", {
 
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
+  if (.Platform$OS.type != "unix") {
+    parallel::clusterExport(cl, c("cpp_case_separator"))
+  }
 
   pl_constructor <- pairwise_likelihood$pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -127,6 +133,9 @@ test_that("pl_constructor - PL as function of rho - convex", {
 
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
+  if (.Platform$OS.type != "unix") {
+    parallel::clusterExport(cl, c("cpp_case_separator"))
+  }
 
   pl_fn <- pairwise_likelihood$two_stage_trawl_pl(
     data = pollution_data[seq_len(max_length), test_column],
