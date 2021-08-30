@@ -34,6 +34,16 @@ transformation_map <- function(x, params_std) {
   return(x)
 }
 
+#' Inverse transformation function.
+#' @param x Data to trasnform.
+#' @param params_std Standard parametrisation parameters `(xi, sigma)`.
+#' @return `GPD(1, 1 + kappa)` data.
+#' @examples
+#' n <- 10
+#' xi <- .1
+#' sig <- .5
+#' data <- evir::rgpd(n, xi = xi, beta = sig)
+#' transformation_map_inverse(data, c(xi, sig))
 transformation_map_inverse <- function(x, params_std) {
   # From GPD(xi, sigma) to GPD(1, 1 + kappa)
 

@@ -2,7 +2,6 @@
 test_that("trawl objective", {
   n <- 1500
   pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
-  print(head(pollution_data))
   test_column <- 2
   depth <- 6
   data <- pollution_data[seq_len(n), test_column]
