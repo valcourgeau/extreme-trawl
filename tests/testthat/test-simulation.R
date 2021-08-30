@@ -38,7 +38,7 @@ test_that("exceedances_simulation - simple", {
   testthat::expect_equal(mean(exc$exceedances > 0), .05, tolerance = .05)
 
   acf_vals <- acf(exc$exceedances, lag.max = 10, plot = F)$acf[, , 1]
-  truth <- trawl_autocorrelation$cpp_acf_trawl(
+  truth <- cpp_acf_trawl(
     h = c(.01, 1:10), alpha = 1, beta = 1, kappa = params[3], rho = params[4],
     cov = F, type = type, delta = .1, end_seq = 100
   )
@@ -75,7 +75,7 @@ test_that("exceedances_simulation - corr unif", {
   vd <- 10
   type <- "exp"
 
-  truth <- trawl_autocorrelation$cpp_acf_trawl(
+  truth <- cpp_acf_trawl(
     h = c(.01, 1:10), alpha = 1, beta = 1, kappa = params[3], rho = params[4],
     cov = F, type = type, delta = .1, end_seq = 100
   )

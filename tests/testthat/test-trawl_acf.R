@@ -5,10 +5,10 @@ test_that("trawl acf", {
   kappa <- 19.
   rho <- .2
 
-  a <- trawl_autocorrelation$acf_trawl_single(
+  a <- acf_trawl_single(
     h = h, alpha = alpha, beta = beta, kappa = kappa, rho = rho
   )
-  b <- trawl_autocorrelation$cpp_acf_trawl_single(
+  b <- cpp_acf_trawl_single(
     h = h, alpha = alpha, beta = beta, kappa = kappa, rho = rho
   )
 
@@ -22,10 +22,10 @@ test_that("acf trawl acf", {
   kappa <- 19.
   rho <- .2
 
-  a <- trawl_autocorrelation$acf_trawl(
+  a <- acf_trawl(
     h = h, alpha = alpha, beta = beta, kappa = kappa, rho = rho
   )
-  b <- trawl_autocorrelation$cpp_acf_trawl(
+  b <- cpp_acf_trawl(
     h = h, alpha = alpha, beta = beta, kappa = kappa, rho = rho
   )
 
@@ -43,13 +43,13 @@ test_that("acf_trawl_single__time_trial", {
   trials <- 50
 
   time_old <- microbenchmark::microbenchmark(
-    trawl_autocorrelation$acf_trawl_single(
+    acf_trawl_single(
       h = h, alpha = alpha, beta = beta, kappa = kappa, rho = rho
     ),
     times = trials
   )$time / time_divisor
   time_new <- microbenchmark::microbenchmark(
-    trawl_autocorrelation$cpp_acf_trawl_single(
+    cpp_acf_trawl_single(
       h = h, alpha = alpha, beta = beta, kappa = kappa, rho = rho
     ),
     times = trials
@@ -62,7 +62,7 @@ test_that("acf_trawl_single__time_trial", {
 })
 
 
-test_that("trawl_autocorrelation$acf_trawl__time_trial", {
+test_that("acf_trawl__time_trial", {
   time_divisor <- 1000000
   h <- 1
   alpha <- 2.
@@ -73,13 +73,13 @@ test_that("trawl_autocorrelation$acf_trawl__time_trial", {
   h_collection <- 1:20
 
   time_old <- microbenchmark::microbenchmark(
-    trawl_autocorrelation$acf_trawl(
+    acf_trawl(
       h = h_collection, alpha = alpha, beta = beta, kappa = kappa, rho = rho
     ),
     times = 5
   )$time / time_divisor
   time_new <- microbenchmark::microbenchmark(
-    trawl_autocorrelation$cpp_acf_trawl(
+    cpp_acf_trawl(
       h = h_collection, alpha = alpha, beta = beta, kappa = kappa, rho = rho
     ),
     times = 5
@@ -91,8 +91,7 @@ test_that("trawl_autocorrelation$acf_trawl__time_trial", {
   )
 })
 
-
-test_that("trawl_autocorrelation$acf_trawl__vals", {
+test_that("acf_trawl__vals", {
   h <- 1
   alpha <- 2.
   beta <- 10.
@@ -101,7 +100,7 @@ test_that("trawl_autocorrelation$acf_trawl__vals", {
 
   h_collection <- 1:15
 
-  r_only_acf <- trawl_autocorrelation$acf_trawl(
+  r_only_acf <- acf_trawl(
     h = h_collection, alpha = alpha, beta = beta,
     kappa = kappa, rho = rho, cov = T
   )
@@ -111,7 +110,7 @@ test_that("trawl_autocorrelation$acf_trawl__vals", {
   testthat::expect_true(all(diff(r_only_acf) < 0))
 })
 
-test_that("trawl_autocorrelation$acf_trawl__vals", {
+test_that("acf_trawl__vals", {
   h <- 1
   alpha <- 2.
   beta <- 10.
@@ -120,7 +119,7 @@ test_that("trawl_autocorrelation$acf_trawl__vals", {
 
   h_collection <- 1:15
 
-  cpp_acf <- trawl_autocorrelation$acf_trawl(
+  cpp_acf <- cpp_acf_trawl(
     h = h_collection, alpha = alpha, beta = beta,
     kappa = kappa, rho = rho, cov = T
   )

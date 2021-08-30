@@ -14,7 +14,7 @@ trawl_gmm$trawl_objective <- function(data, depth,
     sample_cross_mom <- acf(data, plot = F, lag.max = depth)$acf
 
     return(function(trawl_params) {
-      acf_vals <- trawl_autocorrelation$cpp_acf_trawl(
+      acf_vals <- cpp_acf_trawl(
         h = c(0.01, 1:(depth)), alpha = 1.,
         beta = 1., kappa = noven_pars[3],
         rho = trawl_params, delta = 0.1, cov = F, type = type
@@ -77,7 +77,7 @@ trawl_gmm$objective_single <- function(xs, k, mean_data,
       )
 
       return(function(trawl_params) {
-        acf_vals <- trawl_autocorrelation$cpp_acf_trawl(
+        acf_vals <- cpp_acf_trawl(
           h = k, alpha = 1., beta = 1., kappa = noven_pars[3],
           rho = trawl_params, delta = 0.1, cov = F, type = type
         )

@@ -2,8 +2,6 @@
   library.dynam.unload("extreme.trawl", libpath)
 }
 
-trawl_autocorrelation <- new.env()
-
 #' R-only Single Trawl ACF calculations.
 #' @param h Single ACF horizon.
 #' @param alpha Gamma `alpha` (or shape) parameter.
@@ -17,10 +15,9 @@ trawl_autocorrelation <- new.env()
 #'     Defaults to correlation.
 #' @return Trawl autocorrelation values with R-only functions.
 #' @export
-trawl_autocorrelation$acf_trawl_single <- function(h,
-                                                   alpha, beta, rho, kappa,
-                                                   delta = 0.1, end_seq = 50,
-                                                   type = "exp", cov = F) {
+acf_trawl_single <- function(h, alpha, beta, rho, kappa,
+                             delta = 0.1, end_seq = 50,
+                             type = "exp", cov = F) {
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa + end_seq, by = delta)
   trawl_fct <- get_trawl_functions(type)
@@ -86,11 +83,9 @@ trawl_autocorrelation$acf_trawl_single <- function(h,
 #'     Defaults to correlation.
 #' @return Trawl autocorrelation values with Cpp functions.
 #' @export
-trawl_autocorrelation$cpp_acf_trawl_single <- function(h,
-                                                       alpha, beta, rho,
-                                                       kappa, delta = 0.1,
-                                                       end_seq = 50,
-                                                       type = "exp", cov = F) {
+cpp_acf_trawl_single <- function(h, alpha, beta, rho,
+                                 kappa, delta = 0.1,
+                                 end_seq = 50, type = "exp", cov = F) {
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa + end_seq, by = delta)
   trawl_fct <- get_trawl_functions(type)
@@ -123,11 +118,9 @@ trawl_autocorrelation$cpp_acf_trawl_single <- function(h,
   }
 }
 
-trawl_autocorrelation$cross_moment_trawls <- function(h,
-                                                      alpha, beta, rho,
-                                                      kappa, delta = 0.1,
-                                                      end_seq = 50,
-                                                      type = "exp") {
+cross_moment_trawls <- function(h, alpha, beta, rho,
+                                kappa, delta = 0.1,
+                                end_seq = 50, type = "exp") {
   seq_kappa <- seq(kappa, kappa + end_seq, by = delta)
   trawl_fct <- get_trawl_functions(type)
   b_1_func <- trawl_fct[[1]]
@@ -175,11 +168,11 @@ trawl_autocorrelation$cross_moment_trawls <- function(h,
 #'     Defaults to covariance.
 #' @return Trawl autocorrelation values with R-only functions.
 #' @export
-trawl_autocorrelation$acf_trawl <- function(h, alpha, beta, kappa,
-                                            rho, delta = 0.5,
-                                            type = "exp", cov = T) {
+acf_trawl <- function(h, alpha, beta, kappa,
+                      rho, delta = 0.5,
+                      type = "exp", cov = T) {
   trawl_acf_fn <- function(h) {
-    trawl_autocorrelation$acf_trawl_single(
+    acf_trawl_single(
       h,
       alpha = alpha, beta = beta, kappa = kappa,
       rho = rho, delta = delta, type = type, cov = cov
@@ -188,14 +181,14 @@ trawl_autocorrelation$acf_trawl <- function(h, alpha, beta, kappa,
   return(vapply(h, trawl_acf_fn, 1))
 }
 
-trawl_autocorrelation$acf_trawl_revisited_num_approx <- function(h,
-                                                                 alpha, beta,
-                                                                 kappa, rho,
-                                                                 delta = 0.5,
-                                                                 type = "exp",
-                                                                 cov = T) {
+acf_trawl_revisited_num_approx <- function(h,
+                                           alpha, beta,
+                                           kappa, rho,
+                                           delta = 0.5,
+                                           type = "exp",
+                                           cov = T) {
   trawl_acf_fn <- function(h) {
-    trawl_autocorrelation$acf_trawl_single(
+    acf_trawl_single(
       h,
       alpha = alpha, beta = beta, kappa = kappa,
       rho = rho, delta = delta, type = type, cov = cov
@@ -227,13 +220,14 @@ trawl_autocorrelation$acf_trawl_revisited_num_approx <- function(h,
 #'     Defaults to correlation.
 #' @return Trawl autocorrelation values with Cpp-accelerated functions.
 #' @export
-trawl_autocorrelation$cpp_acf_trawl <- function(h, alpha, beta, kappa,
-                                                rho, delta = 0.5,
-                                                type = "exp", end_seq = 50,
-                                                cov = T) {
+cpp_acf_trawl <- function(h, alpha, beta, kappa,
+                          rho, delta = 0.5,
+                          type = "exp", end_seq = 50,
+                          cov = T) {
   trawl_acf_fn <- function(h) {
-    trawl_autocorrelation$cpp_acf_trawl_single(
-      h, alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
+    cpp_acf_trawl_single(
+      h,
+      alpha = alpha, beta = beta, kappa = kappa, end_seq = end_seq,
       rho = rho, delta = delta, type = type, cov = cov
     )
   }

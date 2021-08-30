@@ -50,7 +50,7 @@ test_that("pl_constructor - parallel", {
   if (.Platform$OS.type != "unix") {
     parallel::clusterExport(cl, c("cpp_case_separator"))
   }
-  parallel::clusterExport()
+
   depth <- 3
   pl_constructor <- pairwise_likelihood$pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -211,7 +211,6 @@ test_that("PLHessian", {
   test_column <- 2
   max_length <- 1000
   depth <- 4
-
   data <- pollution_data[seq_len(max_length), test_column]
 
   i_guess <- pairwise_likelihood$init_guess(
