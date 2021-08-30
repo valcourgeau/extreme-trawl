@@ -57,7 +57,7 @@ test_that("acf_trawl_single__time_trial", {
   # 10 times as fast
   testthat::expect_equal(
     mean(time_new) / mean(time_old), .10,
-    tolerance = .07
+    tolerance = .10
   )
 })
 

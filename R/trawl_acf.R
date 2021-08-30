@@ -215,7 +215,7 @@ acf_trawl_revisited_num_approx <- function(h,
 #' @param kappa Extreme frequency control parameter.
 #' @param delta Discrete time step.
 #' @param end_seq Horizon cut-off for integral approximation.
-#' @param type Trawl type (e.g. `"exp`, "`sum_exp`", etc.).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`, etc.).
 #' @param cov Boolean, correlation or covariance (if `FALSE`).
 #'     Defaults to correlation.
 #' @return Trawl autocorrelation values with Cpp-accelerated functions.
