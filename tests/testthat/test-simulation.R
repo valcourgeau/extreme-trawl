@@ -22,7 +22,7 @@ test_that("trawl_simulation - NAs, Gamma and shape", {
 test_that("exceedances_simulation - simple", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 3000
+  n <- 1500
   vd <- 100
   type <- "exp"
 
@@ -47,7 +47,7 @@ test_that("exceedances_simulation - simple", {
 test_that("exceedances_simulation - cross", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 2500
+  n <- 1000
   vd <- 50
   type <- "exp"
 
@@ -71,7 +71,7 @@ test_that("exceedances_simulation - cross", {
 test_that("exceedances_simulation - corr unif", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 2000
+  n <- 1000
   vd <- 10
   type <- "exp"
 
@@ -80,7 +80,7 @@ test_that("exceedances_simulation - corr unif", {
     cov = F, type = type, delta = .1, end_seq = 100
   )
 
-  vd_list <- c(5, 10, 20, 50, 70, 100, 200)
+  vd_list <- c(5, 10, 20)
   vd_error <- rep(0, length(vd_list))
   cove_error <- rep(0, length(vd_list))
   i <- 1
@@ -105,7 +105,7 @@ test_that("exceedances_simulation - corr unif", {
 test_that("exceedances_simulation - dynamic latent", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 3000
+  n <- 1000
   vd <- 100
   type <- "exp"
 
@@ -124,7 +124,7 @@ test_that("exceedances_simulation - dynamic latent", {
 test_that("exceedances_simulation - dynamic uniform", {
   set.seed(42)
   params <- c(.1, 1., 19, .05)
-  n <- 3000
+  n <- 1000
   vd <- 100
   type <- "exp"
 
