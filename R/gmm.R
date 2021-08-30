@@ -19,7 +19,6 @@ trawl_gmm$trawl_objective <- function(data, depth,
         beta = 1., kappa = noven_pars[3],
         rho = trawl_params, delta = 0.1, cov = F, type = type
       )
-
       return(metric(acf_vals, sample_cross_mom))
     })
   }
@@ -79,8 +78,7 @@ trawl_gmm$objective_single <- function(xs, k, mean_data,
 
       return(function(trawl_params) {
         acf_vals <- trawl_autocorrelation$cpp_acf_trawl(
-          h = k, alpha = 1.,
-          beta = 1., kappa = noven_pars[3],
+          h = k, alpha = 1., beta = 1., kappa = noven_pars[3],
           rho = trawl_params, delta = 0.1, cov = F, type = type
         )
 

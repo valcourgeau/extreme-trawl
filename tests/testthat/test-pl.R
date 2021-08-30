@@ -16,10 +16,10 @@ test_that("pair_pdf_constructor", {
 })
 
 test_that("pl_constructor - not parallel", {
-  n <- 10000
+  n <- 1000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 1000
+  max_length <- n
   params <- c(.1, 1., 19, .2)
   depth <- 3
   data <- pollution_data[seq_len(max_length), test_column]
@@ -36,10 +36,10 @@ test_that("pl_constructor - not parallel", {
 })
 
 test_that("pl_constructor - parallel", {
-  n <- 10000
+  n <- 1000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 1000
+  max_length <- n
   params <- c(.1, 1., 19, .2)
   pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
     params = params, type = "exp"
@@ -69,16 +69,16 @@ test_that("pl_constructor - parallel", {
 
 test_that("pl_constructor - parallel vs not parallel", {
   time_divisor <- 1e6
-  n <- 10000
+  n <- 4000
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
-  max_length <- 3000
+  max_length <- n
   params <- c(.1, 1., 19, .2)
-  depth <- 3
+  depth <- 8
   data <- pollution_data[seq_len(max_length), test_column]
 
   # test times
-  test_repeat <- 10
+  test_repeat <- 1
 
   pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
     params = params, type = "exp"
@@ -93,6 +93,7 @@ test_that("pl_constructor - parallel vs not parallel", {
     function() pl_constructor(data),
     times = test_repeat
   )$time / time_divisor
+  no_parallel_times <- mean(no_parallel_times)
 
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(max(cores - 1, 1))
@@ -112,13 +113,9 @@ test_that("pl_constructor - parallel vs not parallel", {
     function() pl_constructor(data),
     times = test_repeat
   )$time / time_divisor
-  testthat::expect_equal(
-    res_parallel, res_no_parallel,
-    tolerance = 1e-3
-  )
-  testthat::expect_true(
-    sum(parallel_times < no_parallel_times) > test_repeat / 2
-  )
+  parallel_times <- mean(parallel_times)
+  testthat::expect_equal(res_parallel, res_no_parallel, tolerance = 1e-3)
+  testthat::expect_lte(parallel_times / no_parallel_times, 1)
   parallel::stopCluster(cl) # release resources
 })
 
@@ -128,7 +125,7 @@ test_that("pl_constructor - PL initial guess", {
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   max_length <- n
-  depth <- 10
+  depth <- 5
   data <- pollution_data[seq_len(max_length), test_column]
 
   i_guess <- pairwise_likelihood$init_guess(
@@ -144,7 +141,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   max_length <- n
-  depth <- 10
+  depth <- 5
 
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(cores - 1)
@@ -160,7 +157,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
     data = pollution_data[seq_len(max_length), test_column],
     depth = depth, cl = cl
   )
-  rho_vals <- 1:10 / 30
+  rho_vals <- seq_len(10) / 30
   pl_rho_values <- vapply(rho_vals, pl_fn, 1.0)
   which_positive <- which(diff(pl_rho_values) > 0)
   which_negative <- which(diff(pl_rho_values) < 0)
@@ -177,7 +174,7 @@ test_that("trawl_pl_hac", {
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   max_length <- 1000
-  depth <- 12
+  depth <- 5
 
   data <- pollution_data[seq_len(max_length), test_column]
   k_max <- 20
@@ -206,7 +203,7 @@ test_that("trawl_pl_hac_partial", {
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   max_length <- 1000
-  depth <- 12
+  depth <- 5
 
   data <- pollution_data[seq_len(max_length), test_column]
 
