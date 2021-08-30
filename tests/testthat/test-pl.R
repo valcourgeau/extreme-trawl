@@ -69,12 +69,12 @@ test_that("pl_constructor - parallel", {
 
 test_that("pl_constructor - parallel vs not parallel", {
   time_divisor <- 1e6
-  n <- 1000
+  n <- 3000
   pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- n
   params <- c(.1, 1., 19, .2)
-  depth <- 12
+  depth <- 15
   data <- pollution_data[seq_len(max_length), test_column]
 
   # test times
@@ -115,7 +115,7 @@ test_that("pl_constructor - parallel vs not parallel", {
   )$time / time_divisor
   parallel_times <- mean(parallel_times)
   testthat::expect_equal(res_parallel, res_no_parallel, tolerance = 1e-3)
-  testthat::expect_lte(parallel_times / no_parallel_times, 1)
+  testthat::expect_lte(parallel_times / no_parallel_times, 1.5)
   parallel::stopCluster(cl) # release resources
 })
 
