@@ -2,7 +2,7 @@
 #' Returns a (sparse) triangular matrix and plug values in from top to bottom,
 #' left to right.
 #' @param n Number of time steps.
-#' @param vanishing_depth Appeoximation depth.
+#' @param vanishing_depth Approximation depth.
 #' @param values Either scalar or vector to input in matrix.
 #' @return Sparse matrix with `values` included.
 #' @importFrom Matrix sparseMatrix

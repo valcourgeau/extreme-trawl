@@ -7,7 +7,7 @@
 transformation_map_inverse(x, params_std)
 }
 \arguments{
-\item{x}{Data to trasnform.}
+\item{x}{Data to transform}
 
 \item{params_std}{Standard parametrisation parameters \verb{(xi, sigma)}.}
 }
