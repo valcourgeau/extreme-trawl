@@ -10,7 +10,7 @@ grid_foundations(n, vanishing_depth, values = 1)
 \arguments{
 \item{n}{Number of time steps.}
 
-\item{vanishing_depth}{Appeoximation depth.}
+\item{vanishing_depth}{Approximation depth.}
 
 \item{values}{Either scalar or vector to input in matrix.}
 }
