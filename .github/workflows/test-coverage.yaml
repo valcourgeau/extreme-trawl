@@ -45,7 +45,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Building source
-        run: devtools::build(path='.')
+        run: devtools::build()
 
       - name: Test coverage
         run: covr::codecov()
