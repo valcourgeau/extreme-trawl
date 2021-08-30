@@ -12,6 +12,7 @@
 #'   \item{NO2}{Nitric Dioxide air concentration, in µg/m3}
 #'   \item{PM10}{Particulate Matter below 10mm concentration, in µg/m3}
 #'   \item{SO2}{Sulphur Dioxide air concentration, in µg/m3}
+#'   \item{X}{Data index}
 #' }
 #' @source \url{
 #'    https://uk-air.defra.gov.uk/data/site-data?f_site_id=MY1&view=last_hour

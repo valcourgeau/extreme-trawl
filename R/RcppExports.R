@@ -103,7 +103,7 @@ cpp_case_one_one <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
 #' @param b_1 B one.
 #' @param b_2 B two.
 #' @param b_3 B three.
-#' @return PL likelhood values for `xs`.
+#' @return PL likelihood values for `xs`.
 cpp_case_separator <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
   .Call("_extreme_trawl_cpp_case_separator", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }

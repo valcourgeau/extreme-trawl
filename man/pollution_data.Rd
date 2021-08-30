@@ -13,6 +13,7 @@ A data frame with 157,710 rows and 6 variables:
 \item{NO2}{Nitric Dioxide air concentration, in µg/m3}
 \item{PM10}{Particulate Matter below 10mm concentration, in µg/m3}
 \item{SO2}{Sulphur Dioxide air concentration, in µg/m3}
+\item{X}{Data index}
 }
 }
 \source{
