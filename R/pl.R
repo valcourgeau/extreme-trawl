@@ -48,9 +48,7 @@ pairwise_likelihood$pair_pdf_constructor <- function(params, type = "exp") {
   return(function(xs, h) {
     jacob_cst <- 1
     return(cpp_case_separator(xs,
-      alpha = params_noven[1],
-      beta = 1.0,
-      kappa = params_noven[3],
+      alpha = params_noven[1], beta = 1.0, kappa = params_noven[3],
       b_1 = b_1_func(trawl_params, h),
       b_2 = b_2_func(trawl_params, h),
       b_3 = b_3_func(trawl_params, h)

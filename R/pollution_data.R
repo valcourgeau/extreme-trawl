@@ -7,7 +7,7 @@
 #' @format A data frame with 157,710 rows and 6 variables:
 #' \describe{
 #'   \item{O3}{Ozone air concentration, in µg/m3}
-#'   \item{CO}{Carbon Monoxyde air concentration, in µg/m3}
+#'   \item{CO}{Carbon Monoxide air concentration, in µg/m3}
 #'   \item{NO}{Nitric Oxide air concentration, in µg/m3}
 #'   \item{NO2}{Nitric Dioxide air concentration, in µg/m3}
 #'   \item{PM10}{Particulate Matter below 10mm concentration, in µg/m3}
