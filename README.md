@@ -7,7 +7,9 @@
 
 [![codecov](https://codecov.io/gh/valcourgeau/extreme-trawl/branch/master/graph/badge.svg?token=DHLBP4BLP0)](https://codecov.io/gh/valcourgeau/extreme-trawl)
 [![R-CMD-check](https://github.com/valcourgeau/extreme-trawl/workflows/R-CMD-check/badge.svg)](https://github.com/valcourgeau/ntwk/actions)
+\<\<\<\<\<\<\< HEAD
 [![R-CMD-check](https://github.com/valcourgeau/extreme-trawl/workflows/R-CMD-check/badge.svg)](https://github.com/valcourgeau/extreme-trawl/actions)
+======= \>\>\>\>\>\>\> 0d1872b010376b2650b22d5f945f8ed25790bc9d
 <!-- badges: end -->
 
 The goal of `extreme.trawl` is to provide statistical inference tools

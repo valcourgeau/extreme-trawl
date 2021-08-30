@@ -18,7 +18,10 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![codecov](https://codecov.io/gh/valcourgeau/extreme-trawl/branch/master/graph/badge.svg?token=DHLBP4BLP0)](https://codecov.io/gh/valcourgeau/extreme-trawl)
 [![R-CMD-check](https://github.com/valcourgeau/extreme-trawl/workflows/R-CMD-check/badge.svg)](https://github.com/valcourgeau/ntwk/actions)
+<<<<<<< HEAD
 [![R-CMD-check](https://github.com/valcourgeau/extreme-trawl/workflows/R-CMD-check/badge.svg)](https://github.com/valcourgeau/extreme-trawl/actions)
+=======
+>>>>>>> 0d1872b010376b2650b22d5f945f8ed25790bc9d
 <!-- badges: end -->
 
 The goal of `extreme.trawl` is to provide statistical inference tools for univariate extreme time series.  It comprises pairwise and generalised method of moments inference strategies described in Courgeau and Veraart (2021) <doi:10.2139/ssrn.3527739> and simulation schemes based on Gamma-distributed trawl processes.
