@@ -116,6 +116,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_case_separator
+double cpp_case_separator(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3);
+RcppExport SEXP _extreme_trawl_cpp_case_separator(SEXP xsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP kappaSEXP, SEXP b_1SEXP, SEXP b_2SEXP, SEXP b_3SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type xs(xsSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type b_1(b_1SEXP);
+    Rcpp::traits::input_parameter< double >::type b_2(b_2SEXP);
+    Rcpp::traits::input_parameter< double >::type b_3(b_3SEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_case_separator(xs, alpha, beta, kappa, b_1, b_2, b_3));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_extreme_trawl_times_two", (DL_FUNC) &_extreme_trawl_times_two, 1},
@@ -125,6 +142,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_extreme_trawl_cpp_case_zero_zero", (DL_FUNC) &_extreme_trawl_cpp_case_zero_zero, 6},
     {"_extreme_trawl_cpp_case_one_zero", (DL_FUNC) &_extreme_trawl_cpp_case_one_zero, 7},
     {"_extreme_trawl_cpp_case_one_one", (DL_FUNC) &_extreme_trawl_cpp_case_one_one, 7},
+    {"_extreme_trawl_cpp_case_separator", (DL_FUNC) &_extreme_trawl_cpp_case_separator, 7},
     {NULL, NULL, 0}
 };
 

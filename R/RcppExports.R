@@ -53,18 +53,8 @@ square_moment <- function(xs, delta, beta, b_oh, b_o_exc_h) {
   .Call("_extreme_trawl_square_moment", PACKAGE = "extreme.trawl", xs, delta, beta, b_oh, b_o_exc_h)
 }
 
-#' Cpp pairwise likelihood separator that chooses which routine to use.
-#' @param xs Data.
-#' @param alpha Gamma shape.
-#' @param beta Gamma rate.
-#' @param kappa Exceedance controlling parameter.
-#' @param b_1 B one.
-#' @param b_2 B two.
-#' @param b_3 B three.
-#' @export
-NULL
-
 #' Cpp pairwise likelihood 0-0 (zero-zero).
+#'
 #' @param alpha Gamma shape.
 #' @param beta Gamma rate.
 #' @param kappa Exceedance controlling parameter.
@@ -77,6 +67,7 @@ cpp_case_zero_zero <- function(alpha, beta, kappa, b_1, b_2, b_3) {
 }
 
 #' Cpp pairwise likelihood 1-0 (one-zero).
+#'
 #' @param xs Data.
 #' @param alpha Gamma shape.
 #' @param beta Gamma rate.
@@ -90,6 +81,7 @@ cpp_case_one_zero <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
 }
 
 #' Cpp pairwise likelihood 1-1 (one-one).
+#'
 #' @param xs Data.
 #' @param alpha Gamma shape.
 #' @param beta Gamma rate.
@@ -100,4 +92,18 @@ cpp_case_one_zero <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
 #' @export
 cpp_case_one_one <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
   .Call("_extreme_trawl_cpp_case_one_one", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
+}
+
+#' Cpp pairwise likelihood separator that chooses which routine to use.
+#'
+#' @param xs Data.
+#' @param alpha Gamma shape.
+#' @param beta Gamma rate.
+#' @param kappa Exceedance controlling parameter.
+#' @param b_1 B one.
+#' @param b_2 B two.
+#' @param b_3 B three.
+#' @export
+cpp_case_separator <- function(xs, alpha, beta, kappa, b_1, b_2, b_3) {
+  .Call("_extreme_trawl_cpp_case_separator", PACKAGE = "extreme.trawl", xs, alpha, beta, kappa, b_1, b_2, b_3)
 }
