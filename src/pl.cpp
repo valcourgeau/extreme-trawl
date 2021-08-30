@@ -6,6 +6,13 @@ using namespace Rcpp;
 
 const double EPSILON = std::numeric_limits<double>::epsilon();
 
+//' Cpp pairwise likelihood 0-0 (zero-zero).
+//' @param alpha Gamma shape.
+//' @param beta Gamma rate.
+//' @param kappa Exceedance controlling parameter.
+//' @param b_1 B one.
+//' @param b_2 B two.
+//' @param b_3 B three.
 //' @export
 // [[Rcpp::export]]
 double cpp_case_zero_zero(double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
@@ -16,6 +23,14 @@ double cpp_case_zero_zero(double alpha, double beta, double kappa, double b_1, d
   return tmp;
 }
 
+//' Cpp pairwise likelihood 1-0 (one-zero).
+//' @param xs Data.
+//' @param alpha Gamma shape.
+//' @param beta Gamma rate.
+//' @param kappa Exceedance controlling parameter.
+//' @param b_1 B one.
+//' @param b_2 B two.
+//' @param b_3 B three.
 //' @export
 // [[Rcpp::export]]
 double cpp_case_one_zero(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
@@ -34,6 +49,14 @@ double cpp_case_one_zero(NumericVector xs, double alpha, double beta, double kap
   return tmp;
 }
 
+//' Cpp pairwise likelihood 1-1 (one-one).
+//' @param xs Data.
+//' @param alpha Gamma shape.
+//' @param beta Gamma rate.
+//' @param kappa Exceedance controlling parameter.
+//' @param b_1 B one.
+//' @param b_2 B two.
+//' @param b_3 B three.
 //' @export
 // [[Rcpp::export]]
 double cpp_case_one_one(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
@@ -47,8 +70,15 @@ double cpp_case_one_one(NumericVector xs, double alpha, double beta, double kapp
   return tmp_1 * (tmp_2 + tmp_3);
 }
 
+//' Cpp pairwise likelihood separator that chooses which routine to use.
+//' @param xs Data.
+//' @param alpha Gamma shape.
+//' @param beta Gamma rate.
+//' @param kappa Exceedance controlling parameter.
+//' @param b_1 B one.
+//' @param b_2 B two.
+//' @param b_3 B three.
 //' @export
-// [[Rcpp::export]]
 double cpp_case_separator(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   assert(xs.size() == 2);
   double product = std::accumulate(xs.begin(), xs.end(), 1, std::multiplies<double>());

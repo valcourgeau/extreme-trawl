@@ -13,19 +13,23 @@ Description: Statistical inference tools for univariate extreme time
     <doi:10.2139/ssrn.3527739> and simulation schemes based on
     Gamma-distributed trawl processes.
 License: MIT + file LICENSE
+Depends: 
+    R (>= 2.10)
 Imports: 
     assertthat,
+    compiler,
     evir,
     Matrix,
+    measures,
+    parallel,
     pracma,
-    Rcpp
+    Rcpp,
+    stats,
+    utils
 Suggests: 
-    abind,
     fitdistrplus,
     knitr,
-    measures,
     microbenchmark,
-    rmarkdown,
     testthat (>= 3.0.0)
 LinkingTo: 
     Rcpp
@@ -33,6 +37,6 @@ VignetteBuilder:
     knitr
 Encoding: UTF-8
 Language: en-GB
-LazyData: false
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1

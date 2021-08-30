@@ -6,7 +6,7 @@
 #'      `transform`).
 #' @return Transformed parameters.
 #' @examples
-#' parametrisation_translator(c(1, 1), "noven", "standard")
+#' parametrisation_translator(c(1, 1, 19), "noven", "standard")
 #' @export
 parametrisation_translator <- function(params,
                                        parametrisation, target = "noven") {

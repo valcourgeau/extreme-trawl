@@ -1,7 +1,7 @@
+data("pollution_data")
 
 test_that("trawl objective", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   depth <- 6
   data <- pollution_data[seq_len(n), test_column]
@@ -21,7 +21,6 @@ test_that("trawl objective", {
 
 test_that("trawl objective - grad", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   data <- pollution_data[seq_len(n), test_column]
   depth <- 4
@@ -48,7 +47,6 @@ test_that("trawl objective - grad", {
 
 test_that("GMM objective - positive", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   data <- pollution_data[seq_len(n), test_column]
   init_guess_bds <- get_initial_guess_and_bounds(data = data)
@@ -64,7 +62,6 @@ test_that("GMM objective - positive", {
 
 test_that("Two-stage GMM objective - time & value", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   data <- pollution_data[seq_len(n), test_column]
   init_guess_bds <- get_initial_guess_and_bounds(data = data)
@@ -83,7 +80,6 @@ test_that("Two-stage GMM objective - time & value", {
 
 test_that("Two-stage GMM objective - score", {
   n <- 3000
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   data <- pollution_data[seq_len(n), test_column]
   init_guess_bds <- get_initial_guess_and_bounds(data = data)
@@ -113,7 +109,6 @@ test_that("Two-stage GMM objective - score", {
 
 test_that("Two-stage GMM objective - HAC full", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   data <- pollution_data[seq_len(n), test_column]
   init_guess_bds <- get_initial_guess_and_bounds(data = data)
@@ -137,7 +132,6 @@ test_that("Two-stage GMM objective - HAC full", {
 
 test_that("Two-stage GMM objective - HAC partial", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   data <- pollution_data[seq_len(n), test_column]
   init_guess_bds <- get_initial_guess_and_bounds(data = data)
@@ -156,7 +150,6 @@ test_that("Two-stage GMM objective - HAC partial", {
 
 test_that("Two-stage - Variance", {
   n <- 1500
-  pollution_data <- read.csv("./../../data/short_pollution_data.csv.gz")
   test_column <- 2
   depth <- 4
   max_depth <- 25

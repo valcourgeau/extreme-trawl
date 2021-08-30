@@ -16,3 +16,4 @@
 #' @source \url{
 #'    https://uk-air.defra.gov.uk/data/site-data?f_site_id=MY1&view=last_hour
 #' }
+"pollution_data"
