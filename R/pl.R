@@ -1,13 +1,17 @@
 pairwise_likelihood <- new.env()
 
+#' @param elems Elements.
 pairwise_likelihood$check_all_non_positive <- function(elems) {
   all(elems <= 0.0)
 }
 
+#' @param elems Elements.
 pairwise_likelihood$check_all_positive <- function(elems) {
   all(elems > 0.0)
 }
 
+#' @param alpha Alpha parameter.
+#' @param elems Elements.
 pairwise_likelihood$stand_trawl_terms <- function(alpha, elems) {
   a_total <- sum(elems[1:2])
   return(-alpha * elems / a_total)
