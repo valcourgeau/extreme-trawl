@@ -17,7 +17,7 @@ test_that("pair_pdf_constructor", {
 
 test_that("pl_constructor - not parallel", {
   n <- 1000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- n
   params <- c(.1, 1., 19, .2)
@@ -37,7 +37,7 @@ test_that("pl_constructor - not parallel", {
 
 test_that("pl_constructor - parallel", {
   n <- 1000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- n
   params <- c(.1, 1., 19, .2)
@@ -69,16 +69,16 @@ test_that("pl_constructor - parallel", {
 
 test_that("pl_constructor - parallel vs not parallel", {
   time_divisor <- 1e6
-  n <- 4000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 1000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- n
   params <- c(.1, 1., 19, .2)
-  depth <- 8
+  depth <- 12
   data <- pollution_data[seq_len(max_length), test_column]
 
   # test times
-  test_repeat <- 1
+  test_repeat <- 5
 
   pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
     params = params, type = "exp"
@@ -121,8 +121,8 @@ test_that("pl_constructor - parallel vs not parallel", {
 
 test_that("pl_constructor - PL initial guess", {
   time_divisor <- 1e6
-  n <- 10000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 3000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- n
   depth <- 5
@@ -137,8 +137,8 @@ test_that("pl_constructor - PL initial guess", {
 test_that("pl_constructor - PL as function of rho - convex", {
   time_divisor <- 1e6
 
-  n <- 10000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 3000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- n
   depth <- 5
@@ -170,8 +170,8 @@ test_that("pl_constructor - PL as function of rho - convex", {
 test_that("trawl_pl_hac", {
   time_divisor <- 1e6
 
-  n <- 10000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 3000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- 1000
   depth <- 5
@@ -199,8 +199,8 @@ test_that("trawl_pl_hac", {
 test_that("trawl_pl_hac_partial", {
   time_divisor <- 1e6
 
-  n <- 10000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 3000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- 1000
   depth <- 5
@@ -225,8 +225,8 @@ test_that("trawl_pl_hac_partial", {
 
 test_that("PLHessian", {
   time_divisor <- 1e6
-  n <- 5000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 3000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- 1000
   depth <- 4
@@ -260,8 +260,8 @@ test_that("PLHessian", {
 
 
 test_that("Two-stage - Variance", {
-  n <- 5000
-  pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
+  n <- 3000
+  pollution_data <- read.csv("../../data/short_pollution_data.csv.gz")
   test_column <- 2
   max_length <- 1000
   depth <- 4

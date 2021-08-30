@@ -135,12 +135,12 @@ test_that("Two-stage GMM objective - HAC full", {
 })
 
 test_that("Two-stage GMM objective - HAC partial", {
-  n <- 3000
+  n <- 1500
   pollution_data <- read.csv("../../data/clean_pollution_data.csv", nrows = n)
   test_column <- 2
   data <- pollution_data[, test_column]
   init_guess_bds <- get_initial_guess_and_bounds(data = data)
-  max_length <- 80
+  max_length <- 150
   depth <- 4
   k_max <- 5
 
