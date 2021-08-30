@@ -13,28 +13,20 @@ transformation_map <- function(x, params_std) {
   # From GPD(1, 1 + kappa) to GPD(xi, sigma)
 
   params_trf <- parametrisation_translator(
-    params = params_std,
-    parametrisation = "standard",
-    target = "transform"
+    params = params_std, parametrisation = "standard", target = "transform"
   )
   # from GPD(xi, sigma) to Unif(0, 1)
   integral_trf <- evir::pgpd(
-    q = x[which(x > 0.0)],
-    mu = 0.0,
-    xi = params_trf[1],
-    beta = params_trf[2]
+    q = x[which(x > 0.0)], mu = 0.0, xi = params_trf[1], beta = params_trf[2]
   )
   x[which(x > 0.0)] <- evir::qgpd(
-    p = integral_trf,
-    mu = 0.0,
-    xi = params_std[1],
-    beta = params_std[2]
+    p = integral_trf, mu = 0.0, xi = params_std[1], beta = params_std[2]
   )
 
   return(x)
 }
 
-#' Inverse transformation function.
+#' Inverse transformation function from `GPD(xi, sigma)` to `GPD(1, 1 + kappa)`.
 #' @param x Data to transform
 #' @param params_std Standard parametrisation parameters `(xi, sigma)`.
 #' @return `GPD(1, 1 + kappa)` data.
@@ -73,7 +65,7 @@ transformation_map_inverse <- function(x, params_std) {
 #' xi <- .1
 #' sig <- .5
 #' kap <- 19.
-#' transformation_map_inverse(c(xi, sig, kap))
+#' transformation_jacobian(c(xi, sig, kap))
 #' @export
 transformation_jacobian <- function(params_std) {
   # parametrisation should be standard
