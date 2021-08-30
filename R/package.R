@@ -8,7 +8,7 @@
 #'
 #' @docType package
 #' @author Valentin Courgeau <val.courgeau@gmail.com>
-#' @importFrom Rcpp evalCpp
+#' @importFrom Rcpp evalCpp sourceCpp
 #' @useDynLib extreme.trawl
 #' @name extreme.trawl
 NULL

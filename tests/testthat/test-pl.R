@@ -46,8 +46,8 @@ test_that("pl_constructor - parallel", {
   data <- pollution_data[seq_len(max_length), test_column]
 
   cores <- parallel::detectCores()
-  cl <- parallel::makeCluster(pmax(cores - 1, 1))
-  parallel::clusterExport(cl, c("cpp_case_separator"))
+  cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
+
   depth <- 3
   pl_constructor <- pairwise_likelihood$pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -87,8 +87,7 @@ test_that("pl_constructor - parallel vs not parallel", {
   no_parallel_times <- mean(no_parallel_times)
 
   cores <- parallel::detectCores()
-  cl <- parallel::makeCluster(max(cores - 1, 1))
-  parallel::clusterExport(cl, c("cpp_case_separator"))
+  cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
 
   pl_constructor <- pairwise_likelihood$pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -127,8 +126,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
   depth <- 5
 
   cores <- parallel::detectCores(logical = TRUE)
-  cl <- parallel::makeCluster(cores - 1)
-  parallel::clusterExport(cl, c("cpp_case_separator"))
+  cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
 
   pl_fn <- pairwise_likelihood$two_stage_trawl_pl(
     data = pollution_data[seq_len(max_length), test_column],
