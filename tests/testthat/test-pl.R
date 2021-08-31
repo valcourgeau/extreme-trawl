@@ -47,6 +47,9 @@ test_that("pl_constructor - parallel", {
 
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
+  if (.Platform$OS.type != "unix") {
+    parallel::clusterCall(cl, c("cpp_case_separator"))
+  }
 
   depth <- 3
   pl_constructor <- pairwise_likelihood$pl_constructor(

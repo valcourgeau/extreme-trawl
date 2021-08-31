@@ -1,5 +1,5 @@
 Package: extreme.trawl
-Title: Univariate Extreme Values With Trawl Processes
+Title: Univariate Extreme Values with Trawl Processes
 Version: 1.0.0
 Authors@R: 
     person(given = "Valentin",
@@ -10,7 +10,7 @@ Authors@R:
 Description: Statistical inference tools for univariate extreme time
     series.  It comprises pairwise and generalised method of moments
     inference strategies described in Courgeau and Veraart (2021)
-    <doi:10.2139/ssrn.3527739> and simulation schemes based on
+    \doi{doi:10.2139/ssrn.3527739} and simulation schemes based on
     Gamma-distributed trawl processes.
 License: MIT + file LICENSE
 Depends: 

@@ -83,6 +83,7 @@ double cpp_case_one_one(NumericVector xs, double alpha, double beta, double kapp
 //' @param b_2 B two.
 //' @param b_3 B three.
 //' @return PL likelihood values for `xs`.
+//' @export
 // [[Rcpp::export]]
 double cpp_case_separator(NumericVector xs, double alpha, double beta, double kappa, double b_1, double b_2, double b_3) {
   assert(xs.size() == 2);
