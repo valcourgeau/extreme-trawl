@@ -137,7 +137,9 @@ test_that("pl_constructor - PL as function of rho - convex", {
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
     parallel::clusterExport(cl, c("cpp_case_separator"))
-    parallel::clusterEvalQ(cl, library("extreme.trawl"))
+    parallel::clusterExport(cl, ls(get_trawl_env("exp")),
+      envir = get_trawl_env("exp")
+    )
   }
 
   pl_fn <- pl_two_stage_trawl(
