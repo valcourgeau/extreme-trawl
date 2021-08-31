@@ -117,7 +117,7 @@ test_that("Two-stage GMM objective - HAC full", {
   depth <- 4
   k_max <- 5
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 10
   )
   hac_full <- trawl_gmm$trawl_gmm_hac(
@@ -155,7 +155,7 @@ test_that("Two-stage - Variance", {
   max_depth <- 25
   data <- pollution_data[seq_len(n), test_column]
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 20
   )
   i_guess_model <- composite_marginal_mle(data)

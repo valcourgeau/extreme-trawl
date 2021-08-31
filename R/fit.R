@@ -24,7 +24,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
     marginal_params <- composite_marginal_mle(data)
     # choose function
     if (method == "PL") {
-      optim_fn <- pairwise_likelihood$two_stage_trawl_pl(
+      optim_fn <- pl_two_stage_trawl(
         data = data, depth = depth,
         type = type, cl = cl
       )
@@ -42,7 +42,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
     lower <- trawl_cfg$lower
     upper <- trawl_cfg$upper
     if (bounds == "multiplier") {
-      init_trawl <- pairwise_likelihood$init_guess(
+      init_trawl <- pl_init_guess(
         data = data, depth = depth, n_trials = 40, type = type
       )
       lower <- init_trawl * 0.5
@@ -54,7 +54,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
     if (mode == "full") {
       # choose function
       if (method == "PL") {
-        optim_fn <- pairwise_likelihood$trawl_pl(
+        optim_fn <- pl_trawl(
           data = data, depth = depth,
           type = type, cl = cl
         )
@@ -70,7 +70,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
       lower <- trawl_cfg$lower
       upper <- trawl_cfg$upper
       if (bounds == "multiplier") {
-        init_trawl <- pairwise_likelihood$init_guess(
+        init_trawl <- pl_init_guess(
           data = data, depth = depth, n_trials = 40, type = type
         )
         lower <- init_trawl * 0.5

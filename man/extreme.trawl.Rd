@@ -8,8 +8,8 @@
 The goal of \code{extreme.trawl} is to provide statistical inference tools for
 univariate extreme time series.  It comprises pairwise and generalised method
 of moments inference strategies described in Courgeau and Veraart (2021)
-\doi{doi:10.2139/ssrn.3527739} and simulation schemes based on Gamma-distributed
-trawl processes.
+\doi{doi:10.2139/ssrn.3527739} and simulation schemes based on
+Gamma-distributed trawl processes.
 }
 \author{
 Valentin Courgeau \href{mailto:val.courgeau@gmail.com}{val.courgeau@gmail.com}

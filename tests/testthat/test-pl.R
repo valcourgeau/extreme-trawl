@@ -2,7 +2,7 @@ data("pollution_data")
 
 test_that("pair_pdf_constructor", {
   params <- c(.1, 1., 19, .2)
-  pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
+  pdf_constructor <- pl_pair_pdf_constructor(
     params = params, type = "exp"
   )
   testthat::expect_equal(
@@ -24,11 +24,11 @@ test_that("pl_constructor - not parallel", {
   depth <- 3
   data <- pollution_data[seq_len(max_length), test_column]
 
-  pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
+  pdf_constructor <- pl_pair_pdf_constructor(
     params = params, type = "exp"
   )
 
-  pl_constructor <- pairwise_likelihood$pl_constructor(
+  pl_constructor <- pl_pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor
   )
 
@@ -40,7 +40,7 @@ test_that("pl_constructor - parallel", {
   test_column <- 2
   max_length <- n
   params <- c(.1, 1., 19, .2)
-  pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
+  pdf_constructor <- pl_pair_pdf_constructor(
     params = params, type = "exp"
   )
   data <- pollution_data[seq_len(max_length), test_column]
@@ -52,7 +52,7 @@ test_that("pl_constructor - parallel", {
   }
 
   depth <- 3
-  pl_constructor <- pairwise_likelihood$pl_constructor(
+  pl_constructor <- pl_pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
   )
   pl_lik <- pl_constructor(data)
@@ -74,11 +74,11 @@ test_that("pl_constructor - parallel vs not parallel", {
   # test times
   test_repeat <- 5
 
-  pdf_constructor <- pairwise_likelihood$pair_pdf_constructor(
+  pdf_constructor <- pl_pair_pdf_constructor(
     params = params, type = "exp"
   )
 
-  pl_constructor <- pairwise_likelihood$pl_constructor(
+  pl_constructor <- pl_pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor
   )
 
@@ -95,7 +95,7 @@ test_that("pl_constructor - parallel vs not parallel", {
     print(.Platform$OS.type)
   }
 
-  pl_constructor <- pairwise_likelihood$pl_constructor(
+  pl_constructor <- pl_pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
   )
   res_parallel <- pl_constructor(data)
@@ -117,7 +117,7 @@ test_that("pl_constructor - PL initial guess", {
   depth <- 5
   data <- pollution_data[seq_len(max_length), test_column]
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 10
   )
   testthat::expect_equal(i_guess, .10, tolerance = 2e-2)
@@ -137,7 +137,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
     print(.Platform$OS.type)
   }
 
-  pl_fn <- pairwise_likelihood$two_stage_trawl_pl(
+  pl_fn <- pl_two_stage_trawl(
     data = pollution_data[seq_len(max_length), test_column],
     depth = depth, cl = cl
   )
@@ -151,7 +151,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
   testthat::expect_true(max(which_negative) < min(which_positive)) # convexity
 })
 
-test_that("trawl_pl_hac", {
+test_that("trawl_hac", {
   time_divisor <- 1e6
 
   n <- 3000
@@ -163,13 +163,13 @@ test_that("trawl_pl_hac", {
   k_max <- 20
   max_length <- 500
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 10
   )
   i_guess_model <- get_initial_guess_and_bounds(
     data = data, max_length = max_length
   )
-  hac_full <- pairwise_likelihood$trawl_pl_hac(
+  hac_full <- pl_trawl_hac(
     data = data, params = c(i_guess_model$init_guess, i_guess),
     depth = depth, k = k_max, type = "exp", max_length = max_length
   )
@@ -179,7 +179,7 @@ test_that("trawl_pl_hac", {
   testthat::expect_false(any(is.infinite(hac_full)))
 })
 
-test_that("trawl_pl_hac_partial", {
+test_that("trawl_hac_partial", {
   time_divisor <- 1e6
 
   n <- 3000
@@ -189,13 +189,13 @@ test_that("trawl_pl_hac_partial", {
 
   data <- pollution_data[seq_len(max_length), test_column]
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 10
   )
   i_guess_model <- get_initial_guess_and_bounds(
     data = data, max_length = max_length
   )
-  hac_partial <- pairwise_likelihood$trawl_pl_hac_partial(
+  hac_partial <- pl_trawl_hac_partial(
     data = data, params = c(i_guess_model$init_guess, i_guess),
     depth = depth, k = 8, type = "exp", max_length = 500
   )
@@ -213,13 +213,13 @@ test_that("PLHessian", {
   depth <- 4
   data <- pollution_data[seq_len(max_length), test_column]
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 10
   )
   i_guess_model <- get_initial_guess_and_bounds(
     data = data, max_length = max_length
   )
-  pl_hessian <- pairwise_likelihood$trawl_pl_hessian(
+  pl_hessian <- pl_trawl_hessian(
     params = c(i_guess_model$init_guess, i_guess),
     depth = depth, type = "exp", max_length = 200
   )
@@ -229,7 +229,7 @@ test_that("PLHessian", {
     testthat::expect_false(any(is.infinite(x)))
   })
 
-  ts_var <- pairwise_likelihood$two_stage_variance(
+  ts_var <- pl_two_stage_variance(
     data = data, params = c(i_guess_model$init_guess, i_guess),
     depth = depth, type = "exp", max_length = 100
   )
@@ -246,12 +246,12 @@ test_that("Two-stage - Variance", {
   depth <- 4
   data <- pollution_data[seq_len(max_length), test_column]
 
-  i_guess <- pairwise_likelihood$init_guess(
+  i_guess <- pl_init_guess(
     data = data, depth = depth, n_trials = 20
   )
   i_guess_model <- composite_marginal_mle(data)
   # init should be c(-0.009792636, 0.3141497, 19.96388, 0.220771)
-  ts_var <- pairwise_likelihood$two_stage_variance(
+  ts_var <- pl_two_stage_variance(
     data = data, params = c(i_guess_model, i_guess),
     depth = depth, type = "exp", max_length = 200
   )

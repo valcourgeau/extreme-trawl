@@ -1,24 +1,14 @@
-pairwise_likelihood <- new.env()
 
-#' @param elems Elements.
-pairwise_likelihood$check_all_non_positive <- function(elems) {
-  all(elems <= 0.0)
-}
-
-#' @param elems Elements.
-pairwise_likelihood$check_all_positive <- function(elems) {
-  all(elems > 0.0)
-}
-
+#' Standardised trawl's shape or alpha parameter.
 #' @param alpha Alpha parameter.
 #' @param elems Elements.
-pairwise_likelihood$stand_trawl_terms <- function(alpha, elems) {
+pl_stand_trawl_terms <- function(alpha, elems) {
   a_total <- sum(elems[1:2])
   return(-alpha * elems / a_total)
 }
 
-pairwise_likelihood$init_guess <- function(data, depth,
-                                           n_trials, type = "exp") {
+pl_init_guess <- function(data, depth,
+                          n_trials, type = "exp") {
   cfg <- get_trawl_params_config(type)
   trawl_evaluator <- trawl_gmm$two_stage_gmm_objective(
     data = data, depth = depth, type = type
@@ -32,7 +22,7 @@ pairwise_likelihood$init_guess <- function(data, depth,
   return(potential_param_values[which.min(evaluator_vals)])
 }
 
-pairwise_likelihood$pair_pdf_constructor <- function(params, type = "exp") {
+pl_pair_pdf_constructor <- function(params, type = "exp") {
   # params is (xi, sigma, kappa, trawl_params)
   b_funcs <- get_trawl_functions(type)
   b_1_func <- b_funcs[[1]]
@@ -43,7 +33,7 @@ pairwise_likelihood$pair_pdf_constructor <- function(params, type = "exp") {
     params = params[1:3], parametrisation = "standard", target = "transform"
   )
   trawl_params <- params[4:length(params)]
-  assertthat::assert_that(pairwise_likelihood$check_all_positive(trawl_params))
+  assertthat::assert_that(all(trawl_params > 0))
 
   return(function(xs, h) {
     jacob_cst <- 1
@@ -57,7 +47,7 @@ pairwise_likelihood$pair_pdf_constructor <- function(params, type = "exp") {
 }
 
 
-pairwise_likelihood$parallel_apply_pl <- function(data, k, this_pl, cl) {
+pl_parallel_apply_pl <- function(data, k, this_pl, cl) {
   n_sample <- length(data)
   xs_stack <- cbind(data[1:(n_sample - k)], data[(k + 1):(n_sample)])
   return(
@@ -83,7 +73,7 @@ pairwise_likelihood$parallel_apply_pl <- function(data, k, this_pl, cl) {
   )
 }
 
-pairwise_likelihood$apply_pl <- function(data, k, this_pl) {
+pl_apply_pl <- function(data, k, this_pl) {
   n_sample <- length(data)
   xs_stack <- cbind(data[1:(n_sample - k)], data[(k + 1):(n_sample)])
   return(
@@ -108,8 +98,8 @@ pairwise_likelihood$apply_pl <- function(data, k, this_pl) {
   )
 }
 
-pairwise_likelihood$pl_constructor <- function(params, depth,
-                                               pair_likehood, cl = NULL) {
+pl_pl_constructor <- function(params, depth,
+                              pair_likehood, cl = NULL) {
   # returns function implementing Consecutive PL with depth depth
   stopifnot(depth >= 1)
   pl_f <- function(data) {
@@ -119,14 +109,14 @@ pairwise_likelihood$pl_constructor <- function(params, depth,
     if (!is.null(cl)) {
       log_pl_per_depth <- vapply(seq_len(depth), # loop through depths
         FUN = function(k) {
-          return(pairwise_likelihood$parallel_apply_pl(data, k, this_pl, cl))
+          return(pl_parallel_apply_pl(data, k, this_pl, cl))
         },
         FUN.VALUE = 1.0
       )
     } else {
       log_pl_per_depth <- vapply(seq_len(depth), # loop through depths
         FUN = function(k) {
-          return(pairwise_likelihood$apply_pl(data, k, this_pl))
+          return(pl_apply_pl(data, k, this_pl))
         },
         FUN.VALUE = 1.0
       )
@@ -153,8 +143,8 @@ pairwise_likelihood$pl_constructor <- function(params, depth,
 }
 
 
-pairwise_likelihood$pl_constructor_single <- function(params, k,
-                                                      pair_likehood) {
+pl_pl_constructor_single <- function(params, k,
+                                     pair_likehood) {
   # returns function implementing Consecutive PL with depth depth
   stopifnot(k >= 1)
   pl_f <- function(data) {
@@ -170,24 +160,24 @@ pairwise_likelihood$pl_constructor_single <- function(params, k,
   return(pl_f)
 }
 
-pairwise_likelihood$trawl_pl_standard <- function(params, depth,
-                                                  type = "exp", cl = NULL) {
+pl_trawl_standard <- function(params, depth,
+                              type = "exp", cl = NULL) {
   # param with (xi, sigma, kappa, trawl_params)
-  pair_likehood_f <- pairwise_likelihood$pair_pdf_constructor(
+  pair_likehood_f <- pl_pair_pdf_constructor(
     params = params, type = type
   ) # yields a function of (xs, h)
 
   return(
-    pairwise_likelihood$pl_constructor(
+    pl_pl_constructor(
       params = params, depth = depth, pair_likehood = pair_likehood_f, cl = cl
     )
   )
 }
 
-pairwise_likelihood$trawl_pl <- function(data, depth,
-                                         type = "exp", cl = NULL) {
+pl_trawl <- function(data, depth,
+                     type = "exp", cl = NULL) {
   return(function(params) {
-    pl_functional <- pairwise_likelihood$trawl_pl_standard(
+    pl_functional <- pl_trawl_standard(
       params = params,
       depth = depth,
       type = type,
@@ -197,12 +187,12 @@ pairwise_likelihood$trawl_pl <- function(data, depth,
   })
 }
 
-pairwise_likelihood$two_stage_trawl_pl <- function(data, depth,
-                                                   type = "exp", cl = NULL) {
+pl_two_stage_trawl <- function(data, depth,
+                               type = "exp", cl = NULL) {
   params_univ <- composite_marginal_mle(data)
 
   return(function(params) {
-    pl_functional <- pairwise_likelihood$trawl_pl_standard(
+    pl_functional <- pl_trawl_standard(
       params = c(params_univ, params),
       depth = depth,
       type = type,
@@ -212,8 +202,8 @@ pairwise_likelihood$two_stage_trawl_pl <- function(data, depth,
   })
 }
 
-pairwise_likelihood$trawl_pl_score <- function(params, depth,
-                                               type = "exp", max_length = 100) {
+pl_trawl_score <- function(params, depth,
+                           type = "exp", max_length = 100) {
   # Full Score function
   return(
     function(data) {
@@ -231,8 +221,8 @@ pairwise_likelihood$trawl_pl_score <- function(params, depth,
             FUN = function(xs) {
               # log-PL
               log_pl <- function(par) {
-                pair_pdf <- pairwise_likelihood$pair_pdf_constructor(par, type)
-                pl_w_jacob <- pairwise_likelihood$pl_constructor_single(
+                pair_pdf <- pl_pair_pdf_constructor(par, type)
+                pl_w_jacob <- pl_pl_constructor_single(
                   par, k, pair_pdf
                 )
                 return(-pl_w_jacob(xs))
@@ -249,9 +239,9 @@ pairwise_likelihood$trawl_pl_score <- function(params, depth,
   ) # list of depth items data_length x length(params)
 }
 
-pairwise_likelihood$trawl_pl_hessian <- function(params, depth,
-                                                 type = "exp",
-                                                 max_length = 100) {
+pl_trawl_hessian <- function(params, depth,
+                             type = "exp",
+                             max_length = 100) {
   # Full Score function
   return(
     function(data) {
@@ -266,8 +256,8 @@ pairwise_likelihood$trawl_pl_hessian <- function(params, depth,
             MARGIN = 1,
             FUN = function(xs) {
               log_pl <- function(par) {
-                pair_pdf <- pairwise_likelihood$pair_pdf_constructor(par, type)
-                pl_w_jacob <- pairwise_likelihood$pl_constructor_single(
+                pair_pdf <- pl_pair_pdf_constructor(par, type)
+                pl_w_jacob <- pl_pl_constructor_single(
                   par, k, pair_pdf
                 )
                 return(-pl_w_jacob(xs))
@@ -282,9 +272,9 @@ pairwise_likelihood$trawl_pl_hessian <- function(params, depth,
   ) # list of depth items data_length x length(params)
 }
 
-pairwise_likelihood$trawl_pl_score_partial <- function(params, depth,
-                                                       type = "exp",
-                                                       max_length = 100) {
+pl_trawl_score_partial <- function(params, depth,
+                                   type = "exp",
+                                   max_length = 100) {
   # Full Score function
   return(
     function(data) {
@@ -303,10 +293,10 @@ pairwise_likelihood$trawl_pl_score_partial <- function(params, depth,
             MARGIN = 1,
             FUN = function(xs) {
               log_pl <- function(par) {
-                pair_pdf <- pairwise_likelihood$pair_pdf_constructor(
+                pair_pdf <- pl_pair_pdf_constructor(
                   c(model_params, par), type
                 )
-                pl_w_jacob <- pairwise_likelihood$pl_constructor_single(
+                pl_w_jacob <- pl_pl_constructor_single(
                   c(model_params, par), k, pair_pdf
                 )
                 return(-pl_w_jacob(xs))
@@ -321,10 +311,10 @@ pairwise_likelihood$trawl_pl_score_partial <- function(params, depth,
   ) # list of depth items data_length x length(params)
 }
 
-pairwise_likelihood$trawl_pl_hac <- function(data, params, depth,
-                                             k = 10, type = "exp",
-                                             max_length = 100) {
-  lk_score <- pairwise_likelihood$trawl_pl_score(
+pl_trawl_hac <- function(data, params, depth,
+                         k = 10, type = "exp",
+                         max_length = 100) {
+  lk_score <- pl_trawl_score(
     params, depth, type, max_length
   )
   pl_score_per_depth <- lk_score(data)
@@ -343,11 +333,11 @@ pairwise_likelihood$trawl_pl_hac <- function(data, params, depth,
   return(Reduce(`+`, pl_hac)) # sum across clusters
 }
 
-pairwise_likelihood$trawl_pl_hac_partial <- function(data, params, depth,
-                                                     k = 10, type = "exp",
-                                                     max_length = 100) {
+pl_trawl_hac_partial <- function(data, params, depth,
+                                 k = 10, type = "exp",
+                                 max_length = 100) {
   # only the trawl parameters
-  lk_score <- pairwise_likelihood$trawl_pl_score_partial(
+  lk_score <- pl_trawl_score_partial(
     params, depth, type, max_length
   )
   pl_score_per_depth <- lk_score(data)
@@ -363,16 +353,16 @@ pairwise_likelihood$trawl_pl_hac_partial <- function(data, params, depth,
   return(Reduce(`+`, pl_hac)) # sum across clusters
 }
 
-pairwise_likelihood$two_stage_variance <- function(data, params, depth,
-                                                   type = "exp",
-                                                   max_length = 100) {
+pl_two_stage_variance <- function(data, params, depth,
+                                  type = "exp",
+                                  max_length = 100) {
   # only the trawl parameters
-  lk_score <- pairwise_likelihood$trawl_pl_score(
+  lk_score <- pl_trawl_score(
     params, depth, type, max_length
   )
   pl_score_per_depth <- lk_score(data)
 
-  lk_hessian <- pairwise_likelihood$trawl_pl_hessian(
+  lk_hessian <- pl_trawl_hessian(
     params, depth, type, max_length
   )
   pl_hessian_per_depth <- lk_hessian(data)
