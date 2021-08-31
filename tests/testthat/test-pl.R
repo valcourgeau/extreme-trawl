@@ -105,7 +105,7 @@ test_that("pl_constructor - parallel vs not parallel", {
   )$time / time_divisor
   parallel_times <- mean(parallel_times)
   testthat::expect_equal(res_parallel, res_no_parallel, tolerance = 1e-3)
-  testthat::expect_lte(parallel_times / no_parallel_times, 3)
+  testthat::expect_lte(parallel_times / no_parallel_times, 10)
   parallel::stopCluster(cl) # release resources
 })
 
