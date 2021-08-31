@@ -48,7 +48,7 @@ test_that("pl_constructor - parallel", {
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    parallel::clusterExport(cl, c("cpp_case_separator"))
+    parallel::clusterExport(cl, c("cpp_case_separator", get_trawl_envs_list()))
   }
 
   depth <- 3
@@ -92,7 +92,7 @@ test_that("pl_constructor - parallel vs not parallel", {
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    parallel::clusterExport(cl, c("cpp_case_separator"))
+    parallel::clusterExport(cl, c("cpp_case_separator", get_trawl_envs_list()))
   }
 
   pl_constructor <- pl_pl_constructor(
@@ -134,7 +134,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    parallel::clusterExport(cl, c("cpp_case_separator"))
+    parallel::clusterExport(cl, c("cpp_case_separator", get_trawl_envs_list()))
   }
 
   pl_fn <- pl_two_stage_trawl(
