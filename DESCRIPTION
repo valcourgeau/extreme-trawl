@@ -33,8 +33,6 @@ Suggests:
     testthat (>= 3.0.0)
 LinkingTo: 
     Rcpp
-VignetteBuilder: 
-    knitr
 Encoding: UTF-8
 Language: en-GB
 LazyData: true

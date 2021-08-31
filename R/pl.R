@@ -50,6 +50,8 @@ pl_pair_pdf_constructor <- function(params, type = "exp") {
 pl_parallel_apply_pl <- function(data, k, this_pl, cl) {
   n_sample <- length(data)
   xs_stack <- cbind(data[1:(n_sample - k)], data[(k + 1):(n_sample)])
+  parallel::clusterExport(cl, "this_pl")
+
   return(
     sum(
       unlist(
@@ -98,8 +100,8 @@ pl_apply_pl <- function(data, k, this_pl) {
   )
 }
 
-pl_pl_constructor <- function(params, depth,
-                              pair_likehood, cl = NULL) {
+pl_constructor <- function(params, depth,
+                           pair_likehood, cl = NULL) {
   # returns function implementing Consecutive PL with depth depth
   stopifnot(depth >= 1)
   pl_f <- function(data) {
@@ -143,8 +145,8 @@ pl_pl_constructor <- function(params, depth,
 }
 
 
-pl_pl_constructor_single <- function(params, k,
-                                     pair_likehood) {
+pl_constructor_single <- function(params, k,
+                                  pair_likehood) {
   # returns function implementing Consecutive PL with depth depth
   stopifnot(k >= 1)
   pl_f <- function(data) {
@@ -168,7 +170,7 @@ pl_trawl_standard <- function(params, depth,
   ) # yields a function of (xs, h)
 
   return(
-    pl_pl_constructor(
+    pl_constructor(
       params = params, depth = depth, pair_likehood = pair_likehood_f, cl = cl
     )
   )
@@ -222,7 +224,7 @@ pl_trawl_score <- function(params, depth,
               # log-PL
               log_pl <- function(par) {
                 pair_pdf <- pl_pair_pdf_constructor(par, type)
-                pl_w_jacob <- pl_pl_constructor_single(
+                pl_w_jacob <- pl_constructor_single(
                   par, k, pair_pdf
                 )
                 return(-pl_w_jacob(xs))
@@ -257,7 +259,7 @@ pl_trawl_hessian <- function(params, depth,
             FUN = function(xs) {
               log_pl <- function(par) {
                 pair_pdf <- pl_pair_pdf_constructor(par, type)
-                pl_w_jacob <- pl_pl_constructor_single(
+                pl_w_jacob <- pl_constructor_single(
                   par, k, pair_pdf
                 )
                 return(-pl_w_jacob(xs))
@@ -296,7 +298,7 @@ pl_trawl_score_partial <- function(params, depth,
                 pair_pdf <- pl_pair_pdf_constructor(
                   c(model_params, par), type
                 )
-                pl_w_jacob <- pl_pl_constructor_single(
+                pl_w_jacob <- pl_constructor_single(
                   c(model_params, par), k, pair_pdf
                 )
                 return(-pl_w_jacob(xs))

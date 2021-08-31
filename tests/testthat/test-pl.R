@@ -28,7 +28,7 @@ test_that("pl_constructor - not parallel", {
     params = params, type = "exp"
   )
 
-  pl_constructor <- pl_pl_constructor(
+  pl_constructor <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor
   )
 
@@ -48,15 +48,14 @@ test_that("pl_constructor - parallel", {
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    parallel::clusterExport(cl, c("cpp_case_separator"))
-    parallel::clusterEvalQ(cl, library("extreme.trawl"))
+    cl <- NULL
   }
-
   depth <- 3
-  pl_constructor <- pl_pl_constructor(
+  pl_constructor <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
   )
   pl_lik <- pl_constructor(data)
+
   testthat::expect_equal(length(pl_lik), 1)
   testthat::expect_false(is.null(pl_lik))
   testthat::expect_false(any(is.na(pl_lik)))
@@ -79,7 +78,7 @@ test_that("pl_constructor - parallel vs not parallel", {
     params = params, type = "exp"
   )
 
-  pl_constructor <- pl_pl_constructor(
+  pl_constructor <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor
   )
 
@@ -93,11 +92,10 @@ test_that("pl_constructor - parallel vs not parallel", {
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    parallel::clusterExport(cl, c("cpp_case_separator"))
-    parallel::clusterEvalQ(cl, library("extreme.trawl"))
+    cl <- NULL
   }
 
-  pl_constructor <- pl_pl_constructor(
+  pl_constructor <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
   )
   res_parallel <- pl_constructor(data)
@@ -136,10 +134,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    parallel::clusterExport(cl, c("cpp_case_separator"))
-    parallel::clusterExport(cl, ls(get_trawl_env("exp")),
-      envir = get_trawl_env("exp")
-    )
+    cl <- NULL
   }
 
   pl_fn <- pl_two_stage_trawl(
