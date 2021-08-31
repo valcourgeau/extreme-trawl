@@ -50,8 +50,6 @@ pl_pair_pdf_constructor <- function(params, type = "exp") {
 pl_parallel_apply_pl <- function(data, k, this_pl, cl) {
   n_sample <- length(data)
   xs_stack <- cbind(data[1:(n_sample - k)], data[(k + 1):(n_sample)])
-  parallel::clusterExport(cl, "this_pl")
-
   return(
     sum(
       unlist(
