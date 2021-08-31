@@ -21,6 +21,8 @@ acf_trawl_single(
 
 \item{alpha}{Gamma \code{alpha} (or shape) parameter.}
 
+\item{beta}{Gamma \code{beta} (or rate) parameter.}
+
 \item{rho}{Trawl parameter(s).}
 
 \item{kappa}{Extreme frequency control parameter.}
@@ -33,8 +35,6 @@ acf_trawl_single(
 
 \item{cov}{Boolean, correlation or covariance (if \code{FALSE}).
 Defaults to correlation.}
-
-\item{betal}{Gamma \code{beta} (or rate) parameter.}
 }
 \value{
 Trawl autocorrelation values with R-only functions.

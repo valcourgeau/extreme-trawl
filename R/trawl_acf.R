@@ -5,7 +5,7 @@
 #' R-only Single Trawl ACF calculations.
 #' @param h Single ACF horizon.
 #' @param alpha Gamma `alpha` (or shape) parameter.
-#' @param betal Gamma `beta` (or rate) parameter.
+#' @param beta Gamma `beta` (or rate) parameter.
 #' @param rho Trawl parameter(s).
 #' @param kappa Extreme frequency control parameter.
 #' @param delta Discrete time step.
@@ -73,7 +73,7 @@ acf_trawl_single <- function(h, alpha, beta, rho, kappa,
 #' Rcpp-accelerated Single Trawl ACF calculations.
 #' @param h ACF horizon.
 #' @param alpha Gamma `alpha` (or shape) parameter.
-#' @param betal Gamma `beta` (or rate) parameter.
+#' @param beta Gamma `beta` (or rate) parameter.
 #' @param rho Trawl parameter(s).
 #' @param kappa Extreme frequency control parameter.
 #' @param delta Discrete time step.
@@ -158,7 +158,7 @@ cross_moment_trawls <- function(h, alpha, beta, rho,
 #' R-only Trawl ACF function approximation.
 #' @param h ACF horizon.
 #' @param alpha Gamma `alpha` (or shape) parameter.
-#' @param betal Gamma `beta` (or rate) parameter.
+#' @param beta Gamma `beta` (or rate) parameter.
 #' @param rho Trawl parameter(s).
 #' @param kappa Extreme frequency control parameter.
 #' @param delta Discrete time step.
@@ -169,7 +169,7 @@ cross_moment_trawls <- function(h, alpha, beta, rho,
 #' @return Trawl autocorrelation values with R-only functions.
 #' @export
 acf_trawl <- function(h, alpha, beta, kappa,
-                      rho, delta = 0.5,
+                      rho, delta = 0.5, end_seq = 50,
                       type = "exp", cov = T) {
   trawl_acf_fn <- function(h) {
     acf_trawl_single(
@@ -210,7 +210,7 @@ acf_trawl_revisited_num_approx <- function(h,
 #' Rcpp-accelerated Trawl ACF function approximation.
 #' @param h ACF horizon.
 #' @param alpha Gamma `alpha` (or shape) parameter.
-#' @param betal Gamma `beta` (or rate) parameter.
+#' @param beta Gamma `beta` (or rate) parameter.
 #' @param rho Trawl parameter(s).
 #' @param kappa Extreme frequency control parameter.
 #' @param delta Discrete time step.

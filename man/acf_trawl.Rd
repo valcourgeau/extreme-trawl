@@ -4,12 +4,24 @@
 \alias{acf_trawl}
 \title{R-only Trawl ACF function approximation.}
 \usage{
-acf_trawl(h, alpha, beta, kappa, rho, delta = 0.5, type = "exp", cov = T)
+acf_trawl(
+  h,
+  alpha,
+  beta,
+  kappa,
+  rho,
+  delta = 0.5,
+  end_seq = 50,
+  type = "exp",
+  cov = T
+)
 }
 \arguments{
 \item{h}{ACF horizon.}
 
 \item{alpha}{Gamma \code{alpha} (or shape) parameter.}
+
+\item{beta}{Gamma \code{beta} (or rate) parameter.}
 
 \item{kappa}{Extreme frequency control parameter.}
 
@@ -17,14 +29,12 @@ acf_trawl(h, alpha, beta, kappa, rho, delta = 0.5, type = "exp", cov = T)
 
 \item{delta}{Discrete time step.}
 
+\item{end_seq}{Horizon cut-off for integral approximation.}
+
 \item{type}{Trawl type (e.g. \verb{"exp}, "\code{sum_exp}", etc.).}
 
 \item{cov}{Boolean, covariance (if \code{TRUE}) or correlation.
 Defaults to covariance.}
-
-\item{betal}{Gamma \code{beta} (or rate) parameter.}
-
-\item{end_seq}{Horizon cut-off for integral approximation.}
 }
 \value{
 Trawl autocorrelation values with R-only functions.

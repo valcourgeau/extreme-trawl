@@ -10,7 +10,7 @@ Authors@R:
 Description: Statistical inference tools for univariate extreme time
     series.  It comprises pairwise and generalised method of moments
     inference strategies described in Courgeau and Veraart (2021)
-    \doi{doi:10.2139/ssrn.3527739} and simulation schemes based on
+    <doi:10.2139/ssrn.3527739> and simulation schemes based on
     Gamma-distributed trawl processes.
 License: MIT + file LICENSE
 Depends: 
