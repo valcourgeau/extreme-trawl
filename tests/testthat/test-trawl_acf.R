@@ -109,6 +109,7 @@ test_that("acf_trawl__vals", {
 
 
 test_that("acf_trawl_revisited_num_approx__vals", {
+  testthat::skip_on_os("windows")
   h_max <- 5
   alpha <- 1
   beta <- 1

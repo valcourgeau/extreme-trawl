@@ -1,4 +1,5 @@
-# æ Generates a GPD initial guess and parameter bounds for "L-BFGS-B".
+
+# Generates a GPD initial guess and parameter bounds for "L-BFGS-B".
 get_initial_guess_and_bounds <- function(data, max_length = 20000,
                                          minus_mult = 0.5,
                                          plus_multiplier = 1.5) {

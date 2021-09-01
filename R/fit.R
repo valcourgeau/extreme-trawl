@@ -1,4 +1,22 @@
 
+#' Fitting the LTME or EV Trawl model.
+#' @param data Data to fit.
+#' @param depth Depth to fit.
+#' @param method Selecting `"GMM"` or `"PL"`.
+#' @param mode Either one-stage/full (`"full"`) or two-stage (`"two-stage"`).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`, etc.)
+#' @param bounds Parameters bounds. `"config"` uses trawl cfg, `"multiplier"`
+#'     uses scaled initial guess.
+#' @param cl Parallel cluster, defaults to `NULL`.
+#' @return Vector of fitted parameters.
+#' @examples
+#' n <- 2000
+#' test_column <- 2
+#' data <- pollution_data[seq_len(n), test_column]
+#' depth <- 5
+#' ev_trawl_fit(data, depth, method = "GMM")
+#' @importFrom stats runif
+#' @export
 ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
                          type = "exp", bounds = "config", cl = NULL) {
   stopifnot(mode %in% c("two-stage", "full"))
@@ -13,11 +31,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
   upper_model <- init_guess_lower_upper$upper
 
   init_trawl <- vapply(1:trawl_cfg$n_params, function(i) {
-    stats::runif(
-      n = 1,
-      min = trawl_cfg$lower[i],
-      max = trawl_cfg$upper[i]
-    )
+    stats::runif(n = 1, min = trawl_cfg$lower[i], max = trawl_cfg$upper[i])
   }, 1.)
 
   if (mode == "two-stage") {
@@ -29,13 +43,10 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
         type = type, cl = cl
       )
     } else {
-      if (method == "GMM") {
-        optim_fn <- trawl_gmm$two_stage_gmm_objective(
-          data = data, depth = depth, type = type
-        )
-      } else {
-        stop(paste("Method is wrong", method))
-      }
+      # method GMM
+      optim_fn <- trawl_gmm$two_stage_gmm_objective(
+        data = data, depth = depth, type = type
+      )
     }
 
     # choose bounds
@@ -51,66 +62,74 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
 
     init_guess <- init_trawl
   } else {
-    if (mode == "full") {
-      # choose function
-      if (method == "PL") {
-        optim_fn <- pl_trawl(
-          data = data, depth = depth,
-          type = type, cl = cl
-        )
-      } else {
-        if (method == "GMM") {
-          optim_fn <- trawl_gmm$full_gmm_objective(
-            data = data, depth = depth, type = type
-          )
-        }
-      }
-
-      # choose bounds
-      lower <- trawl_cfg$lower
-      upper <- trawl_cfg$upper
-      if (bounds == "multiplier") {
-        init_trawl <- pl_init_guess(
-          data = data, depth = depth, n_trials = 40, type = type
-        )
-        lower <- init_trawl * 0.5
-        upper <- init_trawl * 1.5
-      }
-      lower <- c(lower_model, lower)
-      upper <- c(upper_model, upper)
-
-      # start values
-      init_guess <- c(init_guess_model, init_trawl)
+    # mode full below
+    # choose function
+    if (method == "PL") {
+      optim_fn <- pl_trawl(data = data, depth = depth, type = type, cl = cl)
     } else {
-      stop(paste("mode should be two-stage or full, received", mode))
+      # Method GMM
+      optim_fn <- trawl_gmm$full_gmm_objective(
+        data = data, depth = depth, type = type
+      )
     }
+
+    # choose bounds
+    lower <- trawl_cfg$lower
+    upper <- trawl_cfg$upper
+    if (bounds == "multiplier") {
+      init_trawl <- pl_init_guess(
+        data = data, depth = depth, n_trials = 40, type = type
+      )
+      lower <- init_trawl * 0.5
+      upper <- init_trawl * 1.5
+    }
+    lower <- c(lower_model, lower)
+    upper <- c(upper_model, upper)
+
+    # start values
+    init_guess <- c(init_guess_model, init_trawl)
   }
 
   trawl_inference <- stats::optim(
-    fn = optim_fn,
-    par = init_guess,
-    lower = lower,
-    upper = upper,
-    method = "L-BFGS-B"
+    fn = optim_fn, par = init_guess,
+    lower = lower, upper = upper, method = "L-BFGS-B"
   )
 
   if (mode == "two-stage") {
     return(c(marginal_params, trawl_inference$par))
   } else {
-    if (mode == "full") {
-      return(trawl_inference$par)
-    }
+    return(trawl_inference$par)
   }
 }
 
-sub_sample_fit <- function(data, sample.length, depth,
+#' Fitting the LTME or EV Trawl model, potentially on block subsamples.
+#' @param data Data to fit.
+#' @param sample_length Length of block subsamples.
+#' @param depth Depth to fit.
+#' @param method Selecting `"GMM"` or `"PL"`.
+#' @param mode Either one-stage/full (`"full"`) or two-stage (`"two-stage"`).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`, etc.)
+#' @param bounds Parameters bounds. `"config"` uses trawl cfg, `"multiplier"`
+#'     uses scaled initial guess.
+#' @param cl Parallel cluster, defaults to `NULL`.
+#' @return Vector of fitted parameters.
+#' @examples
+#' n <- 2000
+#' test_column <- 2
+#' data <- pollution_data[seq_len(n), test_column]
+#' depth <- 5
+#' ev_trawl_fit(data, depth, method = "GMM")
+#' @importFrom stats runif
+#' @export
+sub_sample_fit <- function(data, sample_length, depth,
                            method, mode, type, bounds,
                            trials, parallel = F, seed = 42) {
   # method 'PL' or 'GMM'
   # depth for PL is the length of blocks, GMM depth is the ACF depth
   n <- length(data)
+  stopifnot(n >= sample_length)
   set.seed(seed)
-  start_points <- sample(1:(n - sample.length), size = trials, replace = F)
+  start_points <- sample(1:(n - sample_length), size = trials, replace = F)
 
   results_list <- list()
   results <- matrix(
@@ -136,17 +155,11 @@ sub_sample_fit <- function(data, sample.length, depth,
       )
     )
 
-    # TODO check to include sample.length, etc in clusterExport when testing
+    # TODO check to include sample_length, etc in clusterExport when testing
     parallel::clusterCall(
       cl, c(
-        "mode",
-        "sample.length",
-        "depth",
-        "method",
-        "mode",
-        "type",
-        "bounds",
-        "trials"
+        "mode", "sample_length", "depth", "method",
+        "mode", "type", "bounds", "trials"
       )
     )
 
@@ -158,38 +171,27 @@ sub_sample_fit <- function(data, sample.length, depth,
         cl = cl,
         fun = function(start_pt) {
           res <- ev_trawl_fit(
-            data = data[start_pt:(start_pt + sample.length)],
-            depth = depth,
-            mode = mode,
-            method = method,
-            type = type,
-            bounds = bounds,
+            data = data[start_pt:(start_pt + sample_length)], depth = depth,
+            mode = mode, method = method, type = type, bounds = bounds,
             cl = NULL
           )
           return(res)
         }
       )
     } else {
+      # PL Method
       # we perform PL computation in parallel
-      if (method == "PL") {
-        results <- lapply(
-          X = start_points,
-          FUN = function(start_pt) {
-            res <- ev_trawl_fit(
-              data = data[start_pt:(start_pt + sample.length)],
-              depth = depth,
-              mode = mode,
-              method = method,
-              type = type,
-              bounds = bounds,
-              cl = cl
-            )
-            return(res)
-          }
-        )
-      } else {
-        stop(paste("method isnt correct", method))
-      }
+      results <- lapply(
+        X = start_points,
+        FUN = function(start_pt) {
+          res <- ev_trawl_fit(
+            data = data[start_pt:(start_pt + sample_length)],
+            depth = depth, mode = mode, method = method,
+            type = type, bounds = bounds, cl = cl
+          )
+          return(res)
+        }
+      )
     }
 
     print(Sys.time() - sub_sample_time)
@@ -201,13 +203,8 @@ sub_sample_fit <- function(data, sample.length, depth,
     results <- t(vapply(start_points,
       FUN = function(start_pt) {
         ev_trawl_fit(
-          data = data[start_pt:(start_pt + sample.length)],
-          depth = depth,
-          type = type,
-          mode = mode,
-          method = method,
-          bounds = bounds,
-          cl = NULL
+          data = data[start_pt:(start_pt + sample_length)], depth = depth,
+          type = type, mode = mode, method = method, bounds = bounds, cl = NULL
         )
       },
       FUN.VALUE = rep(0, ncol(results))
@@ -216,7 +213,7 @@ sub_sample_fit <- function(data, sample.length, depth,
   }
 
   results_list$estimators <- results
-  results_list$sample.length <- sample.length
+  results_list$sample_length <- sample_length
   results_list$depth <- depth
   results_list$mode <- mode
   results_list$method <- method
@@ -230,16 +227,28 @@ sub_sample_fit <- function(data, sample.length, depth,
 }
 
 
+#' Fitting the LTME or EV Trawl model.
+#' @param data Data to fit.
+#' @param depth Depth to fit.
+#' @param method Selecting `"GMM"` or `"PL"`.
+#' @param mode Either one-stage/full (`"full"`) or two-stage (`"two-stage"`).
+#' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`, etc.)
+#' @param bounds Parameters bounds. `"config"` uses trawl `cfg`, `"multiplier"`
+#'     uses scaled initial guess.
+#' @param parallel Boolean, defaults to `FALSE`.
+#' @return List of fitted parameters, hyperparameters, etc.
+#' @examples
+#' n <- 2000
+#' test_column <- 2
+#' data <- pollution_data[seq_len(n), test_column]
+#' depth <- 5
+#' ev_trawl_fit(data, depth, method = "GMM")
+#' @importFrom stats runif
+#' @export
 fit <- function(data, depth, method, mode, type, bounds, parallel = F) {
   return(sub_sample_fit(
-    data = data,
-    depth = depth,
-    sample.length = length(data) - 1,
-    method = method,
-    mode = mode,
-    type = type,
-    bounds = bounds,
-    parallel = parallel,
-    trials = 1
+    data = data, depth = depth, sample_length = length(data) - 1,
+    method = method, mode = mode, type = type, bounds = bounds,
+    parallel = parallel, trials = 1
   ))
 }
