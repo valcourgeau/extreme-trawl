@@ -28,11 +28,11 @@ test_that("pl_constructor - not parallel", {
     params = params, type = "exp"
   )
 
-  pl_constructor <- pl_constructor(
+  pl_constructor_fn <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor
   )
 
-  testthat::expect_false(is.na(pl_constructor(data)))
+  testthat::expect_false(is.na(pl_constructor_fn(data)))
 })
 
 test_that("pl_constructor - parallel", {
@@ -51,10 +51,10 @@ test_that("pl_constructor - parallel", {
     print("windows")
   }
   depth <- 3
-  pl_constructor <- pl_constructor(
+  pl_constructor_fn <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
   )
-  pl_lik <- pl_constructor(data)
+  pl_lik <- pl_constructor_fn(data)
 
   testthat::expect_equal(length(pl_lik), 1)
   testthat::expect_false(is.null(pl_lik))
@@ -78,13 +78,13 @@ test_that("pl_constructor - parallel vs not parallel", {
     params = params, type = "exp"
   )
 
-  pl_constructor <- pl_constructor(
+  pl_constructor_fn <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor
   )
 
-  res_no_parallel <- pl_constructor(data)
+  res_no_parallel <- pl_constructor_fn(data)
   no_parallel_times <- microbenchmark::microbenchmark(
-    function() pl_constructor(data),
+    function() pl_constructor_fn(data),
     times = test_repeat
   )$time / time_divisor
   no_parallel_times <- mean(no_parallel_times)
@@ -95,12 +95,12 @@ test_that("pl_constructor - parallel vs not parallel", {
     print("windows")
   }
 
-  pl_constructor <- pl_constructor(
+  pl_constructor_fn <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
   )
-  res_parallel <- pl_constructor(data)
+  res_parallel <- pl_constructor_fn(data)
   parallel_times <- microbenchmark::microbenchmark(
-    function() pl_constructor(data),
+    function() pl_constructor_fn(data),
     times = test_repeat
   )$time / time_divisor
   parallel_times <- mean(parallel_times)
