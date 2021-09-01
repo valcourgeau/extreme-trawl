@@ -89,14 +89,44 @@ test_that("noven to standard - negative xi", {
   )
 })
 
+test_that("same to same - negative xi", {
+  params <- c(-15., 5., .5)
+  parametrisation <- "standard"
+  target <- "standard"
+  translation <- parametrisation_translator(
+    params = params, parametrisation = parametrisation, target = target
+  )
+  testthat::expect_equal(translation, translation)
+})
+
+test_that("noven to transform - negative xi", {
+  params <- c(-15., 5., .5)
+  parametrisation <- "noven"
+  target <- "transform"
+  translation <- parametrisation_translator(
+    params = params, parametrisation = parametrisation, target = target
+  )
+  testthat::expect_equal(
+    translation,
+    c(1., (1.0 + params[3]) / abs(1.0), params[3])
+  )
+})
 
 test_that("wrong parametrisation", {
   params <- c(-15., 5., .5)
   parametrisation <- "transform"
   target <- "standard"
-  expect_error(parametrisation_translator(
-    params = params,
-    parametrisation = parametrisation,
-    target = target
-  ))
+  testthat::expect_error(parametrisation_translator(
+    params = params, parametrisation = parametrisation, target = target
+  ), regexp = "is not TRUE")
+})
+
+
+test_that("wrong parametrisation error", {
+  params <- c(-15., 5., .5)
+  parametrisation <- "transform"
+  target <- "tmp"
+  testthat::expect_error(parametrisation_translator(
+    params = params, parametrisation = parametrisation, target = target
+  ), regexp = "is not TRUE")
 })

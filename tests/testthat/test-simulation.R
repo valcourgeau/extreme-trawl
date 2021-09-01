@@ -1,3 +1,4 @@
+testthat::skip_on_os("mac")
 
 test_that("trawl_simulation - NAs, Gamma and shape", {
   set.seed(42)

@@ -1,7 +1,3 @@
-.onUnload <- function(libpath) { # nolint
-  library.dynam.unload("extreme.trawl", libpath)
-}
-
 #' R-only Single Trawl ACF calculations.
 #' @param h Single ACF horizon.
 #' @param alpha Gamma `alpha` (or shape) parameter.
@@ -18,6 +14,8 @@
 acf_trawl_single <- function(h, alpha, beta, rho, kappa,
                              delta = 0.1, end_seq = 50,
                              type = "exp", cov = F) {
+  stopifnot(end_seq > kappa)
+  stopifnot(delta > 0)
   # Compute ACF with trawl process as latent
   seq_kappa <- seq(kappa, kappa + end_seq, by = delta)
   trawl_fct <- get_trawl_functions(type)
@@ -195,11 +193,10 @@ acf_trawl_revisited_num_approx <- function(h,
     )
   }
   cores <- parallel::detectCores(logical = TRUE)
-  cl <- parallel::makeCluster(cores - 1)
-  parallel::clusterCall(
+  cl <- parallel::makeCluster(pmax(cores - 1, 1))
+  parallel::clusterExport(
     cl, c(
-      "acf_trawl", "square_moment", "cross_moment", "first_moment",
-      "trawl_acf_fn", get_trawl_envs_list()
+      "acf_trawl_single", "square_moment", "cross_moment", "first_moment"
     )
   )
   acf_vals <- parallel::parLapply(cl, X = h, fun = trawl_acf_fn)
