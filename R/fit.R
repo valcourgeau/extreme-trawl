@@ -142,15 +142,9 @@ sub_sample_fit <- function(data, sample_length, depth,
     cl <- parallel::makeCluster(max(cores - 1, 1))
     parallel::clusterExport(
       cl, c(
-        "transformation_map_inverse",
-        "transformation_map",
-        "transformation_jacobian",
-        "parametrisation_translator",
-        "composite_marginal_mle",
-        "trawl_gmm",
-        "cpp_acf_trawl",
-        "ev_trawl_fit",
-        get_trawl_envs_list()
+        "transformation_map_inverse", "transformation_map",
+        "transformation_jacobian", "parametrisation_translator",
+        "cpp_acf_trawl", "ev_trawl_fit"
       )
     )
 
