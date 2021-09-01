@@ -36,6 +36,7 @@ test_that("pl_constructor - not parallel", {
 })
 
 test_that("pl_constructor - parallel", {
+  testthat::skip_if(.Platform$OS.type == "windows")
   n <- 1000
   test_column <- 2
   max_length <- n
@@ -47,9 +48,7 @@ test_that("pl_constructor - parallel", {
 
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
-  if (.Platform$OS.type == "windows") {
-    print("windows")
-  }
+
   depth <- 3
   pl_constructor_fn <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -63,6 +62,7 @@ test_that("pl_constructor - parallel", {
 })
 
 test_that("pl_constructor - parallel vs not parallel", {
+  testthat::skip_if(.Platform$OS.type == "windows")
   time_divisor <- 1e6
   n <- 3000
   test_column <- 2
@@ -91,9 +91,6 @@ test_that("pl_constructor - parallel vs not parallel", {
 
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
-  if (.Platform$OS.type == "windows") {
-    print("windows")
-  }
 
   pl_constructor_fn <- pl_constructor(
     params = params, depth = depth, pair_likehood = pdf_constructor, cl = cl
@@ -124,6 +121,7 @@ test_that("pl_constructor - PL initial guess", {
 })
 
 test_that("pl_constructor - PL as function of rho - convex", {
+  testthat::skip_if(.Platform$OS.type == "windows")
   time_divisor <- 1e6
 
   n <- 3000
@@ -133,10 +131,6 @@ test_that("pl_constructor - PL as function of rho - convex", {
 
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
-  if (.Platform$OS.type == "windows") {
-    print("windows")
-  }
-
   pl_fn <- pl_two_stage_trawl(
     data = pollution_data[seq_len(max_length), test_column],
     depth = depth, cl = cl
