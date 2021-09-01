@@ -139,29 +139,22 @@ sub_sample_fit <- function(data, sample_length, depth,
 
   if (parallel) {
     cores <- parallel::detectCores(logical = TRUE)
-    cl <- parallel::makeCluster(cores)
-    parallel::clusterCall(
+    cl <- parallel::makeCluster(max(cores - 1, 1))
+    parallel::clusterExport(
       cl, c(
         "transformation_map_inverse",
         "transformation_map",
         "transformation_jacobian",
         "parametrisation_translator",
-        "pairwise_likelihood",
         "composite_marginal_mle",
         "trawl_gmm",
-        "trawl_autocorrelation",
+        "cpp_acf_trawl",
         "ev_trawl_fit",
         get_trawl_envs_list()
       )
     )
 
     # TODO check to include sample_length, etc in clusterExport when testing
-    parallel::clusterCall(
-      cl, c(
-        "mode", "sample_length", "depth", "method",
-        "mode", "type", "bounds", "trials"
-      )
-    )
 
     sub_sample_time <- Sys.time()
     if (method == "GMM") {
