@@ -48,7 +48,7 @@ test_that("pl_constructor - parallel", {
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    cl <- NULL
+    print("windows")
   }
   depth <- 3
   pl_constructor <- pl_constructor(
@@ -92,7 +92,7 @@ test_that("pl_constructor - parallel vs not parallel", {
   cores <- parallel::detectCores()
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    cl <- NULL
+    print("windows")
   }
 
   pl_constructor <- pl_constructor(
@@ -134,7 +134,7 @@ test_that("pl_constructor - PL as function of rho - convex", {
   cores <- parallel::detectCores(logical = TRUE)
   cl <- parallel::makeCluster(min(max(cores - 1, 1), 2))
   if (.Platform$OS.type == "windows") {
-    cl <- NULL
+    print("windows")
   }
 
   pl_fn <- pl_two_stage_trawl(
