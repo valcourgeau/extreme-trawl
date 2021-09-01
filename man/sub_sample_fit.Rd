@@ -14,7 +14,7 @@ sub_sample_fit(
   bounds,
   trials,
   parallel = F,
-  seed = 42
+  seed = NULL
 )
 }
 \arguments{
@@ -33,7 +33,11 @@ sub_sample_fit(
 \item{bounds}{Parameters bounds. \code{"config"} uses trawl cfg, \code{"multiplier"}
 uses scaled initial guess.}
 
-\item{cl}{Parallel cluster, defaults to \code{NULL}.}
+\item{trials}{Number of blocks on which to perform the inference.}
+
+\item{parallel}{Parallel or not, defaults to \code{FALSE}.}
+
+\item{seed}{Seed for block selection, not used by default \code{NULL}.}
 }
 \value{
 Vector of fitted parameters.

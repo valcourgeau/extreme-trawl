@@ -102,7 +102,7 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
   }
 }
 
-#' Fitting the LTME or EV Trawl model, potentially on block subsamples.
+#' Fitting the LTME or EV Trawl model on block subsamples.
 #' @param data Data to fit.
 #' @param sample_length Length of block subsamples.
 #' @param depth Depth to fit.
@@ -111,10 +111,12 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
 #' @param type Trawl type (e.g. `"exp"`, `"sum_exp"`, etc.)
 #' @param bounds Parameters bounds. `"config"` uses trawl cfg, `"multiplier"`
 #'     uses scaled initial guess.
-#' @param cl Parallel cluster, defaults to `NULL`.
+#' @param trials Number of blocks on which to perform the inference.
+#' @param parallel Parallel or not, defaults to `FALSE`.
+#' @param seed Seed for block selection, not used by default `NULL`.
 #' @return Vector of fitted parameters.
 #' @examples
-#' n <- 2000
+#' n <- 1000
 #' test_column <- 2
 #' data <- pollution_data[seq_len(n), test_column]
 #' depth <- 5
@@ -123,12 +125,14 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
 #' @export
 sub_sample_fit <- function(data, sample_length, depth,
                            method, mode, type, bounds,
-                           trials, parallel = F, seed = 42) {
+                           trials, parallel = F, seed = NULL) {
   # method 'PL' or 'GMM'
   # depth for PL is the length of blocks, GMM depth is the ACF depth
   n <- length(data)
   stopifnot(n >= sample_length)
-  set.seed(seed)
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
   start_points <- sample(1:(n - sample_length), size = trials, replace = F)
 
   results_list <- list()
