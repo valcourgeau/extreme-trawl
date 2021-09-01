@@ -148,7 +148,7 @@ sub_sample_fit <- function(data, sample_length, depth,
       cl, c(
         "transformation_map_inverse", "transformation_map",
         "transformation_jacobian", "parametrisation_translator",
-        "cpp_acf_trawl", "ev_trawl_fit"
+        "cpp_acf_trawl", "ev_trawl_fit", "cpp_case_separator"
       )
     )
 
