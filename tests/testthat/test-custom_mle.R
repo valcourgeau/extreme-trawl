@@ -1,4 +1,3 @@
-testthat::skip_on_os("mac")
 
 test_that("Custom likelihood - positive xi, only exceedance", {
   xi <- 1.

@@ -1,4 +1,3 @@
-testthat::skip_on_os("mac")
 data("pollution_data")
 
 test_that("pair_pdf_constructor", {
