@@ -14,7 +14,7 @@
 #' test_column <- 2
 #' data <- pollution_data[seq_len(n), test_column]
 #' depth <- 5
-#' ev_trawl_fit(data, depth, method = "GMM")
+#' \donttest{ev_trawl_fit(data, depth, method = "GMM")}
 #' @importFrom stats runif
 #' @export
 ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
@@ -120,7 +120,11 @@ ev_trawl_fit <- function(data, depth, method, mode = "two-stage",
 #' test_column <- 2
 #' data <- pollution_data[seq_len(n), test_column]
 #' depth <- 5
-#' ev_trawl_fit(data, depth, method = "GMM")
+#' sample_length <- 500
+#' \donttest{sub_sample_fit(
+#'     data, sample_length, depth, method = "GMM", mode = "two-stage",
+#'     type = "exp", bounds = "multiplier", trials = 1
+#' )}
 #' @importFrom stats runif
 #' @export
 sub_sample_fit <- function(data, sample_length, depth,
@@ -195,7 +199,8 @@ sub_sample_fit <- function(data, sample_length, depth,
       FUN = function(start_pt) {
         ev_trawl_fit(
           data = data[start_pt:(start_pt + sample_length)], depth = depth,
-          type = type, mode = mode, method = method, bounds = bounds, cl = NULL
+          type = type, mode = mode, method = method, bounds = bounds,
+          cl = NULL
         )
       },
       FUN.VALUE = rep(0, ncol(results))
@@ -233,7 +238,10 @@ sub_sample_fit <- function(data, sample_length, depth,
 #' test_column <- 2
 #' data <- pollution_data[seq_len(n), test_column]
 #' depth <- 5
-#' ev_trawl_fit(data, depth, method = "GMM")
+#' \donttest{fit(
+#'     data, depth, method = "GMM", mode = "two-stage",
+#'     type = "exp", bounds = "multiplier"
+#' )}
 #' @importFrom stats runif
 #' @export
 fit <- function(data, depth, method, mode, type, bounds, parallel = F) {

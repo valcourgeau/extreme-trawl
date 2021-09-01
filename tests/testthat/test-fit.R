@@ -43,6 +43,50 @@ test_that("sub_sample_fit__does_not_smoke", {
   fit_params <- sub_sample_fit(
     data,
     sample_length = sub_length, depth = depth, method = "PL", trials = 1,
+    mode = "full", type = "exp", bounds = "multiplier", parallel = F
+  )
+  fit_params <- fit_params$estimators[1, ]
+  testthat::expect_equal(length(fit_params), 4)
+  testthat::expect_true(all(fit_params[2:4] > 0))
+
+  fit_params <- sub_sample_fit(
+    data,
+    sample_length = sub_length, depth = depth, method = "GMM", trials = 1,
+    mode = "full", type = "exp", bounds = "multiplier", parallel = F
+  )
+  fit_params <- fit_params$estimators[1, ]
+  testthat::expect_equal(length(fit_params), 4)
+  testthat::expect_true(all(fit_params[2:4] > 0))
+
+  fit_params <- sub_sample_fit(
+    data,
+    sample_length = sub_length, depth = depth, method = "PL", trials = 1,
+    mode = "two-stage", type = "exp", bounds = "multiplier", parallel = F
+  )
+  fit_params <- fit_params$estimators[1, ]
+  testthat::expect_equal(length(fit_params), 4)
+  testthat::expect_true(all(fit_params[2:4] > 0))
+
+  fit_params <- sub_sample_fit(
+    data,
+    sample_length = sub_length, depth = depth, method = "GMM", trials = 1,
+    mode = "two-stage", type = "exp", bounds = "multiplier", parallel = F
+  )
+  fit_params <- fit_params$estimators[1, ]
+  testthat::expect_equal(length(fit_params), 4)
+  testthat::expect_true(all(fit_params[2:4] > 0))
+})
+
+test_that("sub_sample_fit__parallel__does_not_smoke", {
+  n <- 1000
+  sub_length <- 500
+  depth <- 3
+  test_column <- 2
+  data <- pollution_data[seq_len(n), test_column]
+
+  fit_params <- sub_sample_fit(
+    data,
+    sample_length = sub_length, depth = depth, method = "PL", trials = 1,
     mode = "full", type = "exp", bounds = "multiplier", parallel = T
   )
   fit_params <- fit_params$estimators[1, ]
@@ -85,8 +129,31 @@ test_that("fit__does_not_smoke", {
   data <- pollution_data[seq_len(n), test_column]
 
   fit_params <- fit(
-    data,
-    depth = depth, method = "PL", mode = "full",
+    data, depth = depth, method = "PL", mode = "full",
+    type = "exp", bounds = "multiplier", parallel = F
+  )
+  fit_params <- fit_params$estimators
+  testthat::expect_equal(length(fit_params), 4)
+  testthat::expect_true(all(fit_params[2:4] > 0))
+
+  fit_params <- fit(
+    data, depth = depth, method = "PL", mode = "full",
+    type = "exp", bounds = "config", parallel = F
+  )
+  fit_params <- fit_params$estimators
+  testthat::expect_equal(length(fit_params), 4)
+  testthat::expect_true(all(fit_params[2:4] > 0))
+})
+
+
+test_that("fit__parallel__does_not_smoke", {
+  n <- 1000
+  depth <- 3
+  test_column <- 2
+  data <- pollution_data[seq_len(n), test_column]
+
+  fit_params <- fit(
+    data, depth = depth, method = "PL", mode = "full",
     type = "exp", bounds = "multiplier", parallel = T
   )
   fit_params <- fit_params$estimators
@@ -94,8 +161,7 @@ test_that("fit__does_not_smoke", {
   testthat::expect_true(all(fit_params[2:4] > 0))
 
   fit_params <- fit(
-    data,
-    depth = depth, method = "PL", mode = "full",
+    data, depth = depth, method = "PL", mode = "full",
     type = "exp", bounds = "config", parallel = T
   )
   fit_params <- fit_params$estimators
